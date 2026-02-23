@@ -1,0 +1,73 @@
+import sqlite3
+import yfinance as yf
+import pandas as pd
+from datetime import datetime, timedelta
+import time
+from database_manager import get_connection, upsert_tickers, get_all_tickers
+
+def update_financials(ticker):
+    print(f"Update: {ticker}")
+    try:
+        stock = yf.Ticker(ticker)
+        
+        # 1. Update Prices (Last 5 Years)
+        hist = stock.history(period="5y")
+        if not hist.empty:
+            conn = get_connection()
+            cursor = conn.cursor()
+            for date, row in hist.iterrows():
+                date_str = date.strftime('%Y-%m-%d')
+                cursor.execute('''
+                    INSERT OR IGNORE INTO prices (ticker, date, open, high, low, close, volume)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', (ticker, date_str, row['Open'], row['High'], row['Low'], row['Close'], row['Volume']))
+            conn.commit()
+            conn.close()
+
+        # 2. Update Financials (Annual Net Income, etc.)
+        # yfinance financials are often annual.
+        fin = stock.financials
+        if not fin.empty:
+            conn = get_connection()
+            cursor = conn.cursor()
+            # fin columns are Dates. Rows are metrics.
+            # Transpose to iterate by date
+            fin_T = fin.T
+            for date, row in fin_T.iterrows():
+                date_str = date.strftime('%Y-%m-%d')
+                
+                # Extract metrics (handle variations in naming)
+                revenue = row.get('Total Revenue') or row.get('Revenue')
+                net_income = row.get('Net Income') or row.get('Net Income Common Stockholders')
+                
+                # Attempt to get Balance Sheet for Assets (Need separate call usually, 
+                # but let's see if we can get basic info from 'info' if financials is limited)
+                # For now, store what we have from financials dataframe
+                
+                cursor.execute('''
+                    INSERT INTO financials (ticker, period_end, revenue, net_income)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(ticker, period_end, is_prediction) DO UPDATE SET
+                    revenue=excluded.revenue,
+                    net_income=excluded.net_income,
+                    recorded_at=CURRENT_TIMESTAMP
+                ''', (ticker, date_str, revenue, net_income))
+            
+            conn.commit()
+            conn.close()
+            
+    except Exception as e:
+        print(f"Error updating {ticker}: {e}")
+
+def update_all_tickers():
+    tickers = get_all_tickers()
+    print(f"Updating data for {len(tickers)} tickers...")
+    
+    for i, ticker in enumerate(tickers):
+        update_financials(ticker)
+        time.sleep(1) # Be polite to API
+        if i % 10 == 0:
+            print(f"Progress: {i}/{len(tickers)}")
+
+if __name__ == "__main__":
+    update_all_tickers()

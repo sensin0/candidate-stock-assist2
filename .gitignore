@@ -1,0 +1,10 @@
+stocks.db
+*.exe
+__pycache__/
+logs_and_outputs/
+web-dashboard/node_modules/
+web-dashboard/.next/
+*.log
+.env
+.idea/
+.vscode/
