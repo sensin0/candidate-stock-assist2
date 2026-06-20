@@ -1,7 +1,7 @@
 name: Weekly Ranking Notify
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   schedule:
     # Monday 08:23 JST. GitHub schedule times are evaluated in UTC.
     - cron: "23 23 * * 0"
