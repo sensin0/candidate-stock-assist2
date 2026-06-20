@@ -14,6 +14,7 @@ import yfinance as yf
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TICKERS = ROOT / "cyclical_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
+DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 
 
 def clean_number(value):
@@ -279,7 +280,7 @@ def score_stock(row):
     }
 
 
-def build_message(report, top_n, earnings_window_days):
+def build_weekly_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
     rows = report["rankings"][:top_n]
     lines = [f"たーちゃん版 週次ランキング更新 ({generated_at})", ""]
@@ -313,6 +314,79 @@ def build_message(report, top_n, earnings_window_days):
     return "\n".join(lines)
 
 
+def build_earnings_message(report, earnings_rows):
+    generated_at = report["generated_at_jst"]
+    lines = [f"決算チェック通知 ({generated_at})", ""]
+    if not earnings_rows:
+        lines.append("上位10位以内で新しく決算データが更新された銘柄はありません。")
+        return "\n".join(lines)
+
+    lines.append("ランキング上位10位以内で、前回チェック時から決算データが更新された銘柄です。")
+    for item in earnings_rows:
+        period = item.get("Latest Quarter Period") or "-"
+        price_location = item.get("Price Location")
+        price_text = "-" if price_location is None else f"{price_location * 100:.0f}%"
+        growth = item.get("Revenue Growth")
+        growth_text = "-" if growth is None else f"{growth:+.1f}%"
+        notes = " / ".join(item.get("Notes", [])[:3]) or "-"
+        lines.append(
+            f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
+            f"Score {item['Score']} | 最新期 {period} | 位置 {price_text} | 売上 {growth_text} | {notes}"
+        )
+    return "\n".join(lines)
+
+
+def load_state(path):
+    state_path = Path(path)
+    if not state_path.exists():
+        return {"tickers": {}}
+    try:
+        return json.loads(state_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"tickers": {}}
+
+
+def detect_top_earnings_updates(rankings, top_n, state):
+    previous = state.get("tickers", {}) if isinstance(state, dict) else {}
+    if not previous:
+        return []
+
+    updates = []
+    for item in rankings[:top_n]:
+        ticker = item.get("Ticker")
+        latest_period = item.get("Latest Quarter Period")
+        previous_period = previous.get(ticker, {}).get("Latest Quarter Period")
+        if ticker and latest_period and previous_period and latest_period != previous_period:
+            updates.append(
+                {
+                    **item,
+                    "Previous Quarter Period": previous_period,
+                }
+            )
+    return updates
+
+
+def build_state(rankings, now_utc):
+    return {
+        "updated_at_utc": now_utc.isoformat(),
+        "tickers": {
+            item["Ticker"]: {
+                "Rank": item.get("Rank"),
+                "Score": item.get("Score"),
+                "Latest Quarter Period": item.get("Latest Quarter Period"),
+            }
+            for item in rankings
+            if item.get("Ticker")
+        },
+    }
+
+
+def save_state(path, state):
+    state_path = Path(path)
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def send_discord(message, webhook_url):
     max_len = 1900
     chunks = [message[i : i + max_len] for i in range(0, len(message), max_len)]
@@ -327,6 +401,9 @@ def main():
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--top", type=int, default=10)
     parser.add_argument("--earnings-window-days", type=int, default=120)
+    parser.add_argument("--mode", choices=["weekly", "earnings"], default="weekly")
+    parser.add_argument("--state-file", default=str(DEFAULT_STATE))
+    parser.add_argument("--update-state", action="store_true")
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
     args = parser.parse_args()
 
@@ -355,10 +432,14 @@ def main():
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
     generated_at_jst = now_jst.strftime("%Y-%m-%d %H:%M:%S %Z")
+    state = load_state(args.state_file)
+    earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
+
     report = {
         "generated_at_utc": now_utc.isoformat(),
         "generated_at_jst": generated_at_jst,
         "rankings": rankings,
+        "earnings_updates": earnings_updates,
         "top_n": args.top,
         "earnings_window_days": args.earnings_window_days,
         "errors": errors[:50],
@@ -368,7 +449,17 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    message = build_message(report, args.top, args.earnings_window_days)
+    if args.update_state:
+        save_state(args.state_file, build_state(rankings, now_utc))
+
+    if args.mode == "earnings":
+        if not earnings_updates:
+            print("No top-ranked earnings updates detected. Discord notification skipped.")
+            return
+        message = build_earnings_message(report, earnings_updates)
+    else:
+        message = build_weekly_message(report, args.top, args.earnings_window_days)
+
     print(message)
 
     discord_webhook = os.getenv("DISCORD_WEBHOOK_URL")
