@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ==========================================
-echo  Ta-Chan 2: Full Investment Cycle
+echo  Cyclical Ranker: Full Investment Cycle
 echo ==========================================
 
 echo.

@@ -283,7 +283,7 @@ def score_stock(row):
 def build_weekly_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
     rows = report["rankings"][:top_n]
-    lines = [f"たーちゃん版 週次ランキング更新 ({generated_at})", ""]
+    lines = [f"反転狙い版 週次ランキング更新 ({generated_at})", ""]
     if not rows:
         lines.append("ランキングを作成できませんでした。Actionsのログを確認してください。")
         return "\n".join(lines)

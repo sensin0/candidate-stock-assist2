@@ -1,7 +1,8 @@
 $WshShell = New-Object -comObject WScript.Shell
-$ShortcutPath = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\Ta-Chan2_AutoStart.lnk"
+$ShortcutPath = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\CyclicalRanker_AutoStart.lnk"
 $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
-$Shortcut.TargetPath = "d:\Documents\antigravity\ta-chan2\Run_Full_Cycle.bat"
-$Shortcut.WorkingDirectory = "d:\Documents\antigravity\ta-chan2"
+$ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Shortcut.TargetPath = Join-Path $ProjectRoot "Run_Full_Cycle.bat"
+$Shortcut.WorkingDirectory = $ProjectRoot
 $Shortcut.Save()
 Write-Host "Shortcut created at $ShortcutPath"

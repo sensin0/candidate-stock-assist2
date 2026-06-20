@@ -1,4 +1,4 @@
-module ta-chan2-go
+module cyclical-ranker-go
 
 go 1.25
 
