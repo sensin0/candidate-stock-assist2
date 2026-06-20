@@ -79,6 +79,37 @@ def loss_improving(latest_loss, previous_loss, latest_revenue, previous_revenue)
     return latest_margin > previous_margin
 
 
+def latest_statement_period(statement):
+    if statement is None or statement.empty:
+        return None
+    try:
+        columns = list(statement.columns)
+    except Exception:
+        return None
+    if not columns:
+        return None
+    latest = columns[0]
+    try:
+        if hasattr(latest, "to_pydatetime"):
+            return latest.to_pydatetime().date().isoformat()
+        parsed = pd.to_datetime(latest, errors="coerce")
+        if pd.isna(parsed):
+            return None
+        return parsed.date().isoformat()
+    except Exception:
+        return None
+
+
+def days_since(date_text, now_jst):
+    if not date_text:
+        return None
+    try:
+        target = datetime.fromisoformat(date_text).date()
+    except ValueError:
+        return None
+    return (now_jst.date() - target).days
+
+
 def score_stock(row):
     ticker = f"{str(row['code']).strip()}.T"
     name = str(row.get("name", "")).strip()
@@ -87,6 +118,7 @@ def score_stock(row):
     stock = yf.Ticker(ticker)
     try:
         income = stock.financials
+        quarterly_income = stock.quarterly_financials
         cashflow = stock.cashflow
         balance = stock.balance_sheet
         prices = stock.history(period="2y", auto_adjust=False)
@@ -96,10 +128,13 @@ def score_stock(row):
     if prices.empty or "Close" not in prices:
         return {"Ticker": ticker, "Name": name, "Sector": sector, "Error": "price data unavailable"}
 
-    revenues = find_statement_value(income, ["Total Revenue", "Operating Revenue"])
-    net_incomes = find_statement_value(income, ["Net Income", "Net Income Common Stockholders"])
-    operating_incomes = find_statement_value(income, ["Operating Income", "Operating Income Loss"])
-    pretax_incomes = find_statement_value(income, ["Pretax Income", "Income Before Tax"])
+    latest_quarter_period = latest_statement_period(quarterly_income)
+    source_income = quarterly_income if quarterly_income is not None and not quarterly_income.empty else income
+
+    revenues = find_statement_value(source_income, ["Total Revenue", "Operating Revenue"])
+    net_incomes = find_statement_value(source_income, ["Net Income", "Net Income Common Stockholders"])
+    operating_incomes = find_statement_value(source_income, ["Operating Income", "Operating Income Loss"])
+    pretax_incomes = find_statement_value(source_income, ["Pretax Income", "Income Before Tax"])
     capex = find_statement_value(cashflow, ["Capital Expenditure", "Capital Expenditures"])
     total_assets = find_statement_value(balance, ["Total Assets"])
 
@@ -238,12 +273,13 @@ def score_stock(row):
         "Operating Loss Improving": operating_loss_improving,
         "Pretax Loss Improving": pretax_loss_improving,
         "Net Loss Improving": net_loss_improving,
+        "Latest Quarter Period": latest_quarter_period,
         "Notes": notes,
         "Blocks": blocks,
     }
 
 
-def build_message(report, top_n):
+def build_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
     rows = report["rankings"][:top_n]
     lines = [f"たーちゃん版 週次ランキング更新 ({generated_at})", ""]
@@ -261,6 +297,19 @@ def build_message(report, top_n):
             f"{item['Rank']}. {item['Ticker']} {item['Name']} | {item['Action']} | "
             f"Score {item['Score']} | 位置 {price_text} | 売上 {growth_text} | {notes}"
         )
+    earnings_rows = [
+        item
+        for item in rows
+        if item.get("Recent Earnings Data") is True
+    ]
+    if earnings_rows:
+        lines.extend(["", f"決算チェック優先（上位{top_n}位以内・直近{earnings_window_days}日以内の四半期データ）"])
+        for item in earnings_rows:
+            period = item.get("Latest Quarter Period") or "-"
+            lines.append(
+                f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
+                f"Score {item['Score']} | 最新期 {period}"
+            )
     return "\n".join(lines)
 
 
@@ -277,6 +326,7 @@ def main():
     parser.add_argument("--tickers", default=str(DEFAULT_TICKERS))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--top", type=int, default=10)
+    parser.add_argument("--earnings-window-days", type=int, default=120)
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
     args = parser.parse_args()
 
@@ -298,11 +348,19 @@ def main():
         item["Rank"] = index
 
     now_utc = datetime.now(timezone.utc)
-    generated_at_jst = now_utc.astimezone(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S %Z")
+    now_jst = now_utc.astimezone(ZoneInfo("Asia/Tokyo"))
+    for item in rankings:
+        days = days_since(item.get("Latest Quarter Period"), now_jst)
+        item["Days Since Latest Quarter"] = days
+        item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
+
+    generated_at_jst = now_jst.strftime("%Y-%m-%d %H:%M:%S %Z")
     report = {
         "generated_at_utc": now_utc.isoformat(),
         "generated_at_jst": generated_at_jst,
         "rankings": rankings,
+        "top_n": args.top,
+        "earnings_window_days": args.earnings_window_days,
         "errors": errors[:50],
     }
 
@@ -310,7 +368,7 @@ def main():
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    message = build_message(report, args.top)
+    message = build_message(report, args.top, args.earnings_window_days)
     print(message)
 
     discord_webhook = os.getenv("DISCORD_WEBHOOK_URL")

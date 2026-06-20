@@ -6,6 +6,7 @@ This repository can update the cloud ranking once a week with GitHub Actions and
 
 - `.github/workflows/weekly-ranking-notify.yml` runs every Monday at 08:23 JST.
 - `scripts/weekly_cloud_ranker.py` reads `cyclical_tickers.csv`, fetches latest market and financial data with `yfinance`, builds a Ta-chan-style ranking, and sends the top results to Discord.
+- If a stock is in the top 10 and its latest quarterly financial period is recent, the Discord message adds it to a priority earnings-check section. This is a practical proxy for recent earnings updates because free data does not always expose the exact Japanese earnings announcement date.
 - The full JSON report is uploaded as a GitHub Actions artifact named `weekly-ranking-report`.
 
 ## Discord setup

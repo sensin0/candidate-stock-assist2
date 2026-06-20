@@ -31,7 +31,7 @@ jobs:
       - name: Build latest ranking and notify
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python scripts/weekly_cloud_ranker.py --output weekly_ranking_report.json --top 10
+        run: python scripts/weekly_cloud_ranker.py --output weekly_ranking_report.json --top 10 --earnings-window-days 120
 
       - name: Upload ranking report
         uses: actions/upload-artifact@v4
