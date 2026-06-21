@@ -15,14 +15,33 @@ $pyJob = Start-Job -ScriptBlock {
     & python populate_financials_fast.py 2>&1
 } -ArgumentList $scriptDir
 
-# Wait for both jobs
-$goJob, $pyJob | Wait-Job | Out-Null
+$startedAt = Get-Date
+Write-Host "Started data update at $($startedAt.ToString('HH:mm:ss')). This can take a while for the full Japan stock list." -ForegroundColor Yellow
+Write-Host "Progress will appear below while the two fetchers are running.`n" -ForegroundColor Yellow
 
-# Display results
-Write-Host "`n--- Go Fetcher Output ---" -ForegroundColor Cyan
+while (($goJob.State -eq 'Running') -or ($pyJob.State -eq 'Running')) {
+    $elapsed = [int]((Get-Date) - $startedAt).TotalSeconds
+
+    $goOutput = Receive-Job $goJob
+    if ($goOutput) {
+        Write-Host "`n--- Price Fetcher ---" -ForegroundColor Cyan
+        $goOutput
+    }
+
+    $pyOutput = Receive-Job $pyJob
+    if ($pyOutput) {
+        Write-Host "`n--- Financial Fetcher ---" -ForegroundColor Cyan
+        $pyOutput
+    }
+
+    Write-Host "Still updating... elapsed ${elapsed}s | price=$($goJob.State) financial=$($pyJob.State)" -ForegroundColor DarkGray
+    Start-Sleep -Seconds 10
+}
+
+Write-Host "`n--- Price Fetcher Final Output ---" -ForegroundColor Cyan
 Receive-Job $goJob
 
-Write-Host "`n--- Python Fetcher Output ---" -ForegroundColor Cyan
+Write-Host "`n--- Financial Fetcher Final Output ---" -ForegroundColor Cyan
 Receive-Job $pyJob
 
 # Check for failures

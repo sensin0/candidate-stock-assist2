@@ -13,6 +13,9 @@ call "%~dp0Launch_Dashboard.bat"
 echo.
 echo [2/6] Updating Database (Go and Python Fetchers in Parallel)...
 echo ------------------------------------------
+echo This step updates the full Japan stock list and can take several minutes.
+echo The dashboard is already available at http://localhost:3000 while this runs.
+echo.
 
 rem Run fetchers in parallel using helper PowerShell script
 powershell -ExecutionPolicy Bypass -File "%~dp0run_fetchers_parallel.ps1"

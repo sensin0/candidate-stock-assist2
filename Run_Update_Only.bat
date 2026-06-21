@@ -8,6 +8,8 @@ echo ==========================================
 echo.
 echo [1/4] Updating Database...
 echo ------------------------------------------
+echo This step updates the full Japan stock list and can take several minutes.
+echo.
 powershell -ExecutionPolicy Bypass -File "%~dp0run_fetchers_parallel.ps1"
 if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
