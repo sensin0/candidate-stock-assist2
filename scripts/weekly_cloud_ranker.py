@@ -17,7 +17,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://github.com/sensin0/candidate-stock-assist2/blob/main/weekly_ranking_report.json"
-SAFETY_VERSION = 2
+SAFETY_VERSION = 3
 
 
 def clean_number(value):
@@ -93,6 +93,59 @@ def net_income_risk(latest_net_income, previous_net_income):
     if latest_net_income < previous_net_income:
         return "profit_decline"
     return None
+
+
+def exit_plan_values(current_price, price_location, revenue_growth, blocks=None, net_risk=None):
+    target_50 = current_price * 1.5 if current_price else None
+    target_100 = current_price * 2 if current_price else None
+    target_200 = current_price * 3 if current_price else None
+    stop_loss = current_price * 0.75 if current_price else None
+    score = 0
+    notes = []
+
+    if price_location is not None:
+        if price_location < 0.15:
+            score += 20
+            notes.append("利確余地大")
+        elif price_location < 0.3:
+            score += 8
+            notes.append("利確余地あり")
+        elif price_location > 0.7:
+            score -= 40
+            notes.append("高値圏で利確余地小")
+        elif price_location > 0.5:
+            score -= 20
+
+    if revenue_growth is not None:
+        if 10 <= revenue_growth < 15:
+            score += 10
+            notes.append("過去検証で到達率良好")
+        elif revenue_growth >= 15:
+            score += 5
+        elif revenue_growth < 0:
+            score -= 10
+
+    if blocks or net_risk in {"profit_to_loss", "deeper_loss"}:
+        score -= 20
+
+    if score >= 25:
+        plan = "+50%で一部利確、+100%で主力利確。急騰時は欲張らず段階的に回収。"
+    elif score >= 5:
+        plan = "+50%で一部利確、+100%は決算継続確認後。"
+    elif score < 0:
+        plan = "利確余地は弱め。買うなら小さく、-25%または悪材料で撤退確認。"
+    else:
+        plan = "+50%を最初の利確目安、+100%は伸びた場合の上限目安。"
+
+    return {
+        "Target Price 1": round(target_50, 2) if target_50 is not None else None,
+        "Target Price 2": round(target_100, 2) if target_100 is not None else None,
+        "Target Price 3": round(target_200, 2) if target_200 is not None else None,
+        "Stop Loss": round(stop_loss, 2) if stop_loss is not None else None,
+        "Exit Score": round(score, 1),
+        "Sell Plan": plan,
+        "Sell Notes": notes,
+    }
 
 
 def apply_stored_safety_guard(item):
@@ -188,12 +241,16 @@ def apply_stored_safety_guard(item):
     elif blocks:
         score -= 50
 
+    exit_plan = exit_plan_values(item.get("Current Price"), price_location, revenue_growth, blocks, risk)
+    score += exit_plan["Exit Score"]
+
     item["Score"] = round(score, 1)
     item["Entry Score"] = round(score, 1)
     item["Blocks"] = blocks
     item["Notes"] = notes
     item["Net Income Risk"] = risk
     item["Safety Version"] = SAFETY_VERSION
+    item.update(exit_plan)
     return item
 
 
@@ -381,6 +438,9 @@ def score_stock(row):
     if blocks:
         score -= 50
 
+    exit_plan = exit_plan_values(current_price, price_location, revenue_growth, blocks, net_risk)
+    score += exit_plan["Exit Score"]
+
     if blocks:
         action = "監視（除外条件あり）"
     elif price_location is not None and price_location > 0.7 and score >= 110:
@@ -432,6 +492,7 @@ def score_stock(row):
         "Notes": notes,
         "Blocks": blocks,
         "Safety Version": SAFETY_VERSION,
+        **exit_plan,
     }
 
 

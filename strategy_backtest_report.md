@@ -1,10 +1,10 @@
 # Strategy Backtest Report
 
-Generated: 2026-06-21 16:26:08
+Generated: 2026-06-21 16:50:39
 
 ## Summary
-- 反転狙い版: trades=260, avg 1yr=17.3%, win vs universe=20.4%, avg 2yr max=176.3%, doubler=28.5%
-- 現行版: trades=84, avg 1yr=15.3%, win vs universe=23.8%, avg 2yr max=306.2%, doubler=45.2%
+- 反転狙い版: trades=260, avg 1yr=17.3%, win vs universe=20.4%, avg 2yr max=176.3%, doubler=28.5%, target50=48.1%, target100=28.5%, median days to 50=302, stop before 50=50.8%
+- 現行版: trades=84, avg 1yr=15.3%, win vs universe=23.8%, avg 2yr max=306.2%, doubler=45.2%, target50=58.3%, target100=45.2%, median days to 50=311, stop before 50=48.8%
 
 ## Timing Highlights
 ### 反転狙い版

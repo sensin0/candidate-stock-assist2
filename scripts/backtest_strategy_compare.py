@@ -68,10 +68,27 @@ def future_returns(prices, entry_date, buy_price):
         return None
     one_year_close = float(one_year.iloc[-1]["close"])
     max_two_year_high = float(two_year["high"].max()) if not two_year.empty else one_year_close
-    return {
+    result = {
         "1yr Return": (one_year_close - buy_price) / buy_price,
         "2yr Max Return": (max_two_year_high - buy_price) / buy_price,
     }
+    targets = {30: 1.3, 50: 1.5, 100: 2.0, 200: 3.0}
+    stop_price = buy_price * 0.75
+    stop_date = None
+    if "low" in two_year:
+        stop_rows = two_year[two_year["low"] <= stop_price]
+        if not stop_rows.empty:
+            stop_date = stop_rows.index[0]
+    for pct, multiplier in targets.items():
+        target_price = buy_price * multiplier
+        hit_rows = two_year[two_year["high"] >= target_price]
+        hit = not hit_rows.empty
+        hit_date = hit_rows.index[0] if hit else None
+        result[f"Target {pct} Hit"] = hit
+        result[f"Days to Target {pct}"] = int((hit_date - entry_date).days) if hit else None
+        result[f"Stop Before Target {pct}"] = bool(stop_date is not None and (not hit or stop_date < hit_date))
+    result["Stop 25 Hit"] = stop_date is not None
+    return result
 
 
 def score_current(features):
@@ -257,7 +274,32 @@ def summarize(df, label):
         "Median 2yr Max": round(df["2yr Max Return"].median() * 100, 1),
         "Win 1yr > Universe": round((df["1yr Alpha"] > 0).mean() * 100, 1),
         "Doubler 2yr Max": round((df["2yr Max Return"] >= 1.0).mean() * 100, 1),
+        "Target 30 Hit": round(df["Target 30 Hit"].mean() * 100, 1),
+        "Target 50 Hit": round(df["Target 50 Hit"].mean() * 100, 1),
+        "Target 100 Hit": round(df["Target 100 Hit"].mean() * 100, 1),
+        "Target 200 Hit": round(df["Target 200 Hit"].mean() * 100, 1),
+        "Median Days to 50": safe_median_days(df["Days to Target 50"]),
+        "Median Days to 100": safe_median_days(df["Days to Target 100"]),
+        "Stop Before 50": round(df["Stop Before Target 50"].mean() * 100, 1),
+        "Stop Before 100": round(df["Stop Before Target 100"].mean() * 100, 1),
     }
+
+
+def safe_median_days(series):
+    values = pd.to_numeric(series, errors="coerce").dropna()
+    if values.empty:
+        return None
+    return int(values.median())
+
+
+def sanitize_json(value):
+    if isinstance(value, dict):
+        return {key: sanitize_json(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [sanitize_json(item) for item in value]
+    if isinstance(value, float) and pd.isna(value):
+        return None
+    return value
 
 
 def group_summary(df, group_col):
@@ -275,6 +317,8 @@ def group_summary(df, group_col):
                 "Win 1yr > Universe": round((group["1yr Alpha"] > 0).mean() * 100, 1),
                 "Avg 2yr Max": round(group["2yr Max Return"].mean() * 100, 1),
                 "Doubler 2yr Max": round((group["2yr Max Return"] >= 1.0).mean() * 100, 1),
+                "Target 50 Hit": round(group["Target 50 Hit"].mean() * 100, 1),
+                "Target 100 Hit": round(group["Target 100 Hit"].mean() * 100, 1),
             }
         )
     return sorted(grouped, key=lambda row: (row["Avg 1yr"], row["Trades"]), reverse=True)
@@ -304,7 +348,7 @@ def main():
                 params=(ticker,),
             )
             prices = pd.read_sql(
-                "SELECT date, close, high FROM prices WHERE ticker = ? ORDER BY date ASC",
+                "SELECT date, close, high, low FROM prices WHERE ticker = ? ORDER BY date ASC",
                 conn,
                 params=(ticker,),
             )
@@ -446,6 +490,7 @@ def main():
             "entry_dates": "Monthly starts from 2022-01 to the latest date with at least 1yr forward data.",
             "financial_availability": "Uses only financial periods ending at least 60 days before entry.",
             "outperformance": "1yr return above equal-weight universe average for the same entry month.",
+            "sell_rule": "Checks whether +30%, +50%, +100%, and +200% targets are hit within 2 years, and whether -25% stop is hit before each target.",
         },
         "summary": summary,
         "timing": timing,
@@ -453,7 +498,8 @@ def main():
         "top_examples": top_examples,
     }
     REPORT_JSON.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_JSON.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+    result = sanitize_json(result)
+    REPORT_JSON.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str, allow_nan=False), encoding="utf-8")
 
     lines = ["# Strategy Backtest Report", "", f"Generated: {result['generated_at']}", ""]
     lines.append("## Summary")
@@ -461,7 +507,9 @@ def main():
         lines.append(
             f"- {row['Strategy']}: trades={row['Trades']}, avg 1yr={row.get('Avg 1yr')}%, "
             f"win vs universe={row.get('Win 1yr > Universe')}%, avg 2yr max={row.get('Avg 2yr Max')}%, "
-            f"doubler={row.get('Doubler 2yr Max')}%"
+            f"doubler={row.get('Doubler 2yr Max')}%, target50={row.get('Target 50 Hit')}%, "
+            f"target100={row.get('Target 100 Hit')}%, median days to 50={row.get('Median Days to 50')}, "
+            f"stop before 50={row.get('Stop Before 50')}%"
         )
     lines.append("")
     lines.append("## Timing Highlights")
