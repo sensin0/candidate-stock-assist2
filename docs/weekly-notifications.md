@@ -19,6 +19,7 @@ This repository can update the cloud ranking once a week with GitHub Actions and
 5. Go to `Secrets and variables` -> `Actions`.
 6. Add a repository secret:
    - `DISCORD_WEBHOOK_URL`: the Discord webhook URL
+   - Optional repository variable `DASHBOARD_URL`: the public dashboard URL to include in Discord notifications. If this is not set, notifications link to the saved GitHub ranking report.
 
 ## Manual test
 

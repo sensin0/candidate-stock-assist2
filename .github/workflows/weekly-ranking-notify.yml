@@ -72,6 +72,7 @@ jobs:
       - name: Build latest ranking and notify
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
         run: python scripts/weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450
 
       - name: Save ranking data
@@ -110,6 +111,7 @@ jobs:
       - name: Check top ranked earnings updates
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
         run: python scripts/weekly_cloud_ranker.py --mode earnings --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450
 
       - name: Save ranking data

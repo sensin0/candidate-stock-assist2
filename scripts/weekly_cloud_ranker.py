@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
+DEFAULT_REPORT_URL = "https://github.com/sensin0/candidate-stock-assist2/blob/main/weekly_ranking_report.json"
 SAFETY_VERSION = 1
 
 
@@ -371,6 +372,16 @@ def score_stock(row):
     }
 
 
+def dashboard_url():
+    return os.getenv("DASHBOARD_URL") or DEFAULT_REPORT_URL
+
+
+def append_dashboard_link(lines):
+    url = dashboard_url()
+    if url:
+        lines.extend(["", f"Web/結果: {url}"])
+
+
 def build_weekly_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
     rows = report["rankings"][:top_n]
@@ -402,6 +413,7 @@ def build_weekly_message(report, top_n, earnings_window_days):
                 f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
                 f"Score {item['Score']} | 最新期 {period}"
             )
+    append_dashboard_link(lines)
     return "\n".join(lines)
 
 
@@ -424,6 +436,7 @@ def build_earnings_message(report, earnings_rows):
             f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
             f"Score {item['Score']} | 最新期 {period} | 位置 {price_text} | 売上 {growth_text} | {notes}"
         )
+    append_dashboard_link(lines)
     return "\n".join(lines)
 
 
