@@ -412,12 +412,12 @@ def send_discord(message, webhook_url):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Cloud weekly ranking notifier")
+    parser = argparse.ArgumentParser(description="Cloud ranking data updater and notifier")
     parser.add_argument("--tickers", default=str(DEFAULT_TICKERS))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--top", type=int, default=10)
     parser.add_argument("--earnings-window-days", type=int, default=120)
-    parser.add_argument("--mode", choices=["weekly", "earnings"], default="weekly")
+    parser.add_argument("--mode", choices=["refresh", "weekly", "earnings"], default="weekly")
     parser.add_argument("--state-file", default=str(DEFAULT_STATE))
     parser.add_argument("--update-state", action="store_true")
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
@@ -454,6 +454,13 @@ def main():
     report = {
         "generated_at_utc": now_utc.isoformat(),
         "generated_at_jst": generated_at_jst,
+        "source": {
+            "tickers_file": str(Path(args.tickers).name),
+            "requested_tickers": len(df),
+            "successful_tickers": len(rankings),
+            "failed_tickers": len(errors),
+            "provider": "yfinance",
+        },
         "rankings": rankings,
         "earnings_updates": earnings_updates,
         "top_n": args.top,
@@ -467,6 +474,13 @@ def main():
 
     if args.update_state:
         save_state(args.state_file, build_state(rankings, now_utc))
+
+    if args.mode == "refresh":
+        print(
+            f"Ranking data refreshed: {len(rankings)}/{len(df)} tickers "
+            f"at {generated_at_jst}. Notification skipped."
+        )
+        return
 
     if args.mode == "earnings":
         if not earnings_updates:
