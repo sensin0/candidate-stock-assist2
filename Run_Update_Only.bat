@@ -20,7 +20,7 @@ if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 echo.
 echo [3/4] Generating Unified Ranking...
 echo ------------------------------------------
-python scripts\weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github\ranking-state.json --update-state --workers 2 --chunk-size 450
+python scripts\weekly_cloud_ranker.py --mode refresh --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github\ranking-state.json --update-state --workers 2 --chunk-size 450
 if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
 echo.

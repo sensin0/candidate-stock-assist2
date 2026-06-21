@@ -6,7 +6,7 @@ echo  Cyclical Ranker: Full Investment Cycle
 echo ==========================================
 
 echo.
-echo [1/4] Updating Database (Go and Python Fetchers in Parallel)...
+echo [1/5] Updating Database (Go and Python Fetchers in Parallel)...
 echo ------------------------------------------
 
 rem Run fetchers in parallel using helper PowerShell script
@@ -19,7 +19,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo.
-echo [2/4] Running Analysis and Generating Dashboard Data...
+echo [2/5] Running Analysis and Generating Dashboard Data...
 echo ------------------------------------------
 python cyclical_screener.py
 if %ERRORLEVEL% NEQ 0 (
@@ -30,9 +30,9 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo.
-echo [3/5] Generating Unified Ranking for Web and Discord...
+echo [3/5] Generating Unified Ranking for Web...
 echo ------------------------------------------
-python scripts\weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github\ranking-state.json --update-state --workers 2 --chunk-size 450
+python scripts\weekly_cloud_ranker.py --mode refresh --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github\ranking-state.json --update-state --workers 2 --chunk-size 450
 if %ERRORLEVEL% NEQ 0 (
     echo Error generating unified ranking.
     pause

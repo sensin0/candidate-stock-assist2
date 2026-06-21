@@ -1,4 +1,6 @@
 stocks.db
+stocks.db-shm
+stocks.db-wal
 *.exe
 __pycache__/
 logs_and_outputs/
