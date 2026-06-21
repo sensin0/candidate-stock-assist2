@@ -2,6 +2,7 @@ import argparse
 import json
 import math
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -12,7 +13,7 @@ import yfinance as yf
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_TICKERS = ROOT / "cyclical_tickers.csv"
+DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 
@@ -421,6 +422,7 @@ def main():
     parser.add_argument("--state-file", default=str(DEFAULT_STATE))
     parser.add_argument("--update-state", action="store_true")
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
+    parser.add_argument("--workers", type=int, default=2, help="Number of parallel ticker fetches")
     args = parser.parse_args()
 
     df = pd.read_csv(args.tickers, names=["code", "name", "sector"], dtype={"code": str})
@@ -429,12 +431,28 @@ def main():
 
     rankings = []
     errors = []
-    for _, row in df.iterrows():
-        item = score_stock(row)
-        if "Error" in item:
-            errors.append(item)
-        else:
-            rankings.append(item)
+    rows = [row for _, row in df.iterrows()]
+    workers = max(1, args.workers)
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {executor.submit(score_stock, row): row for row in rows}
+        for index, future in enumerate(as_completed(futures), start=1):
+            try:
+                item = future.result()
+            except Exception as error:
+                row = futures[future]
+                code = str(row.get("code", "")).strip()
+                item = {
+                    "Ticker": f"{code}.T" if code and not code.endswith(".T") else code,
+                    "Name": str(row.get("name", "")).strip(),
+                    "Sector": str(row.get("sector", "")).strip(),
+                    "Error": str(error),
+                }
+            if "Error" in item:
+                errors.append(item)
+            else:
+                rankings.append(item)
+            if index % 100 == 0:
+                print(f"Fetched {index}/{len(rows)} tickers...")
 
     rankings.sort(key=lambda item: item.get("Score", 0), reverse=True)
     for index, item in enumerate(rankings, start=1):

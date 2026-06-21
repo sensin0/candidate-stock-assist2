@@ -15,14 +15,9 @@ import (
 
 const (
 	DBPath = "stocks.db?_pragma=journal_mode(WAL)&_pragma=busy_timeout(30000)"
-	// Targeting main Cyclical sectors
 	TargetSectorsQuery = `
 		SELECT ticker FROM tickers_master 
-		WHERE sector_name IN (
-			'鉄鋼', '非鉄金属', '鉱業', '石油・石炭製品', 
-			'ガラス・土石製品', 'ゴム製品', '化学', 'パルプ・紙', 
-			'繊維製品', '海運業', '輸送用機器'
-		)
+		WHERE ticker IS NOT NULL AND ticker != ''
 	`
 	// API Endpoint (Using Yahoo Finance Chart API - Unofficial but standard)
 	// Query1 is cleaner. We need chart (price) and quoteSummary (financials).
@@ -61,7 +56,7 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Fetching data for %d cyclical tickers...\n", len(tickers))
+	fmt.Printf("Fetching data for %d Japanese stock tickers...\n", len(tickers))
 
 	// 2. Concurrent Fetching
 	var wg sync.WaitGroup

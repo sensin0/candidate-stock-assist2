@@ -8,13 +8,11 @@ from database_manager import get_connection
 def run_backtest(db_path='stocks.db'):
     conn = get_connection()
     
-    import json
-    with open('target_sectors.json', 'r', encoding='utf-8') as f:
-        TARGET_SECTORS = json.load(f)
-    placeholders = ','.join(['?'] * len(TARGET_SECTORS))
-    
-    # 1. Fetch Processable Tickers (Filtered to Target Sectors)
-    df_tickers = pd.read_sql(f"SELECT ticker, name, sector_name FROM tickers_master WHERE sector_name IN ({placeholders})", conn, params=TARGET_SECTORS)
+    # 1. Fetch Processable Tickers
+    df_tickers = pd.read_sql(
+        "SELECT ticker, name, sector_name FROM tickers_master WHERE ticker IS NOT NULL AND ticker != ''",
+        conn,
+    )
     tickers = df_tickers['ticker'].tolist()
     ticker_names = dict(zip(df_tickers['ticker'], df_tickers['name']))
     

@@ -64,13 +64,8 @@ def populate_financials_fast():
     # 1. Get Tickers
     conn = get_connection()
     c = conn.cursor()
-    import json
-    with open('target_sectors.json', 'r', encoding='utf-8') as f:
-        TARGET_SECTORS = json.load(f)
-    placeholders = ','.join(['?'] * len(TARGET_SECTORS))
-    
-    print("Fetching Target Sector Tickers from DB...")
-    c.execute(f"SELECT ticker FROM tickers_master WHERE sector_name IN ({placeholders})", TARGET_SECTORS)
+    print("Fetching Japanese stock tickers from DB...")
+    c.execute("SELECT ticker FROM tickers_master WHERE ticker IS NOT NULL AND ticker != ''")
     tickers = [r[0] for r in c.fetchall()]
     conn.close() # Close mainly, we will open in loop for writes
     

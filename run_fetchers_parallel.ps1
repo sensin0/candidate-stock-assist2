@@ -6,7 +6,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $goJob = Start-Job -ScriptBlock {
     param($dir)
     Set-Location $dir
-    & ".\fetch_quotes.exe" 2>&1
+    & go run fetch_quotes.go 2>&1
 } -ArgumentList $scriptDir
 
 $pyJob = Start-Job -ScriptBlock {

@@ -250,14 +250,10 @@ def main():
     parser.add_argument('--skip-mcap', action='store_true', help='Skip yfinance market cap fetch (fastest mode)')
     args = parser.parse_args()
 
-    import json
-    with open('target_sectors.json', 'r', encoding='utf-8') as f:
-        TARGET_SECTORS = json.load(f)
-    placeholders = ','.join(['?'] * len(TARGET_SECTORS))
-    query = f"SELECT ticker, sector_name FROM tickers_master WHERE sector_name IN ({placeholders})"
+    query = "SELECT ticker, sector_name FROM tickers_master WHERE ticker IS NOT NULL AND ticker != ''"
     
     conn = get_connection()
-    df_tickers = pd.read_sql(query, conn, params=TARGET_SECTORS)
+    df_tickers = pd.read_sql(query, conn)
     conn.close()
     
     tickers = df_tickers['ticker'].tolist()
