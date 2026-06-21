@@ -28,6 +28,20 @@ def loss_margin_improving(latest_income, previous_income, latest_revenue, previo
     return (latest_income / abs(latest_revenue)) > (previous_income / abs(previous_revenue))
 
 
+def net_income_risk(latest_net_income, previous_net_income):
+    if latest_net_income is None or previous_net_income is None:
+        return None
+    if pd.isna(latest_net_income) or pd.isna(previous_net_income):
+        return None
+    if previous_net_income >= 0 and latest_net_income < 0:
+        return "profit_to_loss"
+    if previous_net_income < 0 and latest_net_income < previous_net_income:
+        return "deeper_loss"
+    if latest_net_income < previous_net_income:
+        return "profit_decline"
+    return None
+
+
 def price_location(prices, entry_date):
     two_years_prior = entry_date - timedelta(days=365 * 2)
     hist = prices[(prices.index >= two_years_prior) & (prices.index <= entry_date)]
@@ -114,6 +128,13 @@ def score_current(features):
     elif loss_improving is False:
         score -= 50
 
+    if features["net_income_risk"] == "profit_to_loss":
+        score -= 160
+    elif features["net_income_risk"] == "deeper_loss":
+        score -= 120
+    elif features["net_income_risk"] == "profit_decline":
+        score -= 60
+
     if rev_growth is not None and rev_growth >= 10:
         if loss_improving is True:
             score += 30
@@ -147,6 +168,13 @@ def score_reversal(features):
             score += 25
         elif net_loss_improving is False:
             score -= 30
+
+    if features["net_income_risk"] == "profit_to_loss":
+        score -= 160
+    elif features["net_income_risk"] == "deeper_loss":
+        score -= 120
+    elif features["net_income_risk"] == "profit_decline":
+        score -= 60
 
     if rev_growth is not None:
         if rev_growth >= 10:
@@ -349,6 +377,7 @@ def main():
                 "sector_status": sector_status.get(ticker_row["sector_name"], "Unknown"),
                 "latest_net_income": latest_ni,
                 "previous_net_income": previous_ni,
+                "net_income_risk": net_income_risk(latest_ni, previous_ni),
             }
             current_score = score_current(features)
             reversal_score = score_reversal(features)

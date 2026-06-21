@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
+SAFETY_VERSION = 1
 
 
 def clean_number(value):
@@ -79,6 +80,61 @@ def loss_improving(latest_loss, previous_loss, latest_revenue, previous_revenue)
     latest_margin = latest_loss / abs(latest_revenue)
     previous_margin = previous_loss / abs(previous_revenue)
     return latest_margin > previous_margin
+
+
+def net_income_risk(latest_net_income, previous_net_income):
+    if latest_net_income is None or previous_net_income is None:
+        return None
+    if previous_net_income >= 0 and latest_net_income < 0:
+        return "profit_to_loss"
+    if previous_net_income < 0 and latest_net_income < previous_net_income:
+        return "deeper_loss"
+    if latest_net_income < previous_net_income:
+        return "profit_decline"
+    return None
+
+
+def apply_stored_safety_guard(item):
+    if item.get("Safety Version") == SAFETY_VERSION:
+        return item
+
+    history = item.get("Net Income History") or []
+    latest = history[0] if len(history) > 0 else item.get("Net Income")
+    previous = history[1] if len(history) > 1 else None
+    risk = net_income_risk(latest, previous)
+
+    blocks = list(item.get("Blocks") or [])
+    notes = list(item.get("Notes") or [])
+    score = clean_number(item.get("Score")) or 0
+
+    if risk == "profit_to_loss":
+        score -= 160
+        if "黒字から赤字転落" not in blocks:
+            blocks.append("黒字から赤字転落")
+        if "純利益悪化" not in notes:
+            notes.append("純利益悪化")
+    elif risk == "deeper_loss":
+        score -= 120
+        if "純損失拡大" not in blocks:
+            blocks.append("純損失拡大")
+        if "純損失拡大" not in notes:
+            notes.append("純損失拡大")
+    elif risk == "profit_decline":
+        score -= 60
+        if "純利益減少" not in notes:
+            notes.append("純利益減少")
+
+    if blocks and risk in {"profit_to_loss", "deeper_loss"}:
+        score -= 50
+        item["Action"] = "監視（除外条件あり）"
+
+    item["Score"] = round(score, 1)
+    item["Entry Score"] = round(score, 1)
+    item["Blocks"] = blocks
+    item["Notes"] = notes
+    item["Net Income Risk"] = risk
+    item["Safety Version"] = SAFETY_VERSION
+    return item
 
 
 def latest_statement_period(statement):
@@ -167,6 +223,7 @@ def score_stock(row):
     net_loss_improving = loss_improving(latest_net_income, previous_net_income, latest_revenue, previous_revenue)
     operating_loss_improving = loss_improving(latest_operating, previous_operating, latest_revenue, previous_revenue)
     pretax_loss_improving = loss_improving(latest_pretax, previous_pretax, latest_revenue, previous_revenue)
+    net_risk = net_income_risk(latest_net_income, previous_net_income)
 
     score = 0
     notes = []
@@ -236,6 +293,18 @@ def score_stock(row):
     elif net_loss_improving is False:
         score -= 30
 
+    if net_risk == "profit_to_loss":
+        score -= 160
+        blocks.append("黒字から赤字転落")
+        notes.append("純利益悪化")
+    elif net_risk == "deeper_loss":
+        score -= 120
+        blocks.append("純損失拡大")
+        notes.append("純損失拡大")
+    elif net_risk == "profit_decline":
+        score -= 60
+        notes.append("純利益減少")
+
     if len(capex) >= 2 and capex[0] is not None and capex[1] is not None:
         if abs(capex[0]) > abs(capex[1]) * 1.05:
             score += 20
@@ -244,6 +313,9 @@ def score_stock(row):
         if total_assets[0] > total_assets[1] * 1.02:
             score += 10
             notes.append("資産増")
+
+    if blocks:
+        score -= 50
 
     if blocks:
         action = "監視（除外条件あり）"
@@ -291,9 +363,11 @@ def score_stock(row):
         "Operating Loss Improving": operating_loss_improving,
         "Pretax Loss Improving": pretax_loss_improving,
         "Net Loss Improving": net_loss_improving,
+        "Net Income Risk": net_risk,
         "Latest Quarter Period": latest_quarter_period,
         "Notes": notes,
         "Blocks": blocks,
+        "Safety Version": SAFETY_VERSION,
     }
 
 
@@ -406,7 +480,7 @@ def merge_rankings(existing_report, fetched_rankings, now_utc, now_jst):
         item["Last Successful Refresh JST"] = refreshed_jst
         merged[item["Ticker"]] = item
 
-    rankings = list(merged.values())
+    rankings = [apply_stored_safety_guard(item) for item in merged.values()]
     rankings.sort(key=lambda item: item.get("Score", 0), reverse=True)
     for index, item in enumerate(rankings, start=1):
         item["Rank"] = index

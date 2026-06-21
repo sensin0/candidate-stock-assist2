@@ -1,5875 +1,5882 @@
 {
-  "updated_at_utc": "2026-06-21T05:55:24.460397+00:00",
+  "updated_at_utc": "2026-06-21T07:02:05.102755+00:00",
   "tickers": {
-    "2134.T": {
-      "Rank": 1,
-      "Score": 315,
-      "Latest Quarter Period": null
-    },
     "3823.T": {
-      "Rank": 2,
-      "Score": 295,
+      "Rank": 1,
+      "Score": 295.0,
       "Latest Quarter Period": null
     },
     "3647.T": {
-      "Rank": 3,
-      "Score": 290,
+      "Rank": 2,
+      "Score": 290.0,
       "Latest Quarter Period": null
     },
     "4584.T": {
-      "Rank": 4,
-      "Score": 275,
+      "Rank": 3,
+      "Score": 275.0,
       "Latest Quarter Period": null
     },
     "4594.T": {
-      "Rank": 5,
-      "Score": 270,
+      "Rank": 4,
+      "Score": 270.0,
       "Latest Quarter Period": null
     },
     "7211.T": {
-      "Rank": 6,
-      "Score": 260,
+      "Rank": 5,
+      "Score": 260.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3323.T": {
-      "Rank": 7,
-      "Score": 250,
+      "Rank": 6,
+      "Score": 250.0,
       "Latest Quarter Period": null
     },
     "7369.T": {
-      "Rank": 8,
-      "Score": 250,
+      "Rank": 7,
+      "Score": 250.0,
       "Latest Quarter Period": null
     },
     "3491.T": {
-      "Rank": 9,
-      "Score": 245,
+      "Rank": 8,
+      "Score": 245.0,
       "Latest Quarter Period": null
     },
     "4370.T": {
-      "Rank": 10,
-      "Score": 240,
+      "Rank": 9,
+      "Score": 240.0,
       "Latest Quarter Period": null
     },
     "7352.T": {
-      "Rank": 11,
-      "Score": 240,
+      "Rank": 10,
+      "Score": 240.0,
       "Latest Quarter Period": null
     },
     "4433.T": {
-      "Rank": 12,
-      "Score": 230,
+      "Rank": 11,
+      "Score": 230.0,
       "Latest Quarter Period": null
     },
     "4623.T": {
-      "Rank": 13,
-      "Score": 230,
+      "Rank": 12,
+      "Score": 230.0,
       "Latest Quarter Period": null
     },
     "3349.T": {
-      "Rank": 14,
-      "Score": 220,
+      "Rank": 13,
+      "Score": 220.0,
       "Latest Quarter Period": null
     },
     "1430.T": {
-      "Rank": 15,
-      "Score": 215,
+      "Rank": 14,
+      "Score": 215.0,
       "Latest Quarter Period": null
     },
     "7265.T": {
-      "Rank": 16,
-      "Score": 215,
+      "Rank": 15,
+      "Score": 215.0,
       "Latest Quarter Period": null
     },
     "7561.T": {
-      "Rank": 17,
-      "Score": 215,
+      "Rank": 16,
+      "Score": 215.0,
       "Latest Quarter Period": null
     },
     "3544.T": {
-      "Rank": 18,
-      "Score": 210,
+      "Rank": 17,
+      "Score": 210.0,
       "Latest Quarter Period": null
     },
     "4396.T": {
-      "Rank": 19,
-      "Score": 210,
+      "Rank": 18,
+      "Score": 210.0,
       "Latest Quarter Period": "2024-12-31"
     },
     "4570.T": {
-      "Rank": 20,
-      "Score": 210,
+      "Rank": 19,
+      "Score": 210.0,
       "Latest Quarter Period": null
     },
     "7377.T": {
-      "Rank": 21,
-      "Score": 210,
+      "Rank": 20,
+      "Score": 210.0,
       "Latest Quarter Period": null
     },
     "2385.T": {
-      "Rank": 22,
-      "Score": 205,
+      "Rank": 21,
+      "Score": 205.0,
       "Latest Quarter Period": null
     },
     "4397.T": {
-      "Rank": 23,
-      "Score": 205,
+      "Rank": 22,
+      "Score": 205.0,
       "Latest Quarter Period": null
     },
     "4439.T": {
-      "Rank": 24,
-      "Score": 205,
+      "Rank": 23,
+      "Score": 205.0,
       "Latest Quarter Period": null
     },
     "7351.T": {
-      "Rank": 25,
-      "Score": 205,
+      "Rank": 24,
+      "Score": 205.0,
       "Latest Quarter Period": null
     },
     "7373.T": {
-      "Rank": 26,
-      "Score": 205,
+      "Rank": 25,
+      "Score": 205.0,
       "Latest Quarter Period": null
     },
     "1966.T": {
-      "Rank": 27,
-      "Score": 200,
+      "Rank": 26,
+      "Score": 200.0,
       "Latest Quarter Period": null
     },
     "2437.T": {
-      "Rank": 28,
-      "Score": 200,
+      "Rank": 27,
+      "Score": 200.0,
       "Latest Quarter Period": null
     },
     "3536.T": {
-      "Rank": 29,
-      "Score": 200,
+      "Rank": 28,
+      "Score": 200.0,
       "Latest Quarter Period": null
     },
     "3675.T": {
-      "Rank": 30,
-      "Score": 200,
+      "Rank": 29,
+      "Score": 200.0,
       "Latest Quarter Period": null
     },
     "7505.T": {
-      "Rank": 31,
-      "Score": 200,
+      "Rank": 30,
+      "Score": 200.0,
       "Latest Quarter Period": null
     },
     "1768.T": {
-      "Rank": 32,
-      "Score": 190,
+      "Rank": 31,
+      "Score": 190.0,
       "Latest Quarter Period": null
     },
     "2378.T": {
-      "Rank": 33,
-      "Score": 190,
+      "Rank": 32,
+      "Score": 190.0,
       "Latest Quarter Period": null
     },
     "4440.T": {
-      "Rank": 34,
-      "Score": 190,
+      "Rank": 33,
+      "Score": 190.0,
       "Latest Quarter Period": null
     },
     "7072.T": {
-      "Rank": 35,
-      "Score": 190,
+      "Rank": 34,
+      "Score": 190.0,
       "Latest Quarter Period": null
     },
     "7434.T": {
-      "Rank": 36,
-      "Score": 190,
+      "Rank": 35,
+      "Score": 190.0,
       "Latest Quarter Period": null
     },
     "3804.T": {
-      "Rank": 37,
-      "Score": 185,
+      "Rank": 36,
+      "Score": 185.0,
       "Latest Quarter Period": null
     },
     "1431.T": {
-      "Rank": 38,
-      "Score": 180,
+      "Rank": 37,
+      "Score": 180.0,
       "Latest Quarter Period": null
     },
     "1960.T": {
-      "Rank": 39,
-      "Score": 180,
+      "Rank": 38,
+      "Score": 180.0,
       "Latest Quarter Period": null
     },
     "2373.T": {
-      "Rank": 40,
-      "Score": 180,
+      "Rank": 39,
+      "Score": 180.0,
       "Latest Quarter Period": null
     },
     "2404.T": {
-      "Rank": 41,
-      "Score": 180,
+      "Rank": 40,
+      "Score": 180.0,
       "Latest Quarter Period": null
     },
     "3494.T": {
-      "Rank": 42,
-      "Score": 180,
+      "Rank": 41,
+      "Score": 180.0,
       "Latest Quarter Period": null
     },
     "3496.T": {
-      "Rank": 43,
-      "Score": 180,
+      "Rank": 42,
+      "Score": 180.0,
       "Latest Quarter Period": null
     },
     "7372.T": {
-      "Rank": 44,
-      "Score": 180,
+      "Rank": 43,
+      "Score": 180.0,
       "Latest Quarter Period": null
     },
     "1382.T": {
-      "Rank": 45,
-      "Score": 175,
+      "Rank": 44,
+      "Score": 175.0,
       "Latest Quarter Period": null
     },
     "2164.T": {
-      "Rank": 46,
-      "Score": 175,
+      "Rank": 45,
+      "Score": 175.0,
       "Latest Quarter Period": null
     },
     "4345.T": {
-      "Rank": 47,
-      "Score": 175,
+      "Rank": 46,
+      "Score": 175.0,
       "Latest Quarter Period": null
     },
     "4391.T": {
-      "Rank": 48,
-      "Score": 175,
+      "Rank": 47,
+      "Score": 175.0,
       "Latest Quarter Period": null
     },
     "4412.T": {
-      "Rank": 49,
-      "Score": 175,
+      "Rank": 48,
+      "Score": 175.0,
       "Latest Quarter Period": null
     },
     "4393.T": {
-      "Rank": 50,
-      "Score": 170,
+      "Rank": 49,
+      "Score": 170.0,
       "Latest Quarter Period": null
     },
     "4668.T": {
-      "Rank": 51,
-      "Score": 170,
+      "Rank": 50,
+      "Score": 170.0,
       "Latest Quarter Period": null
     },
     "1887.T": {
-      "Rank": 52,
-      "Score": 165,
+      "Rank": 51,
+      "Score": 165.0,
       "Latest Quarter Period": null
     },
     "1948.T": {
-      "Rank": 53,
-      "Score": 165,
+      "Rank": 52,
+      "Score": 165.0,
       "Latest Quarter Period": null
     },
     "7413.T": {
-      "Rank": 54,
-      "Score": 165,
+      "Rank": 53,
+      "Score": 165.0,
       "Latest Quarter Period": null
     },
     "1401.T": {
-      "Rank": 55,
-      "Score": 160,
+      "Rank": 54,
+      "Score": 160.0,
       "Latest Quarter Period": null
     },
     "1997.T": {
-      "Rank": 56,
-      "Score": 160,
+      "Rank": 55,
+      "Score": 160.0,
       "Latest Quarter Period": null
     },
     "7068.T": {
-      "Rank": 57,
-      "Score": 160,
+      "Rank": 56,
+      "Score": 160.0,
       "Latest Quarter Period": null
     },
     "7183.T": {
-      "Rank": 58,
-      "Score": 160,
+      "Rank": 57,
+      "Score": 160.0,
       "Latest Quarter Period": null
     },
     "7271.T": {
-      "Rank": 59,
-      "Score": 160,
+      "Rank": 58,
+      "Score": 160.0,
       "Latest Quarter Period": null
     },
     "7515.T": {
-      "Rank": 60,
-      "Score": 160,
+      "Rank": 59,
+      "Score": 160.0,
       "Latest Quarter Period": null
     },
     "1719.T": {
-      "Rank": 61,
-      "Score": 155,
+      "Rank": 60,
+      "Score": 155.0,
       "Latest Quarter Period": null
     },
     "1972.T": {
-      "Rank": 62,
-      "Score": 155,
+      "Rank": 61,
+      "Score": 155.0,
       "Latest Quarter Period": null
     },
     "2375.T": {
-      "Rank": 63,
-      "Score": 155,
+      "Rank": 62,
+      "Score": 155.0,
       "Latest Quarter Period": null
     },
     "3698.T": {
-      "Rank": 64,
-      "Score": 155,
+      "Rank": 63,
+      "Score": 155.0,
       "Latest Quarter Period": null
     },
     "3726.T": {
-      "Rank": 65,
-      "Score": 155,
+      "Rank": 64,
+      "Score": 155.0,
       "Latest Quarter Period": null
     },
     "2449.T": {
+      "Rank": 65,
+      "Score": 150.0,
+      "Latest Quarter Period": null
+    },
+    "2134.T": {
       "Rank": 66,
-      "Score": 150,
+      "Score": 145.0,
       "Latest Quarter Period": null
     },
     "1433.T": {
       "Rank": 67,
-      "Score": 145,
+      "Score": 145.0,
       "Latest Quarter Period": null
     },
     "3774.T": {
       "Rank": 68,
-      "Score": 145,
+      "Score": 145.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2114.T": {
       "Rank": 69,
-      "Score": 140,
+      "Score": 140.0,
       "Latest Quarter Period": null
     },
     "2152.T": {
       "Rank": 70,
-      "Score": 140,
+      "Score": 140.0,
       "Latest Quarter Period": null
     },
     "2411.T": {
       "Rank": 71,
-      "Score": 140,
-      "Latest Quarter Period": null
-    },
-    "4615.T": {
-      "Rank": 72,
-      "Score": 140,
+      "Score": 140.0,
       "Latest Quarter Period": null
     },
     "4627.T": {
-      "Rank": 73,
-      "Score": 140,
+      "Rank": 72,
+      "Score": 140.0,
       "Latest Quarter Period": null
     },
     "7494.T": {
-      "Rank": 74,
-      "Score": 140,
+      "Rank": 73,
+      "Score": 140.0,
       "Latest Quarter Period": null
     },
     "4427.T": {
-      "Rank": 75,
-      "Score": 135,
+      "Rank": 74,
+      "Score": 135.0,
       "Latest Quarter Period": null
     },
     "7069.T": {
-      "Rank": 76,
-      "Score": 135,
+      "Rank": 75,
+      "Score": 135.0,
       "Latest Quarter Period": null
     },
     "7500.T": {
-      "Rank": 77,
-      "Score": 135,
+      "Rank": 76,
+      "Score": 135.0,
       "Latest Quarter Period": null
     },
     "4362.T": {
-      "Rank": 78,
-      "Score": 125,
+      "Rank": 77,
+      "Score": 125.0,
       "Latest Quarter Period": null
     },
     "3646.T": {
-      "Rank": 79,
-      "Score": 120,
+      "Rank": 78,
+      "Score": 120.0,
       "Latest Quarter Period": null
     },
     "4495.T": {
-      "Rank": 80,
-      "Score": 120,
-      "Latest Quarter Period": null
-    },
-    "4598.T": {
-      "Rank": 81,
-      "Score": 120,
+      "Rank": 79,
+      "Score": 120.0,
       "Latest Quarter Period": null
     },
     "3374.T": {
-      "Rank": 82,
-      "Score": 115,
+      "Rank": 80,
+      "Score": 115.0,
       "Latest Quarter Period": null
     },
     "3607.T": {
-      "Rank": 83,
-      "Score": 115,
+      "Rank": 81,
+      "Score": 115.0,
       "Latest Quarter Period": null
     },
     "1850.T": {
-      "Rank": 84,
-      "Score": 105,
+      "Rank": 82,
+      "Score": 105.0,
       "Latest Quarter Period": null
     },
     "3372.T": {
-      "Rank": 85,
-      "Score": 105,
+      "Rank": 83,
+      "Score": 105.0,
       "Latest Quarter Period": null
     },
     "1383.T": {
-      "Rank": 86,
-      "Score": 100,
+      "Rank": 84,
+      "Score": 100.0,
       "Latest Quarter Period": null
     },
     "3929.T": {
-      "Rank": 87,
-      "Score": 100,
-      "Latest Quarter Period": null
-    },
-    "7444.T": {
-      "Rank": 88,
-      "Score": 100,
+      "Rank": 85,
+      "Score": 100.0,
       "Latest Quarter Period": null
     },
     "2388.T": {
-      "Rank": 89,
-      "Score": 90,
+      "Rank": 86,
+      "Score": 90.0,
       "Latest Quarter Period": null
     },
     "3359.T": {
-      "Rank": 90,
-      "Score": 90,
+      "Rank": 87,
+      "Score": 90.0,
       "Latest Quarter Period": null
     },
     "4424.T": {
-      "Rank": 91,
-      "Score": 85,
+      "Rank": 88,
+      "Score": 85.0,
       "Latest Quarter Period": null
     },
     "3556.T": {
-      "Rank": 92,
-      "Score": 75,
-      "Latest Quarter Period": null
-    },
-    "7640.T": {
-      "Rank": 93,
-      "Score": 75,
+      "Rank": 89,
+      "Score": 75.0,
       "Latest Quarter Period": null
     },
     "3461.T": {
-      "Rank": 94,
-      "Score": 70,
+      "Rank": 90,
+      "Score": 70.0,
       "Latest Quarter Period": null
     },
     "3836.T": {
-      "Rank": 95,
-      "Score": 65,
+      "Rank": 91,
+      "Score": 65.0,
       "Latest Quarter Period": null
     },
     "7096.T": {
-      "Rank": 96,
-      "Score": 65,
+      "Rank": 92,
+      "Score": 65.0,
       "Latest Quarter Period": null
     },
     "1446.T": {
-      "Rank": 97,
-      "Score": 60,
+      "Rank": 93,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "1911.T": {
-      "Rank": 98,
-      "Score": 60,
+      "Rank": 94,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2121.T": {
-      "Rank": 99,
-      "Score": 60,
+      "Rank": 95,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2138.T": {
-      "Rank": 100,
-      "Score": 60,
+      "Rank": 96,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2156.T": {
-      "Rank": 101,
-      "Score": 60,
+      "Rank": 97,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2220.T": {
-      "Rank": 102,
-      "Score": 60,
+      "Rank": 98,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2330.T": {
-      "Rank": 103,
-      "Score": 60,
+      "Rank": 99,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2338.T": {
-      "Rank": 104,
-      "Score": 60,
+      "Rank": 100,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2351.T": {
-      "Rank": 105,
-      "Score": 60,
+      "Rank": 101,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2349.T": {
-      "Rank": 106,
-      "Score": 60,
+      "Rank": 102,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2395.T": {
-      "Rank": 107,
-      "Score": 60,
+      "Rank": 103,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2425.T": {
-      "Rank": 108,
-      "Score": 60,
+      "Rank": 104,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3261.T": {
-      "Rank": 109,
-      "Score": 60,
+      "Rank": 105,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3360.T": {
-      "Rank": 110,
-      "Score": 60,
+      "Rank": 106,
+      "Score": 60.0,
       "Latest Quarter Period": null
     },
     "3377.T": {
-      "Rank": 111,
-      "Score": 60,
+      "Rank": 107,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "3431.T": {
-      "Rank": 112,
-      "Score": 60,
+      "Rank": 108,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3626.T": {
-      "Rank": 113,
-      "Score": 60,
+      "Rank": 109,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3635.T": {
-      "Rank": 114,
-      "Score": 60,
+      "Rank": 110,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3659.T": {
-      "Rank": 115,
-      "Score": 60,
+      "Rank": 111,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3660.T": {
-      "Rank": 116,
-      "Score": 60,
+      "Rank": 112,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-09-30"
     },
     "3679.T": {
-      "Rank": 117,
-      "Score": 60,
+      "Rank": 113,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3694.T": {
-      "Rank": 118,
-      "Score": 60,
+      "Rank": 114,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3733.T": {
-      "Rank": 119,
-      "Score": 60,
+      "Rank": 115,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-01-31"
     },
     "3825.T": {
-      "Rank": 120,
-      "Score": 60,
+      "Rank": 116,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3840.T": {
-      "Rank": 121,
-      "Score": 60,
+      "Rank": 117,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3844.T": {
-      "Rank": 122,
-      "Score": 60,
+      "Rank": 118,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3896.T": {
-      "Rank": 123,
-      "Score": 60,
+      "Rank": 119,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3904.T": {
-      "Rank": 124,
-      "Score": 60,
+      "Rank": 120,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3903.T": {
-      "Rank": 125,
-      "Score": 60,
+      "Rank": 121,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "3955.T": {
-      "Rank": 126,
-      "Score": 60,
+      "Rank": 122,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "4337.T": {
-      "Rank": 127,
-      "Score": 60,
+      "Rank": 123,
+      "Score": 60.0,
       "Latest Quarter Period": null
     },
     "4372.T": {
-      "Rank": 128,
-      "Score": 60,
+      "Rank": 124,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4375.T": {
-      "Rank": 129,
-      "Score": 60,
+      "Rank": 125,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4387.T": {
-      "Rank": 130,
-      "Score": 60,
+      "Rank": 126,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4388.T": {
-      "Rank": 131,
-      "Score": 60,
+      "Rank": 127,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4476.T": {
-      "Rank": 132,
-      "Score": 60,
+      "Rank": 128,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4478.T": {
-      "Rank": 133,
-      "Score": 60,
+      "Rank": 129,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-09-30"
     },
     "4483.T": {
-      "Rank": 134,
-      "Score": 60,
+      "Rank": 130,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4487.T": {
-      "Rank": 135,
-      "Score": 60,
+      "Rank": 131,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4490.T": {
-      "Rank": 136,
-      "Score": 60,
+      "Rank": 132,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4492.T": {
-      "Rank": 137,
-      "Score": 60,
+      "Rank": 133,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4523.T": {
-      "Rank": 138,
-      "Score": 60,
+      "Rank": 134,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4592.T": {
-      "Rank": 139,
-      "Score": 60,
+      "Rank": 135,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "4661.T": {
-      "Rank": 140,
-      "Score": 60,
+      "Rank": 136,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7062.T": {
-      "Rank": 141,
-      "Score": 60,
+      "Rank": 137,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7064.T": {
-      "Rank": 142,
-      "Score": 60,
+      "Rank": 138,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "7074.T": {
-      "Rank": 143,
-      "Score": 60,
+      "Rank": 139,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "7083.T": {
-      "Rank": 144,
-      "Score": 60,
+      "Rank": 140,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "7095.T": {
-      "Rank": 145,
-      "Score": 60,
+      "Rank": 141,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "7422.T": {
-      "Rank": 146,
-      "Score": 60,
+      "Rank": 142,
+      "Score": 60.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7475.T": {
-      "Rank": 147,
-      "Score": 60,
+      "Rank": 143,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7502.T": {
-      "Rank": 148,
-      "Score": 60,
+      "Rank": 144,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7512.T": {
-      "Rank": 149,
-      "Score": 60,
+      "Rank": 145,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7601.T": {
-      "Rank": 150,
-      "Score": 60,
+      "Rank": 146,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7630.T": {
-      "Rank": 151,
-      "Score": 60,
+      "Rank": 147,
+      "Score": 60.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4543.T": {
-      "Rank": 152,
-      "Score": 55,
+      "Rank": 148,
+      "Score": 55.0,
       "Latest Quarter Period": null
     },
     "7184.T": {
-      "Rank": 153,
-      "Score": 55,
+      "Rank": 149,
+      "Score": 55.0,
       "Latest Quarter Period": null
     },
     "1514.T": {
-      "Rank": 154,
-      "Score": 50,
+      "Rank": 150,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2193.T": {
-      "Rank": 155,
-      "Score": 50,
+      "Rank": 151,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2198.T": {
-      "Rank": 156,
-      "Score": 50,
+      "Rank": 152,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "2326.T": {
-      "Rank": 157,
-      "Score": 50,
+      "Rank": 153,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2440.T": {
-      "Rank": 158,
-      "Score": 50,
+      "Rank": 154,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3388.T": {
-      "Rank": 159,
-      "Score": 50,
+      "Rank": 155,
+      "Score": 50.0,
       "Latest Quarter Period": null
     },
     "3416.T": {
-      "Rank": 160,
-      "Score": 50,
+      "Rank": 156,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3474.T": {
-      "Rank": 161,
-      "Score": 50,
+      "Rank": 157,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3557.T": {
-      "Rank": 162,
-      "Score": 50,
+      "Rank": 158,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3667.T": {
-      "Rank": 163,
-      "Score": 50,
+      "Rank": 159,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3690.T": {
-      "Rank": 164,
-      "Score": 50,
+      "Rank": 160,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3753.T": {
-      "Rank": 165,
-      "Score": 50,
+      "Rank": 161,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3765.T": {
-      "Rank": 166,
-      "Score": 50,
+      "Rank": 162,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3858.T": {
-      "Rank": 167,
-      "Score": 50,
+      "Rank": 163,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3865.T": {
-      "Rank": 168,
-      "Score": 50,
+      "Rank": 164,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4416.T": {
-      "Rank": 169,
-      "Score": 50,
+      "Rank": 165,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4434.T": {
-      "Rank": 170,
-      "Score": 50,
+      "Rank": 166,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4436.T": {
-      "Rank": 171,
-      "Score": 50,
+      "Rank": 167,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4480.T": {
-      "Rank": 172,
-      "Score": 50,
+      "Rank": 168,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "4488.T": {
-      "Rank": 173,
-      "Score": 50,
+      "Rank": 169,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4574.T": {
-      "Rank": 174,
-      "Score": 50,
+      "Rank": 170,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4582.T": {
-      "Rank": 175,
-      "Score": 50,
+      "Rank": 171,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4586.T": {
-      "Rank": 176,
-      "Score": 50,
+      "Rank": 172,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4705.T": {
-      "Rank": 177,
-      "Score": 50,
+      "Rank": 173,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7093.T": {
-      "Rank": 178,
-      "Score": 50,
+      "Rank": 174,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7201.T": {
-      "Rank": 179,
-      "Score": 50,
+      "Rank": 175,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7356.T": {
-      "Rank": 180,
-      "Score": 50,
+      "Rank": 176,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "7360.T": {
-      "Rank": 181,
-      "Score": 50,
+      "Rank": 177,
+      "Score": 50.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "7447.T": {
-      "Rank": 182,
-      "Score": 50,
+      "Rank": 178,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "7506.T": {
-      "Rank": 183,
-      "Score": 50,
+      "Rank": 179,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7527.T": {
-      "Rank": 184,
-      "Score": 50,
+      "Rank": 180,
+      "Score": 50.0,
       "Latest Quarter Period": null
     },
     "7615.T": {
-      "Rank": 185,
-      "Score": 50,
+      "Rank": 181,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7611.T": {
-      "Rank": 186,
-      "Score": 50,
+      "Rank": 182,
+      "Score": 50.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "1420.T": {
-      "Rank": 187,
-      "Score": 45,
+      "Rank": 183,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1429.T": {
-      "Rank": 188,
-      "Score": 45,
+      "Rank": 184,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1711.T": {
-      "Rank": 189,
-      "Score": 45,
+      "Rank": 185,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1878.T": {
-      "Rank": 190,
-      "Score": 45,
+      "Rank": 186,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1898.T": {
-      "Rank": 191,
-      "Score": 45,
+      "Rank": 187,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2195.T": {
-      "Rank": 192,
-      "Score": 45,
+      "Rank": 188,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2211.T": {
-      "Rank": 193,
-      "Score": 45,
+      "Rank": 189,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2216.T": {
-      "Rank": 194,
-      "Score": 45,
+      "Rank": 190,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3306.T": {
-      "Rank": 195,
-      "Score": 45,
+      "Rank": 191,
+      "Score": 45.0,
       "Latest Quarter Period": null
     },
     "3358.T": {
-      "Rank": 196,
-      "Score": 45,
+      "Rank": 192,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3371.T": {
-      "Rank": 197,
-      "Score": 45,
+      "Rank": 193,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3426.T": {
-      "Rank": 198,
-      "Score": 45,
+      "Rank": 194,
+      "Score": 45.0,
       "Latest Quarter Period": null
     },
     "3661.T": {
-      "Rank": 199,
-      "Score": 45,
+      "Rank": 195,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3692.T": {
-      "Rank": 200,
-      "Score": 45,
+      "Rank": 196,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3710.T": {
-      "Rank": 201,
-      "Score": 45,
+      "Rank": 197,
+      "Score": 45.0,
       "Latest Quarter Period": "2024-09-30"
     },
     "3798.T": {
-      "Rank": 202,
-      "Score": 45,
+      "Rank": 198,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3854.T": {
-      "Rank": 203,
-      "Score": 45,
+      "Rank": 199,
+      "Score": 45.0,
       "Latest Quarter Period": "2024-10-31"
     },
     "3917.T": {
-      "Rank": 204,
-      "Score": 45,
+      "Rank": 200,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3921.T": {
-      "Rank": 205,
-      "Score": 45,
+      "Rank": 201,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3923.T": {
-      "Rank": 206,
-      "Score": 45,
+      "Rank": 202,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3940.T": {
-      "Rank": 207,
-      "Score": 45,
+      "Rank": 203,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4343.T": {
-      "Rank": 208,
-      "Score": 45,
+      "Rank": 204,
+      "Score": 45.0,
       "Latest Quarter Period": null
     },
     "4395.T": {
-      "Rank": 209,
-      "Score": 45,
+      "Rank": 205,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4442.T": {
-      "Rank": 210,
-      "Score": 45,
+      "Rank": 206,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4443.T": {
-      "Rank": 211,
-      "Score": 45,
+      "Rank": 207,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-02-28"
     },
     "4444.T": {
-      "Rank": 212,
-      "Score": 45,
+      "Rank": 208,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4449.T": {
-      "Rank": 213,
-      "Score": 45,
+      "Rank": 209,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4475.T": {
-      "Rank": 214,
-      "Score": 45,
+      "Rank": 210,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "4499.T": {
-      "Rank": 215,
-      "Score": 45,
+      "Rank": 211,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "4521.T": {
-      "Rank": 216,
-      "Score": 45,
+      "Rank": 212,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4512.T": {
-      "Rank": 217,
-      "Score": 45,
+      "Rank": 213,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4527.T": {
-      "Rank": 218,
-      "Score": 45,
+      "Rank": 214,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4540.T": {
-      "Rank": 219,
-      "Score": 45,
+      "Rank": 215,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4552.T": {
-      "Rank": 220,
-      "Score": 45,
+      "Rank": 216,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4642.T": {
-      "Rank": 221,
-      "Score": 45,
+      "Rank": 217,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7075.T": {
-      "Rank": 222,
-      "Score": 45,
+      "Rank": 218,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7094.T": {
-      "Rank": 223,
-      "Score": 45,
+      "Rank": 219,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7115.T": {
-      "Rank": 224,
-      "Score": 45,
+      "Rank": 220,
+      "Score": 45.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7218.T": {
-      "Rank": 225,
-      "Score": 45,
+      "Rank": 221,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7222.T": {
-      "Rank": 226,
-      "Score": 45,
+      "Rank": 222,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7320.T": {
-      "Rank": 227,
-      "Score": 45,
+      "Rank": 223,
+      "Score": 45.0,
       "Latest Quarter Period": null
     },
     "7325.T": {
-      "Rank": 228,
-      "Score": 45,
+      "Rank": 224,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-09-30"
     },
     "7427.T": {
-      "Rank": 229,
-      "Score": 45,
+      "Rank": 225,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7476.T": {
-      "Rank": 230,
-      "Score": 45,
+      "Rank": 226,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7616.T": {
-      "Rank": 231,
-      "Score": 45,
+      "Rank": 227,
+      "Score": 45.0,
       "Latest Quarter Period": "2025-06-30"
     },
+    "7444.T": {
+      "Rank": 228,
+      "Score": 40.0,
+      "Latest Quarter Period": null
+    },
     "1434.T": {
-      "Rank": 232,
-      "Score": 40,
+      "Rank": 229,
+      "Score": 40.0,
       "Latest Quarter Period": null
     },
     "1491.T": {
-      "Rank": 233,
-      "Score": 40,
+      "Rank": 230,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2266.T": {
-      "Rank": 234,
-      "Score": 40,
+      "Rank": 231,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2391.T": {
-      "Rank": 235,
-      "Score": 40,
+      "Rank": 232,
+      "Score": 40.0,
       "Latest Quarter Period": null
     },
     "3333.T": {
-      "Rank": 236,
-      "Score": 40,
+      "Rank": 233,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3409.T": {
-      "Rank": 237,
-      "Score": 40,
+      "Rank": 234,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3538.T": {
-      "Rank": 238,
-      "Score": 40,
+      "Rank": 235,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-12-31"
     },
-    "3541.T": {
-      "Rank": 239,
-      "Score": 40,
-      "Latest Quarter Period": null
-    },
     "3623.T": {
-      "Rank": 240,
-      "Score": 40,
+      "Rank": 236,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3632.T": {
-      "Rank": 241,
-      "Score": 40,
+      "Rank": 237,
+      "Score": 40.0,
       "Latest Quarter Period": "2024-09-30"
     },
     "3664.T": {
-      "Rank": 242,
-      "Score": 40,
+      "Rank": 238,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3695.T": {
-      "Rank": 243,
-      "Score": 40,
+      "Rank": 239,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3697.T": {
-      "Rank": 244,
-      "Score": 40,
+      "Rank": 240,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "3719.T": {
-      "Rank": 245,
-      "Score": 40,
+      "Rank": 241,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3762.T": {
-      "Rank": 246,
-      "Score": 40,
+      "Rank": 242,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3771.T": {
-      "Rank": 247,
-      "Score": 40,
+      "Rank": 243,
+      "Score": 40.0,
       "Latest Quarter Period": null
     },
     "3779.T": {
-      "Rank": 248,
-      "Score": 40,
+      "Rank": 244,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3807.T": {
-      "Rank": 249,
-      "Score": 40,
+      "Rank": 245,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3848.T": {
-      "Rank": 250,
-      "Score": 40,
+      "Rank": 246,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3856.T": {
-      "Rank": 251,
-      "Score": 40,
+      "Rank": 247,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3911.T": {
-      "Rank": 252,
-      "Score": 40,
+      "Rank": 248,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3914.T": {
-      "Rank": 253,
-      "Score": 40,
+      "Rank": 249,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3916.T": {
-      "Rank": 254,
-      "Score": 40,
+      "Rank": 250,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3925.T": {
-      "Rank": 255,
-      "Score": 40,
+      "Rank": 251,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3933.T": {
-      "Rank": 256,
-      "Score": 40,
+      "Rank": 252,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3937.T": {
-      "Rank": 257,
-      "Score": 40,
+      "Rank": 253,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4344.T": {
-      "Rank": 258,
-      "Score": 40,
+      "Rank": 254,
+      "Score": 40.0,
       "Latest Quarter Period": null
     },
     "4382.T": {
-      "Rank": 259,
-      "Score": 40,
+      "Rank": 255,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "4414.T": {
-      "Rank": 260,
-      "Score": 40,
+      "Rank": 256,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4418.T": {
-      "Rank": 261,
-      "Score": 40,
+      "Rank": 257,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "4428.T": {
-      "Rank": 262,
-      "Score": 40,
+      "Rank": 258,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4432.T": {
-      "Rank": 263,
-      "Score": 40,
+      "Rank": 259,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4448.T": {
-      "Rank": 264,
-      "Score": 40,
+      "Rank": 260,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4563.T": {
-      "Rank": 265,
-      "Score": 40,
+      "Rank": 261,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4564.T": {
-      "Rank": 266,
-      "Score": 40,
+      "Rank": 262,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4568.T": {
-      "Rank": 267,
-      "Score": 40,
+      "Rank": 263,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "4575.T": {
-      "Rank": 268,
-      "Score": 40,
+      "Rank": 264,
+      "Score": 40.0,
       "Latest Quarter Period": null
     },
     "4576.T": {
-      "Rank": 269,
-      "Score": 40,
+      "Rank": 265,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4596.T": {
-      "Rank": 270,
-      "Score": 40,
+      "Rank": 266,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4597.T": {
-      "Rank": 271,
-      "Score": 40,
+      "Rank": 267,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4641.T": {
-      "Rank": 272,
-      "Score": 40,
+      "Rank": 268,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4684.T": {
-      "Rank": 273,
-      "Score": 40,
+      "Rank": 269,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4687.T": {
-      "Rank": 274,
-      "Score": 40,
+      "Rank": 270,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7048.T": {
-      "Rank": 275,
-      "Score": 40,
+      "Rank": 271,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7061.T": {
-      "Rank": 276,
-      "Score": 40,
+      "Rank": 272,
+      "Score": 40.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7071.T": {
-      "Rank": 277,
-      "Score": 40,
+      "Rank": 273,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "7079.T": {
-      "Rank": 278,
-      "Score": 40,
+      "Rank": 274,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7111.T": {
-      "Rank": 279,
-      "Score": 40,
+      "Rank": 275,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7226.T": {
-      "Rank": 280,
-      "Score": 40,
+      "Rank": 276,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7363.T": {
-      "Rank": 281,
-      "Score": 40,
+      "Rank": 277,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "7421.T": {
-      "Rank": 282,
-      "Score": 40,
+      "Rank": 278,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7545.T": {
-      "Rank": 283,
-      "Score": 40,
+      "Rank": 279,
+      "Score": 40.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "1866.T": {
-      "Rank": 284,
-      "Score": 35,
+      "Rank": 280,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2201.T": {
-      "Rank": 285,
-      "Score": 35,
+      "Rank": 281,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2293.T": {
-      "Rank": 286,
-      "Score": 35,
+      "Rank": 282,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2305.T": {
-      "Rank": 287,
-      "Score": 35,
+      "Rank": 283,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2327.T": {
-      "Rank": 288,
-      "Score": 35,
+      "Rank": 284,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3495.T": {
-      "Rank": 289,
-      "Score": 35,
+      "Rank": 285,
+      "Score": 35.0,
       "Latest Quarter Period": null
     },
     "3625.T": {
-      "Rank": 290,
-      "Score": 35,
+      "Rank": 286,
+      "Score": 35.0,
       "Latest Quarter Period": null
     },
     "3627.T": {
-      "Rank": 291,
-      "Score": 35,
+      "Rank": 287,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3634.T": {
-      "Rank": 292,
-      "Score": 35,
+      "Rank": 288,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3778.T": {
-      "Rank": 293,
-      "Score": 35,
+      "Rank": 289,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3834.T": {
-      "Rank": 294,
-      "Score": 35,
+      "Rank": 290,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3928.T": {
-      "Rank": 295,
-      "Score": 35,
+      "Rank": 291,
+      "Score": 35.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3930.T": {
-      "Rank": 296,
-      "Score": 35,
+      "Rank": 292,
+      "Score": 35.0,
       "Latest Quarter Period": null
     },
     "4599.T": {
-      "Rank": 297,
-      "Score": 35,
+      "Rank": 293,
+      "Score": 35.0,
       "Latest Quarter Period": null
     },
     "4651.T": {
-      "Rank": 298,
-      "Score": 35,
+      "Rank": 294,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4679.T": {
-      "Rank": 299,
-      "Score": 35,
+      "Rank": 295,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7077.T": {
-      "Rank": 300,
-      "Score": 35,
+      "Rank": 296,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7090.T": {
-      "Rank": 301,
-      "Score": 35,
+      "Rank": 297,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7196.T": {
-      "Rank": 302,
-      "Score": 35,
+      "Rank": 298,
+      "Score": 35.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "7238.T": {
-      "Rank": 303,
-      "Score": 35,
+      "Rank": 299,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7524.T": {
-      "Rank": 304,
-      "Score": 35,
+      "Rank": 300,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7571.T": {
-      "Rank": 305,
-      "Score": 35,
+      "Rank": 301,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7595.T": {
-      "Rank": 306,
-      "Score": 35,
+      "Rank": 302,
+      "Score": 35.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1333.T": {
-      "Rank": 307,
-      "Score": 30,
+      "Rank": 303,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1384.T": {
-      "Rank": 308,
-      "Score": 30,
+      "Rank": 304,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1435.T": {
-      "Rank": 309,
-      "Score": 30,
+      "Rank": 305,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1515.T": {
-      "Rank": 310,
-      "Score": 30,
+      "Rank": 306,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1717.T": {
-      "Rank": 311,
-      "Score": 30,
+      "Rank": 307,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1663.T": {
-      "Rank": 312,
-      "Score": 30,
+      "Rank": 308,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1718.T": {
-      "Rank": 313,
-      "Score": 30,
+      "Rank": 309,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1766.T": {
-      "Rank": 314,
-      "Score": 30,
+      "Rank": 310,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "1786.T": {
-      "Rank": 315,
-      "Score": 30,
+      "Rank": 311,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1787.T": {
-      "Rank": 316,
-      "Score": 30,
+      "Rank": 312,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1826.T": {
-      "Rank": 317,
-      "Score": 30,
+      "Rank": 313,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1835.T": {
-      "Rank": 318,
-      "Score": 30,
+      "Rank": 314,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1885.T": {
-      "Rank": 319,
-      "Score": 30,
+      "Rank": 315,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1888.T": {
-      "Rank": 320,
-      "Score": 30,
+      "Rank": 316,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1897.T": {
-      "Rank": 321,
-      "Score": 30,
+      "Rank": 317,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1925.T": {
-      "Rank": 322,
-      "Score": 30,
+      "Rank": 318,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1929.T": {
-      "Rank": 323,
-      "Score": 30,
+      "Rank": 319,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2148.T": {
-      "Rank": 324,
-      "Score": 30,
+      "Rank": 320,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2181.T": {
-      "Rank": 325,
-      "Score": 30,
+      "Rank": 321,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2212.T": {
-      "Rank": 326,
-      "Score": 30,
+      "Rank": 322,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2209.T": {
-      "Rank": 327,
-      "Score": 30,
+      "Rank": 323,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2217.T": {
-      "Rank": 328,
-      "Score": 30,
+      "Rank": 324,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "2268.T": {
-      "Rank": 329,
-      "Score": 30,
+      "Rank": 325,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2291.T": {
-      "Rank": 330,
-      "Score": 30,
+      "Rank": 326,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2294.T": {
-      "Rank": 331,
-      "Score": 30,
+      "Rank": 327,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "2296.T": {
-      "Rank": 332,
-      "Score": 30,
+      "Rank": 328,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2323.T": {
-      "Rank": 333,
-      "Score": 30,
+      "Rank": 329,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2331.T": {
-      "Rank": 334,
-      "Score": 30,
+      "Rank": 330,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2335.T": {
-      "Rank": 335,
-      "Score": 30,
+      "Rank": 331,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2370.T": {
-      "Rank": 336,
-      "Score": 30,
+      "Rank": 332,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "2379.T": {
-      "Rank": 337,
-      "Score": 30,
+      "Rank": 333,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2413.T": {
-      "Rank": 338,
-      "Score": 30,
+      "Rank": 334,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2428.T": {
-      "Rank": 339,
-      "Score": 30,
+      "Rank": 335,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "2454.T": {
-      "Rank": 340,
-      "Score": 30,
+      "Rank": 336,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2438.T": {
-      "Rank": 341,
-      "Score": 30,
+      "Rank": 337,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "3299.T": {
-      "Rank": 342,
-      "Score": 30,
+      "Rank": 338,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3317.T": {
-      "Rank": 343,
-      "Score": 30,
+      "Rank": 339,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3397.T": {
-      "Rank": 344,
-      "Score": 30,
+      "Rank": 340,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3395.T": {
-      "Rank": 345,
-      "Score": 30,
+      "Rank": 341,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3415.T": {
-      "Rank": 346,
-      "Score": 30,
+      "Rank": 342,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3469.T": {
-      "Rank": 347,
-      "Score": 30,
+      "Rank": 343,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "3498.T": {
-      "Rank": 348,
-      "Score": 30,
+      "Rank": 344,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "3542.T": {
-      "Rank": 349,
-      "Score": 30,
+      "Rank": 345,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3549.T": {
-      "Rank": 350,
-      "Score": 30,
+      "Rank": 346,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-08-31"
     },
     "3543.T": {
-      "Rank": 351,
-      "Score": 30,
+      "Rank": 347,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3558.T": {
-      "Rank": 352,
-      "Score": 30,
+      "Rank": 348,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3562.T": {
-      "Rank": 353,
-      "Score": 30,
+      "Rank": 349,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3565.T": {
-      "Rank": 354,
-      "Score": 30,
+      "Rank": 350,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3571.T": {
-      "Rank": 355,
-      "Score": 30,
+      "Rank": 351,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3628.T": {
-      "Rank": 356,
-      "Score": 30,
+      "Rank": 352,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3636.T": {
-      "Rank": 357,
-      "Score": 30,
+      "Rank": 353,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3639.T": {
-      "Rank": 358,
-      "Score": 30,
+      "Rank": 354,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "3657.T": {
-      "Rank": 359,
-      "Score": 30,
+      "Rank": 355,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3648.T": {
-      "Rank": 360,
-      "Score": 30,
+      "Rank": 356,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3668.T": {
-      "Rank": 361,
-      "Score": 30,
+      "Rank": 357,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-12-31"
     },
-    "3670.T": {
-      "Rank": 362,
-      "Score": 30,
-      "Latest Quarter Period": null
-    },
     "3665.T": {
-      "Rank": 363,
-      "Score": 30,
+      "Rank": 358,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3676.T": {
-      "Rank": 364,
-      "Score": 30,
+      "Rank": 359,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3681.T": {
-      "Rank": 365,
-      "Score": 30,
+      "Rank": 360,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "3686.T": {
-      "Rank": 366,
-      "Score": 30,
+      "Rank": 361,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3680.T": {
-      "Rank": 367,
-      "Score": 30,
+      "Rank": 362,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3727.T": {
-      "Rank": 368,
-      "Score": 30,
+      "Rank": 363,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3747.T": {
-      "Rank": 369,
-      "Score": 30,
+      "Rank": 364,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3787.T": {
-      "Rank": 370,
-      "Score": 30,
+      "Rank": 365,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3803.T": {
-      "Rank": 371,
-      "Score": 30,
+      "Rank": 366,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3793.T": {
-      "Rank": 372,
-      "Score": 30,
+      "Rank": 367,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3816.T": {
-      "Rank": 373,
-      "Score": 30,
+      "Rank": 368,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "3842.T": {
-      "Rank": 374,
-      "Score": 30,
+      "Rank": 369,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3841.T": {
-      "Rank": 375,
-      "Score": 30,
+      "Rank": 370,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3878.T": {
-      "Rank": 376,
-      "Score": 30,
+      "Rank": 371,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3901.T": {
-      "Rank": 377,
-      "Score": 30,
+      "Rank": 372,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3908.T": {
-      "Rank": 378,
-      "Score": 30,
+      "Rank": 373,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3909.T": {
-      "Rank": 379,
-      "Score": 30,
+      "Rank": 374,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3910.T": {
-      "Rank": 380,
-      "Score": 30,
+      "Rank": 375,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3926.T": {
-      "Rank": 381,
-      "Score": 30,
+      "Rank": 376,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3943.T": {
-      "Rank": 382,
-      "Score": 30,
+      "Rank": 377,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3951.T": {
-      "Rank": 383,
-      "Score": 30,
+      "Rank": 378,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4316.T": {
-      "Rank": 384,
-      "Score": 30,
+      "Rank": 379,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "4324.T": {
-      "Rank": 385,
-      "Score": 30,
+      "Rank": 380,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "4331.T": {
-      "Rank": 386,
-      "Score": 30,
+      "Rank": 381,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "4341.T": {
-      "Rank": 387,
-      "Score": 30,
+      "Rank": 382,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4346.T": {
-      "Rank": 388,
-      "Score": 30,
+      "Rank": 383,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "4350.T": {
-      "Rank": 389,
-      "Score": 30,
+      "Rank": 384,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4361.T": {
-      "Rank": 390,
-      "Score": 30,
+      "Rank": 385,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "4376.T": {
-      "Rank": 391,
-      "Score": 30,
+      "Rank": 386,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "4377.T": {
-      "Rank": 392,
-      "Score": 30,
+      "Rank": 387,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4381.T": {
-      "Rank": 393,
-      "Score": 30,
+      "Rank": 388,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4394.T": {
-      "Rank": 394,
-      "Score": 30,
+      "Rank": 389,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "4404.T": {
-      "Rank": 395,
-      "Score": 30,
+      "Rank": 390,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "4413.T": {
-      "Rank": 396,
-      "Score": 30,
+      "Rank": 391,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4431.T": {
-      "Rank": 397,
-      "Score": 30,
+      "Rank": 392,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "4438.T": {
-      "Rank": 398,
-      "Score": 30,
+      "Rank": 393,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4446.T": {
-      "Rank": 399,
-      "Score": 30,
+      "Rank": 394,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "4493.T": {
-      "Rank": 400,
-      "Score": 30,
+      "Rank": 395,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4498.T": {
-      "Rank": 401,
-      "Score": 30,
+      "Rank": 396,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4516.T": {
-      "Rank": 402,
-      "Score": 30,
+      "Rank": 397,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4519.T": {
-      "Rank": 403,
-      "Score": 30,
+      "Rank": 398,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4548.T": {
-      "Rank": 404,
-      "Score": 30,
+      "Rank": 399,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4558.T": {
-      "Rank": 405,
-      "Score": 30,
+      "Rank": 400,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4569.T": {
-      "Rank": 406,
-      "Score": 30,
+      "Rank": 401,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4571.T": {
-      "Rank": 407,
-      "Score": 30,
+      "Rank": 402,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4583.T": {
-      "Rank": 408,
-      "Score": 30,
+      "Rank": 403,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4587.T": {
-      "Rank": 409,
-      "Score": 30,
+      "Rank": 404,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4591.T": {
-      "Rank": 410,
-      "Score": 30,
+      "Rank": 405,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4659.T": {
-      "Rank": 411,
-      "Score": 30,
+      "Rank": 406,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4680.T": {
-      "Rank": 412,
-      "Score": 30,
+      "Rank": 407,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4686.T": {
-      "Rank": 413,
-      "Score": 30,
+      "Rank": 408,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7041.T": {
-      "Rank": 414,
-      "Score": 30,
+      "Rank": 409,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "7066.T": {
-      "Rank": 415,
-      "Score": 30,
+      "Rank": 410,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "7063.T": {
-      "Rank": 416,
-      "Score": 30,
+      "Rank": 411,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "7078.T": {
-      "Rank": 417,
-      "Score": 30,
+      "Rank": 412,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7114.T": {
-      "Rank": 418,
-      "Score": 30,
+      "Rank": 413,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7148.T": {
-      "Rank": 419,
-      "Score": 30,
+      "Rank": 414,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "7187.T": {
-      "Rank": 420,
-      "Score": 30,
+      "Rank": 415,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7198.T": {
-      "Rank": 421,
-      "Score": 30,
+      "Rank": 416,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7261.T": {
-      "Rank": 422,
-      "Score": 30,
+      "Rank": 417,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7294.T": {
-      "Rank": 423,
-      "Score": 30,
+      "Rank": 418,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7343.T": {
-      "Rank": 424,
-      "Score": 30,
+      "Rank": 419,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7359.T": {
-      "Rank": 425,
-      "Score": 30,
+      "Rank": 420,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "7378.T": {
-      "Rank": 426,
-      "Score": 30,
+      "Rank": 421,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "7388.T": {
-      "Rank": 427,
-      "Score": 30,
+      "Rank": 422,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "7412.T": {
-      "Rank": 428,
-      "Score": 30,
+      "Rank": 423,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7414.T": {
-      "Rank": 429,
-      "Score": 30,
+      "Rank": 424,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7426.T": {
-      "Rank": 430,
-      "Score": 30,
+      "Rank": 425,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7461.T": {
-      "Rank": 431,
-      "Score": 30,
+      "Rank": 426,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7486.T": {
-      "Rank": 432,
-      "Score": 30,
+      "Rank": 427,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7531.T": {
-      "Rank": 433,
-      "Score": 30,
+      "Rank": 428,
+      "Score": 30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7554.T": {
-      "Rank": 434,
-      "Score": 30,
+      "Rank": 429,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7550.T": {
-      "Rank": 435,
-      "Score": 30,
+      "Rank": 430,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7575.T": {
-      "Rank": 436,
-      "Score": 30,
+      "Rank": 431,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7578.T": {
-      "Rank": 437,
-      "Score": 30,
+      "Rank": 432,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7581.T": {
-      "Rank": 438,
-      "Score": 30,
+      "Rank": 433,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "7585.T": {
-      "Rank": 439,
-      "Score": 30,
+      "Rank": 434,
+      "Score": 30.0,
       "Latest Quarter Period": null
     },
     "7602.T": {
-      "Rank": 440,
-      "Score": 30,
+      "Rank": 435,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7603.T": {
-      "Rank": 441,
-      "Score": 30,
+      "Rank": 436,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7624.T": {
-      "Rank": 442,
-      "Score": 30,
+      "Rank": 437,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7621.T": {
-      "Rank": 443,
-      "Score": 30,
+      "Rank": 438,
+      "Score": 30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1844.T": {
-      "Rank": 444,
-      "Score": 25,
+      "Rank": 439,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "2136.T": {
-      "Rank": 445,
-      "Score": 25,
+      "Rank": 440,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "2157.T": {
-      "Rank": 446,
-      "Score": 25,
+      "Rank": 441,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "2229.T": {
-      "Rank": 447,
-      "Score": 25,
+      "Rank": 442,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2307.T": {
-      "Rank": 448,
-      "Score": 25,
+      "Rank": 443,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2315.T": {
-      "Rank": 449,
-      "Score": 25,
+      "Rank": 444,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-01-31"
     },
     "2321.T": {
-      "Rank": 450,
-      "Score": 25,
+      "Rank": 445,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2329.T": {
-      "Rank": 451,
-      "Score": 25,
+      "Rank": 446,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3391.T": {
-      "Rank": 452,
-      "Score": 25,
+      "Rank": 447,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3418.T": {
-      "Rank": 453,
-      "Score": 25,
+      "Rank": 448,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "3501.T": {
-      "Rank": 454,
-      "Score": 25,
+      "Rank": 449,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-08-31"
     },
     "3539.T": {
-      "Rank": 455,
-      "Score": 25,
+      "Rank": 450,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-10-31"
     },
     "3547.T": {
-      "Rank": 456,
-      "Score": 25,
+      "Rank": 451,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "3559.T": {
-      "Rank": 457,
-      "Score": 25,
+      "Rank": 452,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3580.T": {
-      "Rank": 458,
-      "Score": 25,
+      "Rank": 453,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3678.T": {
-      "Rank": 459,
-      "Score": 25,
+      "Rank": 454,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3682.T": {
-      "Rank": 460,
-      "Score": 25,
+      "Rank": 455,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3696.T": {
-      "Rank": 461,
-      "Score": 25,
+      "Rank": 456,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3712.T": {
-      "Rank": 462,
-      "Score": 25,
+      "Rank": 457,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3758.T": {
-      "Rank": 463,
-      "Score": 25,
+      "Rank": 458,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3788.T": {
-      "Rank": 464,
-      "Score": 25,
+      "Rank": 459,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3907.T": {
-      "Rank": 465,
-      "Score": 25,
+      "Rank": 460,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "4307.T": {
-      "Rank": 466,
-      "Score": 25,
+      "Rank": 461,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "4317.T": {
-      "Rank": 467,
-      "Score": 25,
+      "Rank": 462,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "4356.T": {
-      "Rank": 468,
-      "Score": 25,
+      "Rank": 463,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4477.T": {
-      "Rank": 469,
-      "Score": 25,
+      "Rank": 464,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4538.T": {
-      "Rank": 470,
-      "Score": 25,
+      "Rank": 465,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4559.T": {
-      "Rank": 471,
-      "Score": 25,
+      "Rank": 466,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4579.T": {
-      "Rank": 472,
-      "Score": 25,
+      "Rank": 467,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4593.T": {
-      "Rank": 473,
-      "Score": 25,
+      "Rank": 468,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7033.T": {
-      "Rank": 474,
-      "Score": 25,
+      "Rank": 469,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "7057.T": {
-      "Rank": 475,
-      "Score": 25,
+      "Rank": 470,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7046.T": {
-      "Rank": 476,
-      "Score": 25,
+      "Rank": 471,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7059.T": {
-      "Rank": 477,
-      "Score": 25,
+      "Rank": 472,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "7067.T": {
-      "Rank": 478,
-      "Score": 25,
+      "Rank": 473,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7162.T": {
-      "Rank": 479,
-      "Score": 25,
+      "Rank": 474,
+      "Score": 25.0,
       "Latest Quarter Period": null
     },
     "7199.T": {
-      "Rank": 480,
-      "Score": 25,
+      "Rank": 475,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7214.T": {
-      "Rank": 481,
-      "Score": 25,
+      "Rank": 476,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7270.T": {
-      "Rank": 482,
-      "Score": 25,
+      "Rank": 477,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7362.T": {
-      "Rank": 483,
-      "Score": 25,
+      "Rank": 478,
+      "Score": 25.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7370.T": {
-      "Rank": 484,
-      "Score": 25,
+      "Rank": 479,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-08-31"
     },
     "7383.T": {
-      "Rank": 485,
-      "Score": 25,
+      "Rank": 480,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "7522.T": {
-      "Rank": 486,
-      "Score": 25,
+      "Rank": 481,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7596.T": {
-      "Rank": 487,
-      "Score": 25,
+      "Rank": 482,
+      "Score": 25.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1376.T": {
-      "Rank": 488,
-      "Score": 20,
+      "Rank": 483,
+      "Score": 20.0,
       "Latest Quarter Period": null
     },
     "1447.T": {
-      "Rank": 489,
-      "Score": 20,
+      "Rank": 484,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1788.T": {
-      "Rank": 490,
-      "Score": 20,
+      "Rank": 485,
+      "Score": 20.0,
       "Latest Quarter Period": null
     },
     "1861.T": {
-      "Rank": 491,
-      "Score": 20,
+      "Rank": 486,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1882.T": {
-      "Rank": 492,
-      "Score": 20,
+      "Rank": 487,
+      "Score": 20.0,
       "Latest Quarter Period": null
     },
     "1994.T": {
-      "Rank": 493,
-      "Score": 20,
+      "Rank": 488,
+      "Score": 20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2002.T": {
-      "Rank": 494,
-      "Score": 20,
+      "Rank": 489,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2109.T": {
-      "Rank": 495,
-      "Score": 20,
+      "Rank": 490,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2169.T": {
-      "Rank": 496,
-      "Score": 20,
+      "Rank": 491,
+      "Score": 20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2415.T": {
-      "Rank": 497,
-      "Score": 20,
+      "Rank": 492,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3405.T": {
-      "Rank": 498,
-      "Score": 20,
+      "Rank": 493,
+      "Score": 20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3529.T": {
-      "Rank": 499,
-      "Score": 20,
+      "Rank": 494,
+      "Score": 20.0,
       "Latest Quarter Period": null
     },
     "3553.T": {
-      "Rank": 500,
-      "Score": 20,
+      "Rank": 495,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3583.T": {
-      "Rank": 501,
-      "Score": 20,
-      "Latest Quarter Period": "2025-06-30"
-    },
-    "3591.T": {
-      "Rank": 502,
-      "Score": 20,
+      "Rank": 496,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3802.T": {
-      "Rank": 503,
-      "Score": 20,
+      "Rank": 497,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3880.T": {
-      "Rank": 504,
-      "Score": 20,
+      "Rank": 498,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4334.T": {
-      "Rank": 505,
-      "Score": 20,
+      "Rank": 499,
+      "Score": 20.0,
       "Latest Quarter Period": null
     },
     "4360.T": {
-      "Rank": 506,
-      "Score": 20,
+      "Rank": 500,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
-    "4367.T": {
-      "Rank": 507,
-      "Score": 20,
-      "Latest Quarter Period": null
-    },
     "4465.T": {
-      "Rank": 508,
-      "Score": 20,
+      "Rank": 501,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-08-31"
     },
     "4549.T": {
-      "Rank": 509,
-      "Score": 20,
+      "Rank": 502,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4547.T": {
-      "Rank": 510,
-      "Score": 20,
+      "Rank": 503,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4645.T": {
-      "Rank": 511,
-      "Score": 20,
+      "Rank": 504,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7202.T": {
-      "Rank": 512,
-      "Score": 20,
+      "Rank": 505,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7220.T": {
-      "Rank": 513,
-      "Score": 20,
+      "Rank": 506,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7374.T": {
-      "Rank": 514,
-      "Score": 20,
+      "Rank": 507,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7416.T": {
-      "Rank": 515,
-      "Score": 20,
+      "Rank": 508,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7443.T": {
-      "Rank": 516,
-      "Score": 20,
+      "Rank": 509,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7538.T": {
-      "Rank": 517,
-      "Score": 20,
+      "Rank": 510,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7555.T": {
-      "Rank": 518,
-      "Score": 20,
+      "Rank": 511,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7604.T": {
-      "Rank": 519,
-      "Score": 20,
+      "Rank": 512,
+      "Score": 20.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "1332.T": {
-      "Rank": 520,
-      "Score": 15,
+      "Rank": 513,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1436.T": {
-      "Rank": 521,
-      "Score": 15,
+      "Rank": 514,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "1605.T": {
-      "Rank": 522,
-      "Score": 15,
+      "Rank": 515,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1720.T": {
-      "Rank": 523,
-      "Score": 15,
+      "Rank": 516,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1812.T": {
-      "Rank": 524,
-      "Score": 15,
+      "Rank": 517,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1799.T": {
-      "Rank": 525,
-      "Score": 15,
+      "Rank": 518,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1801.T": {
-      "Rank": 526,
-      "Score": 15,
+      "Rank": 519,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1848.T": {
-      "Rank": 527,
-      "Score": 15,
+      "Rank": 520,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1833.T": {
-      "Rank": 528,
-      "Score": 15,
+      "Rank": 521,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1871.T": {
-      "Rank": 529,
-      "Score": 15,
+      "Rank": 522,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1873.T": {
-      "Rank": 530,
-      "Score": 15,
+      "Rank": 523,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "1964.T": {
-      "Rank": 531,
-      "Score": 15,
+      "Rank": 524,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1965.T": {
-      "Rank": 532,
-      "Score": 15,
+      "Rank": 525,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2112.T": {
-      "Rank": 533,
-      "Score": 15,
+      "Rank": 526,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2117.T": {
-      "Rank": 534,
-      "Score": 15,
+      "Rank": 527,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2154.T": {
-      "Rank": 535,
-      "Score": 15,
+      "Rank": 528,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-09-30"
     },
     "2158.T": {
-      "Rank": 536,
-      "Score": 15,
+      "Rank": 529,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2163.T": {
-      "Rank": 537,
-      "Score": 15,
+      "Rank": 530,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "2179.T": {
-      "Rank": 538,
-      "Score": 15,
+      "Rank": 531,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2204.T": {
-      "Rank": 539,
-      "Score": 15,
+      "Rank": 532,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2215.T": {
-      "Rank": 540,
-      "Score": 15,
+      "Rank": 533,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2325.T": {
-      "Rank": 541,
-      "Score": 15,
+      "Rank": 534,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2342.T": {
-      "Rank": 542,
-      "Score": 15,
+      "Rank": 535,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2353.T": {
-      "Rank": 543,
-      "Score": 15,
+      "Rank": 536,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-10-31"
     },
     "2359.T": {
-      "Rank": 544,
-      "Score": 15,
+      "Rank": 537,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2435.T": {
-      "Rank": 545,
-      "Score": 15,
+      "Rank": 538,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2429.T": {
-      "Rank": 546,
-      "Score": 15,
+      "Rank": 539,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2461.T": {
-      "Rank": 547,
-      "Score": 15,
+      "Rank": 540,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3320.T": {
-      "Rank": 548,
-      "Score": 15,
+      "Rank": 541,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3329.T": {
-      "Rank": 549,
-      "Score": 15,
+      "Rank": 542,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "3355.T": {
-      "Rank": 550,
-      "Score": 15,
+      "Rank": 543,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3352.T": {
-      "Rank": 551,
-      "Score": 15,
+      "Rank": 544,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3421.T": {
-      "Rank": 552,
-      "Score": 15,
+      "Rank": 545,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-10-31"
     },
     "3443.T": {
-      "Rank": 553,
-      "Score": 15,
+      "Rank": 546,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3446.T": {
-      "Rank": 554,
-      "Score": 15,
+      "Rank": 547,
+      "Score": 15.0,
       "Latest Quarter Period": null
     },
-    "3452.T": {
-      "Rank": 555,
-      "Score": 15,
-      "Latest Quarter Period": "2026-03-31"
-    },
     "3447.T": {
-      "Rank": 556,
-      "Score": 15,
+      "Rank": 548,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3482.T": {
-      "Rank": 557,
-      "Score": 15,
+      "Rank": 549,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3484.T": {
-      "Rank": 558,
-      "Score": 15,
+      "Rank": 550,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3489.T": {
-      "Rank": 559,
-      "Score": 15,
+      "Rank": 551,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3513.T": {
-      "Rank": 560,
-      "Score": 15,
+      "Rank": 552,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3608.T": {
-      "Rank": 561,
-      "Score": 15,
+      "Rank": 553,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3622.T": {
-      "Rank": 562,
-      "Score": 15,
+      "Rank": 554,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3691.T": {
-      "Rank": 563,
-      "Score": 15,
+      "Rank": 555,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3744.T": {
-      "Rank": 564,
-      "Score": 15,
+      "Rank": 556,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3777.T": {
-      "Rank": 565,
-      "Score": 15,
+      "Rank": 557,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "3861.T": {
-      "Rank": 566,
-      "Score": 15,
+      "Rank": 558,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3932.T": {
-      "Rank": 567,
-      "Score": 15,
+      "Rank": 559,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3945.T": {
-      "Rank": 568,
-      "Score": 15,
+      "Rank": 560,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3948.T": {
-      "Rank": 569,
-      "Score": 15,
+      "Rank": 561,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4347.T": {
-      "Rank": 570,
-      "Score": 15,
+      "Rank": 562,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4351.T": {
-      "Rank": 571,
-      "Score": 15,
+      "Rank": 563,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-03-31"
     },
     "4379.T": {
-      "Rank": 572,
-      "Score": 15,
+      "Rank": 564,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4380.T": {
-      "Rank": 573,
-      "Score": 15,
+      "Rank": 565,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "4386.T": {
-      "Rank": 574,
-      "Score": 15,
+      "Rank": 566,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4415.T": {
-      "Rank": 575,
-      "Score": 15,
+      "Rank": 567,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4417.T": {
-      "Rank": 576,
-      "Score": 15,
+      "Rank": 568,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4452.T": {
-      "Rank": 577,
-      "Score": 15,
+      "Rank": 569,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4482.T": {
-      "Rank": 578,
-      "Score": 15,
+      "Rank": 570,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4486.T": {
-      "Rank": 579,
-      "Score": 15,
+      "Rank": 571,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4503.T": {
-      "Rank": 580,
-      "Score": 15,
+      "Rank": 572,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4528.T": {
-      "Rank": 581,
-      "Score": 15,
+      "Rank": 573,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4531.T": {
-      "Rank": 582,
-      "Score": 15,
+      "Rank": 574,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4539.T": {
-      "Rank": 583,
-      "Score": 15,
+      "Rank": 575,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4534.T": {
-      "Rank": 584,
-      "Score": 15,
+      "Rank": 576,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4565.T": {
-      "Rank": 585,
-      "Score": 15,
+      "Rank": 577,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4611.T": {
-      "Rank": 586,
-      "Score": 15,
+      "Rank": 578,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4673.T": {
-      "Rank": 587,
-      "Score": 15,
+      "Rank": 579,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "4674.T": {
-      "Rank": 588,
-      "Score": 15,
+      "Rank": 580,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4678.T": {
-      "Rank": 589,
-      "Score": 15,
+      "Rank": 581,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4681.T": {
-      "Rank": 590,
-      "Score": 15,
+      "Rank": 582,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7050.T": {
-      "Rank": 591,
-      "Score": 15,
+      "Rank": 583,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "7080.T": {
-      "Rank": 592,
-      "Score": 15,
+      "Rank": 584,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7110.T": {
-      "Rank": 593,
-      "Score": 15,
+      "Rank": 585,
+      "Score": 15.0,
       "Latest Quarter Period": null
     },
     "7157.T": {
-      "Rank": 594,
-      "Score": 15,
+      "Rank": 586,
+      "Score": 15.0,
       "Latest Quarter Period": null
     },
     "7150.T": {
-      "Rank": 595,
-      "Score": 15,
+      "Rank": 587,
+      "Score": 15.0,
       "Latest Quarter Period": null
     },
     "7164.T": {
-      "Rank": 596,
-      "Score": 15,
+      "Rank": 588,
+      "Score": 15.0,
       "Latest Quarter Period": null
     },
     "7175.T": {
-      "Rank": 597,
-      "Score": 15,
+      "Rank": 589,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7192.T": {
-      "Rank": 598,
-      "Score": 15,
+      "Rank": 590,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7224.T": {
-      "Rank": 599,
-      "Score": 15,
+      "Rank": 591,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7241.T": {
-      "Rank": 600,
-      "Score": 15,
+      "Rank": 592,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7246.T": {
-      "Rank": 601,
-      "Score": 15,
+      "Rank": 593,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7259.T": {
-      "Rank": 602,
-      "Score": 15,
+      "Rank": 594,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7269.T": {
-      "Rank": 603,
-      "Score": 15,
+      "Rank": 595,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7297.T": {
-      "Rank": 604,
-      "Score": 15,
+      "Rank": 596,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7309.T": {
-      "Rank": 605,
-      "Score": 15,
+      "Rank": 597,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7520.T": {
-      "Rank": 606,
-      "Score": 15,
+      "Rank": 598,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7551.T": {
-      "Rank": 607,
-      "Score": 15,
+      "Rank": 599,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7590.T": {
-      "Rank": 608,
-      "Score": 15,
+      "Rank": 600,
+      "Score": 15.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "7608.T": {
-      "Rank": 609,
-      "Score": 15,
+      "Rank": 601,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7628.T": {
-      "Rank": 610,
-      "Score": 15,
+      "Rank": 602,
+      "Score": 15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1379.T": {
-      "Rank": 611,
-      "Score": 10,
+      "Rank": 603,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
-    "1377.T": {
-      "Rank": 612,
-      "Score": 10,
-      "Latest Quarter Period": null
-    },
     "1301.T": {
-      "Rank": 613,
-      "Score": 10,
+      "Rank": 604,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1407.T": {
-      "Rank": 614,
-      "Score": 10,
+      "Rank": 605,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "1662.T": {
-      "Rank": 615,
-      "Score": 10,
+      "Rank": 606,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "1813.T": {
-      "Rank": 616,
-      "Score": 10,
+      "Rank": 607,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1820.T": {
-      "Rank": 617,
-      "Score": 10,
+      "Rank": 608,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1852.T": {
-      "Rank": 618,
-      "Score": 10,
+      "Rank": 609,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1870.T": {
-      "Rank": 619,
-      "Score": 10,
+      "Rank": 610,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2124.T": {
-      "Rank": 620,
-      "Score": 10,
+      "Rank": 611,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2130.T": {
-      "Rank": 621,
-      "Score": 10,
+      "Rank": 612,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2127.T": {
-      "Rank": 622,
-      "Score": 10,
+      "Rank": 613,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2160.T": {
-      "Rank": 623,
-      "Score": 10,
+      "Rank": 614,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2173.T": {
-      "Rank": 624,
-      "Score": 10,
+      "Rank": 615,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2186.T": {
-      "Rank": 625,
-      "Score": 10,
+      "Rank": 616,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2226.T": {
-      "Rank": 626,
-      "Score": 10,
+      "Rank": 617,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2267.T": {
-      "Rank": 627,
-      "Score": 10,
+      "Rank": 618,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2292.T": {
-      "Rank": 628,
-      "Score": 10,
+      "Rank": 619,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2341.T": {
-      "Rank": 629,
-      "Score": 10,
+      "Rank": 620,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2432.T": {
-      "Rank": 630,
-      "Score": 10,
+      "Rank": 621,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2445.T": {
-      "Rank": 631,
-      "Score": 10,
+      "Rank": 622,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3353.T": {
-      "Rank": 632,
-      "Score": 10,
+      "Rank": 623,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3479.T": {
-      "Rank": 633,
-      "Score": 10,
+      "Rank": 624,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3486.T": {
-      "Rank": 634,
-      "Score": 10,
+      "Rank": 625,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3640.T": {
-      "Rank": 635,
-      "Score": 10,
+      "Rank": 626,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3662.T": {
-      "Rank": 636,
-      "Score": 10,
+      "Rank": 627,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-10-31"
     },
     "3673.T": {
-      "Rank": 637,
-      "Score": 10,
+      "Rank": 628,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3683.T": {
-      "Rank": 638,
-      "Score": 10,
+      "Rank": 629,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3769.T": {
-      "Rank": 639,
-      "Score": 10,
+      "Rank": 630,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3817.T": {
-      "Rank": 640,
-      "Score": 10,
+      "Rank": 631,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3850.T": {
-      "Rank": 641,
-      "Score": 10,
+      "Rank": 632,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3853.T": {
-      "Rank": 642,
-      "Score": 10,
+      "Rank": 633,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3913.T": {
-      "Rank": 643,
-      "Score": 10,
+      "Rank": 634,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3915.T": {
-      "Rank": 644,
-      "Score": 10,
+      "Rank": 635,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3922.T": {
-      "Rank": 645,
-      "Score": 10,
+      "Rank": 636,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4366.T": {
-      "Rank": 646,
-      "Score": 10,
+      "Rank": 637,
+      "Score": 10.0,
       "Latest Quarter Period": null
     },
     "4371.T": {
-      "Rank": 647,
-      "Score": 10,
+      "Rank": 638,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4374.T": {
-      "Rank": 648,
-      "Score": 10,
+      "Rank": 639,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4437.T": {
-      "Rank": 649,
-      "Score": 10,
+      "Rank": 640,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4479.T": {
-      "Rank": 650,
-      "Score": 10,
+      "Rank": 641,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "4481.T": {
-      "Rank": 651,
-      "Score": 10,
+      "Rank": 642,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4494.T": {
-      "Rank": 652,
-      "Score": 10,
+      "Rank": 643,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4507.T": {
-      "Rank": 653,
-      "Score": 10,
+      "Rank": 644,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4524.T": {
-      "Rank": 654,
-      "Score": 10,
+      "Rank": 645,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4612.T": {
-      "Rank": 655,
-      "Score": 10,
+      "Rank": 646,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4616.T": {
-      "Rank": 656,
-      "Score": 10,
+      "Rank": 647,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "4628.T": {
-      "Rank": 657,
-      "Score": 10,
+      "Rank": 648,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4685.T": {
-      "Rank": 658,
-      "Score": 10,
+      "Rank": 649,
+      "Score": 10.0,
       "Latest Quarter Period": null
     },
     "4689.T": {
-      "Rank": 659,
-      "Score": 10,
+      "Rank": 650,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7272.T": {
-      "Rank": 660,
-      "Score": 10,
+      "Rank": 651,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7279.T": {
-      "Rank": 661,
-      "Score": 10,
+      "Rank": 652,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-01-31"
     },
     "7347.T": {
-      "Rank": 662,
-      "Score": 10,
+      "Rank": 653,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7353.T": {
-      "Rank": 663,
-      "Score": 10,
+      "Rank": 654,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7367.T": {
-      "Rank": 664,
-      "Score": 10,
+      "Rank": 655,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7487.T": {
-      "Rank": 665,
-      "Score": 10,
+      "Rank": 656,
+      "Score": 10.0,
       "Latest Quarter Period": null
     },
     "7508.T": {
-      "Rank": 666,
-      "Score": 10,
+      "Rank": 657,
+      "Score": 10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7614.T": {
-      "Rank": 667,
-      "Score": 10,
+      "Rank": 658,
+      "Score": 10.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "1764.T": {
-      "Rank": 668,
-      "Score": 5,
+      "Rank": 659,
+      "Score": 5.0,
       "Latest Quarter Period": null
     },
     "1807.T": {
-      "Rank": 669,
-      "Score": 5,
+      "Rank": 660,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1814.T": {
-      "Rank": 670,
-      "Score": 5,
+      "Rank": 661,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1828.T": {
-      "Rank": 671,
-      "Score": 5,
+      "Rank": 662,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1867.T": {
-      "Rank": 672,
-      "Score": 5,
+      "Rank": 663,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1914.T": {
-      "Rank": 673,
-      "Score": 5,
+      "Rank": 664,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1934.T": {
-      "Rank": 674,
-      "Score": 5,
+      "Rank": 665,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2120.T": {
-      "Rank": 675,
-      "Score": 5,
+      "Rank": 666,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "2139.T": {
-      "Rank": 676,
-      "Score": 5,
+      "Rank": 667,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2269.T": {
-      "Rank": 677,
-      "Score": 5,
+      "Rank": 668,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2311.T": {
-      "Rank": 678,
-      "Score": 5,
+      "Rank": 669,
+      "Score": 5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3326.T": {
-      "Rank": 679,
-      "Score": 5,
+      "Rank": 670,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3370.T": {
-      "Rank": 680,
-      "Score": 5,
+      "Rank": 671,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3387.T": {
-      "Rank": 681,
-      "Score": 5,
+      "Rank": 672,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "3417.T": {
-      "Rank": 682,
-      "Score": 5,
+      "Rank": 673,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3537.T": {
-      "Rank": 683,
-      "Score": 5,
+      "Rank": 674,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3773.T": {
-      "Rank": 684,
-      "Score": 5,
+      "Rank": 675,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3800.T": {
-      "Rank": 685,
-      "Score": 5,
+      "Rank": 676,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3799.T": {
-      "Rank": 686,
-      "Score": 5,
+      "Rank": 677,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3837.T": {
-      "Rank": 687,
-      "Score": 5,
+      "Rank": 678,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3954.T": {
-      "Rank": 688,
-      "Score": 5,
+      "Rank": 679,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4409.T": {
-      "Rank": 689,
-      "Score": 5,
+      "Rank": 680,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4445.T": {
-      "Rank": 690,
-      "Score": 5,
+      "Rank": 681,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4496.T": {
-      "Rank": 691,
-      "Score": 5,
+      "Rank": 682,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4635.T": {
-      "Rank": 692,
-      "Score": 5,
+      "Rank": 683,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4712.T": {
-      "Rank": 693,
-      "Score": 5,
+      "Rank": 684,
+      "Score": 5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7102.T": {
-      "Rank": 694,
-      "Score": 5,
+      "Rank": 685,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
-    "7255.T": {
-      "Rank": 695,
-      "Score": 5,
-      "Latest Quarter Period": null
-    },
     "7305.T": {
-      "Rank": 696,
-      "Score": 5,
+      "Rank": 686,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7345.T": {
-      "Rank": 697,
-      "Score": 5,
+      "Rank": 687,
+      "Score": 5.0,
       "Latest Quarter Period": "2025-06-30"
     },
+    "3591.T": {
+      "Rank": 688,
+      "Score": 0,
+      "Latest Quarter Period": null
+    },
     "1414.T": {
-      "Rank": 698,
+      "Rank": 689,
       "Score": 0,
       "Latest Quarter Period": "2025-09-30"
     },
     "1380.T": {
-      "Rank": 699,
+      "Rank": 690,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1443.T": {
-      "Rank": 700,
+      "Rank": 691,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1723.T": {
-      "Rank": 701,
+      "Rank": 692,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1716.T": {
-      "Rank": 702,
+      "Rank": 693,
       "Score": 0,
       "Latest Quarter Period": "2025-09-30"
     },
     "1736.T": {
-      "Rank": 703,
+      "Rank": 694,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1795.T": {
-      "Rank": 704,
+      "Rank": 695,
       "Score": 0,
       "Latest Quarter Period": "2025-12-31"
     },
     "1822.T": {
-      "Rank": 705,
+      "Rank": 696,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1847.T": {
-      "Rank": 706,
+      "Rank": 697,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1860.T": {
-      "Rank": 707,
+      "Rank": 698,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1879.T": {
-      "Rank": 708,
+      "Rank": 699,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1893.T": {
-      "Rank": 709,
+      "Rank": 700,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1899.T": {
-      "Rank": 710,
+      "Rank": 701,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1905.T": {
-      "Rank": 711,
+      "Rank": 702,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1941.T": {
-      "Rank": 712,
+      "Rank": 703,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1939.T": {
-      "Rank": 713,
+      "Rank": 704,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1952.T": {
-      "Rank": 714,
+      "Rank": 705,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1963.T": {
-      "Rank": 715,
+      "Rank": 706,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1967.T": {
-      "Rank": 716,
+      "Rank": 707,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1981.T": {
-      "Rank": 717,
+      "Rank": 708,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2003.T": {
-      "Rank": 718,
+      "Rank": 709,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2055.T": {
-      "Rank": 719,
+      "Rank": 710,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2060.T": {
-      "Rank": 720,
+      "Rank": 711,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2009.T": {
-      "Rank": 721,
+      "Rank": 712,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2175.T": {
-      "Rank": 722,
+      "Rank": 713,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2222.T": {
-      "Rank": 723,
+      "Rank": 714,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2281.T": {
-      "Rank": 724,
+      "Rank": 715,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2317.T": {
-      "Rank": 725,
+      "Rank": 716,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2344.T": {
-      "Rank": 726,
+      "Rank": 717,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2354.T": {
-      "Rank": 727,
+      "Rank": 718,
       "Score": 0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2393.T": {
-      "Rank": 728,
+      "Rank": 719,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2408.T": {
-      "Rank": 729,
+      "Rank": 720,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2433.T": {
-      "Rank": 730,
+      "Rank": 721,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2436.T": {
-      "Rank": 731,
+      "Rank": 722,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3266.T": {
-      "Rank": 732,
+      "Rank": 723,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "3315.T": {
-      "Rank": 733,
+      "Rank": 724,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "3375.T": {
-      "Rank": 734,
+      "Rank": 725,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3382.T": {
-      "Rank": 735,
+      "Rank": 726,
       "Score": 0,
       "Latest Quarter Period": "2025-11-30"
     },
     "3399.T": {
-      "Rank": 736,
+      "Rank": 727,
       "Score": 0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3407.T": {
-      "Rank": 737,
+      "Rank": 728,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3420.T": {
-      "Rank": 738,
+      "Rank": 729,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "3422.T": {
-      "Rank": 739,
+      "Rank": 730,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3434.T": {
-      "Rank": 740,
+      "Rank": 731,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3437.T": {
-      "Rank": 741,
+      "Rank": 732,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3433.T": {
-      "Rank": 742,
+      "Rank": 733,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3439.T": {
-      "Rank": 743,
+      "Rank": 734,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "3435.T": {
-      "Rank": 744,
+      "Rank": 735,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3444.T": {
-      "Rank": 745,
+      "Rank": 736,
       "Score": 0,
       "Latest Quarter Period": "2025-07-31"
     },
     "3467.T": {
-      "Rank": 746,
+      "Rank": 737,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3480.T": {
-      "Rank": 747,
+      "Rank": 738,
       "Score": 0,
       "Latest Quarter Period": "2026-01-31"
     },
     "3524.T": {
-      "Rank": 748,
+      "Rank": 739,
       "Score": 0,
       "Latest Quarter Period": "2025-07-31"
     },
     "3563.T": {
-      "Rank": 749,
+      "Rank": 740,
       "Score": 0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3561.T": {
-      "Rank": 750,
+      "Rank": 741,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3566.T": {
-      "Rank": 751,
+      "Rank": 742,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3569.T": {
-      "Rank": 752,
+      "Rank": 743,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3598.T": {
-      "Rank": 753,
+      "Rank": 744,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3597.T": {
-      "Rank": 754,
+      "Rank": 745,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "3612.T": {
-      "Rank": 755,
+      "Rank": 746,
       "Score": 0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3633.T": {
-      "Rank": 756,
+      "Rank": 747,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3649.T": {
-      "Rank": 757,
+      "Rank": 748,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3656.T": {
-      "Rank": 758,
+      "Rank": 749,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3708.T": {
-      "Rank": 759,
+      "Rank": 750,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3750.T": {
-      "Rank": 760,
+      "Rank": 751,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3763.T": {
-      "Rank": 761,
+      "Rank": 752,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3772.T": {
-      "Rank": 762,
+      "Rank": 753,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3796.T": {
-      "Rank": 763,
+      "Rank": 754,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3902.T": {
-      "Rank": 764,
+      "Rank": 755,
       "Score": 0,
       "Latest Quarter Period": "2025-03-31"
     },
     "3905.T": {
-      "Rank": 765,
+      "Rank": 756,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3920.T": {
-      "Rank": 766,
+      "Rank": 757,
       "Score": 0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3934.T": {
-      "Rank": 767,
+      "Rank": 758,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3936.T": {
-      "Rank": 768,
+      "Rank": 759,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3935.T": {
-      "Rank": 769,
+      "Rank": 760,
       "Score": 0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3941.T": {
-      "Rank": 770,
+      "Rank": 761,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4310.T": {
-      "Rank": 771,
+      "Rank": 762,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "4318.T": {
-      "Rank": 772,
+      "Rank": 763,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "4308.T": {
-      "Rank": 773,
+      "Rank": 764,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "4335.T": {
-      "Rank": 774,
+      "Rank": 765,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "4365.T": {
-      "Rank": 775,
+      "Rank": 766,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "4369.T": {
-      "Rank": 776,
+      "Rank": 767,
       "Score": 0,
       "Latest Quarter Period": "2026-04-30"
     },
     "4384.T": {
-      "Rank": 777,
+      "Rank": 768,
       "Score": 0,
       "Latest Quarter Period": "2025-10-31"
     },
     "4392.T": {
-      "Rank": 778,
+      "Rank": 769,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4390.T": {
-      "Rank": 779,
+      "Rank": 770,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4401.T": {
-      "Rank": 780,
+      "Rank": 771,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4406.T": {
-      "Rank": 781,
+      "Rank": 772,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4421.T": {
-      "Rank": 782,
-      "Score": 0,
-      "Latest Quarter Period": null
-    },
-    "4425.T": {
-      "Rank": 783,
+      "Rank": 773,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "4461.T": {
-      "Rank": 784,
+      "Rank": 774,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4464.T": {
-      "Rank": 785,
+      "Rank": 775,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4463.T": {
-      "Rank": 786,
+      "Rank": 776,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4506.T": {
-      "Rank": 787,
+      "Rank": 777,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4526.T": {
-      "Rank": 788,
+      "Rank": 778,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4530.T": {
-      "Rank": 789,
+      "Rank": 779,
       "Score": 0,
       "Latest Quarter Period": "2025-05-31"
     },
     "4572.T": {
-      "Rank": 790,
+      "Rank": 780,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4578.T": {
-      "Rank": 791,
+      "Rank": 781,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4613.T": {
-      "Rank": 792,
+      "Rank": 782,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4626.T": {
-      "Rank": 793,
+      "Rank": 783,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4658.T": {
-      "Rank": 794,
+      "Rank": 784,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4666.T": {
-      "Rank": 795,
+      "Rank": 785,
       "Score": 0,
       "Latest Quarter Period": "2026-01-31"
     },
     "4746.T": {
-      "Rank": 796,
+      "Rank": 786,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "7040.T": {
-      "Rank": 797,
+      "Rank": 787,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "7042.T": {
-      "Rank": 798,
+      "Rank": 788,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "7082.T": {
-      "Rank": 799,
+      "Rank": 789,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7084.T": {
-      "Rank": 800,
+      "Rank": 790,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7088.T": {
-      "Rank": 801,
+      "Rank": 791,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7089.T": {
-      "Rank": 802,
+      "Rank": 792,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7105.T": {
-      "Rank": 803,
+      "Rank": 793,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7185.T": {
-      "Rank": 804,
+      "Rank": 794,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7191.T": {
-      "Rank": 805,
+      "Rank": 795,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7217.T": {
-      "Rank": 806,
+      "Rank": 796,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7236.T": {
-      "Rank": 807,
+      "Rank": 797,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7245.T": {
-      "Rank": 808,
+      "Rank": 798,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7266.T": {
-      "Rank": 809,
+      "Rank": 799,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7277.T": {
-      "Rank": 810,
+      "Rank": 800,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7280.T": {
-      "Rank": 811,
+      "Rank": 801,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7291.T": {
-      "Rank": 812,
+      "Rank": 802,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7292.T": {
-      "Rank": 813,
+      "Rank": 803,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7314.T": {
-      "Rank": 814,
+      "Rank": 804,
       "Score": 0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7326.T": {
-      "Rank": 815,
+      "Rank": 805,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7318.T": {
-      "Rank": 816,
+      "Rank": 806,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7357.T": {
-      "Rank": 817,
+      "Rank": 807,
       "Score": 0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7366.T": {
-      "Rank": 818,
+      "Rank": 808,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7375.T": {
-      "Rank": 819,
+      "Rank": 809,
       "Score": 0,
       "Latest Quarter Period": null
     },
     "7381.T": {
-      "Rank": 820,
+      "Rank": 810,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7399.T": {
-      "Rank": 821,
+      "Rank": 811,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7458.T": {
-      "Rank": 822,
+      "Rank": 812,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7453.T": {
-      "Rank": 823,
+      "Rank": 813,
       "Score": 0,
       "Latest Quarter Period": "2025-11-30"
     },
     "7459.T": {
-      "Rank": 824,
+      "Rank": 814,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7460.T": {
-      "Rank": 825,
+      "Rank": 815,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7472.T": {
-      "Rank": 826,
+      "Rank": 816,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7490.T": {
-      "Rank": 827,
+      "Rank": 817,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7513.T": {
-      "Rank": 828,
+      "Rank": 818,
       "Score": 0,
       "Latest Quarter Period": "2026-02-28"
     },
     "7525.T": {
-      "Rank": 829,
+      "Rank": 819,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7532.T": {
-      "Rank": 830,
+      "Rank": 820,
       "Score": 0,
       "Latest Quarter Period": "2025-09-30"
     },
     "7539.T": {
-      "Rank": 831,
+      "Rank": 821,
       "Score": 0,
       "Latest Quarter Period": "2025-12-31"
     },
     "7564.T": {
-      "Rank": 832,
+      "Rank": 822,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7599.T": {
-      "Rank": 833,
+      "Rank": 823,
       "Score": 0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7600.T": {
-      "Rank": 834,
+      "Rank": 824,
       "Score": 0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7607.T": {
-      "Rank": 835,
+      "Rank": 825,
       "Score": 0,
       "Latest Quarter Period": "2025-11-30"
     },
+    "3452.T": {
+      "Rank": 826,
+      "Score": -5.0,
+      "Latest Quarter Period": null
+    },
     "1381.T": {
-      "Rank": 836,
-      "Score": -5,
+      "Rank": 827,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-09-30"
     },
     "1450.T": {
-      "Rank": 837,
-      "Score": -5,
+      "Rank": 828,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1762.T": {
-      "Rank": 838,
-      "Score": -5,
+      "Rank": 829,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1815.T": {
-      "Rank": 839,
-      "Score": -5,
+      "Rank": 830,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1810.T": {
-      "Rank": 840,
-      "Score": -5,
+      "Rank": 831,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1921.T": {
-      "Rank": 841,
-      "Score": -5,
+      "Rank": 832,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1980.T": {
-      "Rank": 842,
-      "Score": -5,
+      "Rank": 833,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2170.T": {
-      "Rank": 843,
-      "Score": -5,
+      "Rank": 834,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2206.T": {
-      "Rank": 844,
-      "Score": -5,
+      "Rank": 835,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2208.T": {
-      "Rank": 845,
-      "Score": -5,
+      "Rank": 836,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2221.T": {
-      "Rank": 846,
-      "Score": -5,
+      "Rank": 837,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2304.T": {
-      "Rank": 847,
-      "Score": -5,
+      "Rank": 838,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "2332.T": {
-      "Rank": 848,
-      "Score": -5,
+      "Rank": 839,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2337.T": {
-      "Rank": 849,
-      "Score": -5,
+      "Rank": 840,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "2340.T": {
-      "Rank": 850,
-      "Score": -5,
+      "Rank": 841,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2418.T": {
-      "Rank": 851,
-      "Score": -5,
+      "Rank": 842,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3289.T": {
-      "Rank": 852,
-      "Score": -5,
+      "Rank": 843,
+      "Score": -5.0,
       "Latest Quarter Period": null
     },
     "3300.T": {
-      "Rank": 853,
-      "Score": -5,
+      "Rank": 844,
+      "Score": -5.0,
       "Latest Quarter Period": null
     },
     "3386.T": {
-      "Rank": 854,
-      "Score": -5,
+      "Rank": 845,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3577.T": {
-      "Rank": 855,
-      "Score": -5,
+      "Rank": 846,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
-    "3645.T": {
-      "Rank": 856,
-      "Score": -5,
-      "Latest Quarter Period": null
-    },
     "3671.T": {
-      "Rank": 857,
-      "Score": -5,
+      "Rank": 847,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3687.T": {
-      "Rank": 858,
-      "Score": -5,
+      "Rank": 848,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3741.T": {
-      "Rank": 859,
-      "Score": -5,
+      "Rank": 849,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3826.T": {
-      "Rank": 860,
-      "Score": -5,
+      "Rank": 850,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3843.T": {
-      "Rank": 861,
-      "Score": -5,
+      "Rank": 851,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "3845.T": {
-      "Rank": 862,
-      "Score": -5,
+      "Rank": 852,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3927.T": {
-      "Rank": 863,
-      "Score": -5,
+      "Rank": 853,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3931.T": {
-      "Rank": 864,
-      "Score": -5,
+      "Rank": 854,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "3939.T": {
-      "Rank": 865,
-      "Score": -5,
+      "Rank": 855,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3947.T": {
-      "Rank": 866,
-      "Score": -5,
+      "Rank": 856,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3958.T": {
-      "Rank": 867,
-      "Score": -5,
+      "Rank": 857,
+      "Score": -5.0,
       "Latest Quarter Period": null
     },
     "4373.T": {
-      "Rank": 868,
-      "Score": -5,
+      "Rank": 858,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4389.T": {
-      "Rank": 869,
-      "Score": -5,
+      "Rank": 859,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4403.T": {
-      "Rank": 870,
-      "Score": -5,
+      "Rank": 860,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4450.T": {
-      "Rank": 871,
-      "Score": -5,
+      "Rank": 861,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4471.T": {
-      "Rank": 872,
-      "Score": -5,
+      "Rank": 862,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4491.T": {
-      "Rank": 873,
-      "Score": -5,
+      "Rank": 863,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4553.T": {
-      "Rank": 874,
-      "Score": -5,
+      "Rank": 864,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4595.T": {
-      "Rank": 875,
-      "Score": -5,
+      "Rank": 865,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4617.T": {
-      "Rank": 876,
-      "Score": -5,
+      "Rank": 866,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4588.T": {
-      "Rank": 877,
-      "Score": -5,
+      "Rank": 867,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4718.T": {
-      "Rank": 878,
-      "Score": -5,
+      "Rank": 868,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7043.T": {
-      "Rank": 879,
-      "Score": -5,
+      "Rank": 869,
+      "Score": -5.0,
       "Latest Quarter Period": null
     },
     "7060.T": {
-      "Rank": 880,
-      "Score": -5,
+      "Rank": 870,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7073.T": {
-      "Rank": 881,
-      "Score": -5,
+      "Rank": 871,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "7213.T": {
-      "Rank": 882,
-      "Score": -5,
+      "Rank": 872,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7228.T": {
-      "Rank": 883,
-      "Score": -5,
+      "Rank": 873,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7235.T": {
-      "Rank": 884,
-      "Score": -5,
+      "Rank": 874,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7283.T": {
-      "Rank": 885,
-      "Score": -5,
+      "Rank": 875,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7368.T": {
-      "Rank": 886,
-      "Score": -5,
+      "Rank": 876,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7425.T": {
-      "Rank": 887,
-      "Score": -5,
+      "Rank": 877,
+      "Score": -5.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7456.T": {
-      "Rank": 888,
-      "Score": -5,
+      "Rank": 878,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7463.T": {
-      "Rank": 889,
-      "Score": -5,
+      "Rank": 879,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7516.T": {
-      "Rank": 890,
-      "Score": -5,
+      "Rank": 880,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "7552.T": {
-      "Rank": 891,
-      "Score": -5,
+      "Rank": 881,
+      "Score": -5.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "8570.T": {
-      "Rank": 892,
-      "Score": -5,
+      "Rank": 882,
+      "Score": -5.0,
       "Latest Quarter Period": null
     },
     "1770.T": {
-      "Rank": 893,
-      "Score": -10,
+      "Rank": 883,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1904.T": {
-      "Rank": 894,
-      "Score": -10,
+      "Rank": 884,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1909.T": {
-      "Rank": 895,
-      "Score": -10,
+      "Rank": 885,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1926.T": {
-      "Rank": 896,
-      "Score": -10,
+      "Rank": 886,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1946.T": {
-      "Rank": 897,
-      "Score": -10,
+      "Rank": 887,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1959.T": {
-      "Rank": 898,
-      "Score": -10,
+      "Rank": 888,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1969.T": {
-      "Rank": 899,
-      "Score": -10,
+      "Rank": 889,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1975.T": {
-      "Rank": 900,
-      "Score": -10,
+      "Rank": 890,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1992.T": {
-      "Rank": 901,
-      "Score": -10,
+      "Rank": 891,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2004.T": {
-      "Rank": 902,
-      "Score": -10,
+      "Rank": 892,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2108.T": {
-      "Rank": 903,
-      "Score": -10,
+      "Rank": 893,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2180.T": {
-      "Rank": 904,
-      "Score": -10,
+      "Rank": 894,
+      "Score": -10.0,
       "Latest Quarter Period": null
     },
     "2270.T": {
-      "Rank": 905,
-      "Score": -10,
+      "Rank": 895,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2371.T": {
-      "Rank": 906,
-      "Score": -10,
+      "Rank": 896,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3402.T": {
-      "Rank": 907,
-      "Score": -10,
+      "Rank": 897,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3593.T": {
-      "Rank": 908,
-      "Score": -10,
+      "Rank": 898,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3663.T": {
-      "Rank": 909,
-      "Score": -10,
+      "Rank": 899,
+      "Score": -10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3766.T": {
-      "Rank": 910,
-      "Score": -10,
+      "Rank": 900,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3776.T": {
-      "Rank": 911,
-      "Score": -10,
+      "Rank": 901,
+      "Score": -10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3864.T": {
-      "Rank": 912,
-      "Score": -10,
+      "Rank": 902,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3946.T": {
-      "Rank": 913,
-      "Score": -10,
+      "Rank": 903,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4410.T": {
-      "Rank": 914,
-      "Score": -10,
+      "Rank": 904,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4419.T": {
-      "Rank": 915,
-      "Score": -10,
+      "Rank": 905,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4619.T": {
-      "Rank": 916,
-      "Score": -10,
+      "Rank": 906,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4633.T": {
-      "Rank": 917,
-      "Score": -10,
+      "Rank": 907,
+      "Score": -10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4671.T": {
-      "Rank": 918,
-      "Score": -10,
+      "Rank": 908,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7087.T": {
-      "Rank": 919,
-      "Score": -10,
+      "Rank": 909,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7122.T": {
-      "Rank": 920,
-      "Score": -10,
+      "Rank": 910,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7167.T": {
-      "Rank": 921,
-      "Score": -10,
+      "Rank": 911,
+      "Score": -10.0,
       "Latest Quarter Period": null
     },
     "7180.T": {
-      "Rank": 922,
-      "Score": -10,
+      "Rank": 912,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7189.T": {
-      "Rank": 923,
-      "Score": -10,
+      "Rank": 913,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7229.T": {
-      "Rank": 924,
-      "Score": -10,
+      "Rank": 914,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7239.T": {
-      "Rank": 925,
-      "Score": -10,
+      "Rank": 915,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7244.T": {
-      "Rank": 926,
-      "Score": -10,
+      "Rank": 916,
+      "Score": -10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7240.T": {
-      "Rank": 927,
-      "Score": -10,
+      "Rank": 917,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7256.T": {
-      "Rank": 928,
-      "Score": -10,
+      "Rank": 918,
+      "Score": -10.0,
       "Latest Quarter Period": null
     },
     "7276.T": {
-      "Rank": 929,
-      "Score": -10,
+      "Rank": 919,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7287.T": {
-      "Rank": 930,
-      "Score": -10,
+      "Rank": 920,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7284.T": {
-      "Rank": 931,
-      "Score": -10,
+      "Rank": 921,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7296.T": {
-      "Rank": 932,
-      "Score": -10,
+      "Rank": 922,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7322.T": {
-      "Rank": 933,
-      "Score": -10,
+      "Rank": 923,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7327.T": {
-      "Rank": 934,
-      "Score": -10,
+      "Rank": 924,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7350.T": {
-      "Rank": 935,
-      "Score": -10,
+      "Rank": 925,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7358.T": {
-      "Rank": 936,
-      "Score": -10,
+      "Rank": 926,
+      "Score": -10.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7371.T": {
-      "Rank": 937,
-      "Score": -10,
+      "Rank": 927,
+      "Score": -10.0,
       "Latest Quarter Period": null
     },
     "7380.T": {
-      "Rank": 938,
-      "Score": -10,
+      "Rank": 928,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7389.T": {
-      "Rank": 939,
-      "Score": -10,
+      "Rank": 929,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7419.T": {
-      "Rank": 940,
-      "Score": -10,
+      "Rank": 930,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7435.T": {
-      "Rank": 941,
-      "Score": -10,
+      "Rank": 931,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "7442.T": {
-      "Rank": 942,
-      "Score": -10,
+      "Rank": 932,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7510.T": {
-      "Rank": 943,
-      "Score": -10,
+      "Rank": 933,
+      "Score": -10.0,
       "Latest Quarter Period": null
     },
     "7537.T": {
-      "Rank": 944,
-      "Score": -10,
+      "Rank": 934,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7567.T": {
-      "Rank": 945,
-      "Score": -10,
+      "Rank": 935,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7565.T": {
-      "Rank": 946,
-      "Score": -10,
+      "Rank": 936,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7606.T": {
-      "Rank": 947,
-      "Score": -10,
+      "Rank": 937,
+      "Score": -10.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1375.T": {
-      "Rank": 948,
-      "Score": -15,
+      "Rank": 938,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1418.T": {
-      "Rank": 949,
-      "Score": -15,
+      "Rank": 939,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "1780.T": {
-      "Rank": 950,
-      "Score": -15,
+      "Rank": 940,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1802.T": {
-      "Rank": 951,
-      "Score": -15,
+      "Rank": 941,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1803.T": {
-      "Rank": 952,
-      "Score": -15,
+      "Rank": 942,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1808.T": {
-      "Rank": 953,
-      "Score": -15,
+      "Rank": 943,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-09-30"
     },
     "1827.T": {
-      "Rank": 954,
-      "Score": -15,
+      "Rank": 944,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2146.T": {
-      "Rank": 955,
-      "Score": -15,
+      "Rank": 945,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2162.T": {
-      "Rank": 956,
-      "Score": -15,
+      "Rank": 946,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2282.T": {
-      "Rank": 957,
-      "Score": -15,
+      "Rank": 947,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2300.T": {
-      "Rank": 958,
-      "Score": -15,
+      "Rank": 948,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "2334.T": {
-      "Rank": 959,
-      "Score": -15,
+      "Rank": 949,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3277.T": {
-      "Rank": 960,
-      "Score": -15,
+      "Rank": 950,
+      "Score": -15.0,
       "Latest Quarter Period": null
     },
     "3293.T": {
-      "Rank": 961,
-      "Score": -15,
+      "Rank": 951,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3361.T": {
-      "Rank": 962,
-      "Score": -15,
+      "Rank": 952,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-07-31"
     },
     "3392.T": {
-      "Rank": 963,
-      "Score": -15,
+      "Rank": 953,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3396.T": {
-      "Rank": 964,
-      "Score": -15,
+      "Rank": 954,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3521.T": {
-      "Rank": 965,
-      "Score": -15,
+      "Rank": 955,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3548.T": {
-      "Rank": 966,
-      "Score": -15,
+      "Rank": 956,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3863.T": {
-      "Rank": 967,
-      "Score": -15,
+      "Rank": 957,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3912.T": {
-      "Rank": 968,
-      "Score": -15,
+      "Rank": 958,
+      "Score": -15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3918.T": {
-      "Rank": 969,
-      "Score": -15,
+      "Rank": 959,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3944.T": {
-      "Rank": 970,
-      "Score": -15,
+      "Rank": 960,
+      "Score": -15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4484.T": {
-      "Rank": 971,
-      "Score": -15,
+      "Rank": 961,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4544.T": {
-      "Rank": 972,
-      "Score": -15,
+      "Rank": 962,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4625.T": {
-      "Rank": 973,
-      "Score": -15,
+      "Rank": 963,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4644.T": {
-      "Rank": 974,
-      "Score": -15,
+      "Rank": 964,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4662.T": {
-      "Rank": 975,
-      "Score": -15,
+      "Rank": 965,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4667.T": {
-      "Rank": 976,
-      "Score": -15,
+      "Rank": 966,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "6096.T": {
-      "Rank": 977,
-      "Score": -15,
+      "Rank": 967,
+      "Score": -15.0,
       "Latest Quarter Period": null
     },
     "7039.T": {
-      "Rank": 978,
-      "Score": -15,
+      "Rank": 968,
+      "Score": -15.0,
       "Latest Quarter Period": null
     },
     "7044.T": {
-      "Rank": 979,
-      "Score": -15,
+      "Rank": 969,
+      "Score": -15.0,
       "Latest Quarter Period": null
     },
     "7049.T": {
-      "Rank": 980,
-      "Score": -15,
+      "Rank": 970,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7112.T": {
-      "Rank": 981,
-      "Score": -15,
+      "Rank": 971,
+      "Score": -15.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7161.T": {
-      "Rank": 982,
-      "Score": -15,
+      "Rank": 972,
+      "Score": -15.0,
       "Latest Quarter Period": null
     },
     "7177.T": {
-      "Rank": 983,
-      "Score": -15,
+      "Rank": 973,
+      "Score": -15.0,
       "Latest Quarter Period": null
     },
     "7212.T": {
-      "Rank": 984,
-      "Score": -15,
+      "Rank": 974,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7231.T": {
-      "Rank": 985,
-      "Score": -15,
+      "Rank": 975,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7242.T": {
-      "Rank": 986,
-      "Score": -15,
+      "Rank": 976,
+      "Score": -15.0,
       "Latest Quarter Period": "2024-12-31"
     },
     "7247.T": {
-      "Rank": 987,
-      "Score": -15,
+      "Rank": 977,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7254.T": {
-      "Rank": 988,
-      "Score": -15,
+      "Rank": 978,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7264.T": {
-      "Rank": 989,
-      "Score": -15,
+      "Rank": 979,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7299.T": {
-      "Rank": 990,
-      "Score": -15,
+      "Rank": 980,
+      "Score": -15.0,
       "Latest Quarter Period": null
     },
     "7313.T": {
-      "Rank": 991,
-      "Score": -15,
+      "Rank": 981,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7433.T": {
-      "Rank": 992,
-      "Score": -15,
+      "Rank": 982,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7483.T": {
-      "Rank": 993,
-      "Score": -15,
+      "Rank": 983,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7482.T": {
-      "Rank": 994,
-      "Score": -15,
+      "Rank": 984,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7501.T": {
-      "Rank": 995,
-      "Score": -15,
+      "Rank": 985,
+      "Score": -15.0,
       "Latest Quarter Period": "2026-02-28"
     },
     "7523.T": {
-      "Rank": 996,
-      "Score": -15,
+      "Rank": 986,
+      "Score": -15.0,
       "Latest Quarter Period": "2025-06-30"
     },
-    "7593.T": {
-      "Rank": 997,
-      "Score": -15,
+    "3288.T": {
+      "Rank": 987,
+      "Score": -15.0,
+      "Latest Quarter Period": null
+    },
+    "3541.T": {
+      "Rank": 988,
+      "Score": -20.0,
       "Latest Quarter Period": null
     },
     "1417.T": {
-      "Rank": 998,
-      "Score": -20,
+      "Rank": 989,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1444.T": {
-      "Rank": 999,
-      "Score": -20,
+      "Rank": 990,
+      "Score": -20.0,
       "Latest Quarter Period": null
     },
     "1518.T": {
-      "Rank": 1000,
-      "Score": -20,
+      "Rank": 991,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1721.T": {
-      "Rank": 1001,
-      "Score": -20,
+      "Rank": 992,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1758.T": {
-      "Rank": 1002,
-      "Score": -20,
+      "Rank": 993,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-04-30"
     },
     "1938.T": {
-      "Rank": 1003,
-      "Score": -20,
+      "Rank": 994,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1942.T": {
-      "Rank": 1004,
-      "Score": -20,
+      "Rank": 995,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1950.T": {
-      "Rank": 1005,
-      "Score": -20,
+      "Rank": 996,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1951.T": {
-      "Rank": 1006,
-      "Score": -20,
+      "Rank": 997,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1976.T": {
-      "Rank": 1007,
-      "Score": -20,
+      "Rank": 998,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1979.T": {
-      "Rank": 1008,
-      "Score": -20,
+      "Rank": 999,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2001.T": {
-      "Rank": 1009,
-      "Score": -20,
+      "Rank": 1000,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2288.T": {
-      "Rank": 1010,
-      "Score": -20,
+      "Rank": 1001,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2384.T": {
-      "Rank": 1011,
-      "Score": -20,
+      "Rank": 1002,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "2410.T": {
-      "Rank": 1012,
-      "Score": -20,
+      "Rank": 1003,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3302.T": {
-      "Rank": 1013,
-      "Score": -20,
+      "Rank": 1004,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3393.T": {
-      "Rank": 1014,
-      "Score": -20,
+      "Rank": 1005,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3441.T": {
-      "Rank": 1015,
-      "Score": -20,
+      "Rank": 1006,
+      "Score": -20.0,
       "Latest Quarter Period": null
     },
     "3445.T": {
-      "Rank": 1016,
-      "Score": -20,
+      "Rank": 1007,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3449.T": {
-      "Rank": 1017,
-      "Score": -20,
+      "Rank": 1008,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3465.T": {
-      "Rank": 1018,
-      "Score": -20,
+      "Rank": 1009,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3477.T": {
-      "Rank": 1019,
-      "Score": -20,
+      "Rank": 1010,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3490.T": {
-      "Rank": 1020,
-      "Score": -20,
+      "Rank": 1011,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3546.T": {
-      "Rank": 1021,
-      "Score": -20,
+      "Rank": 1012,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3611.T": {
-      "Rank": 1022,
-      "Score": -20,
+      "Rank": 1013,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3723.T": {
-      "Rank": 1023,
-      "Score": -20,
+      "Rank": 1014,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "3768.T": {
-      "Rank": 1024,
-      "Score": -20,
+      "Rank": 1015,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3839.T": {
-      "Rank": 1025,
-      "Score": -20,
+      "Rank": 1016,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4320.T": {
-      "Rank": 1026,
-      "Score": -20,
+      "Rank": 1017,
+      "Score": -20.0,
       "Latest Quarter Period": null
     },
     "4368.T": {
-      "Rank": 1027,
-      "Score": -20,
+      "Rank": 1018,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4385.T": {
-      "Rank": 1028,
-      "Score": -20,
+      "Rank": 1019,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-09-30"
     },
     "4420.T": {
-      "Rank": 1029,
-      "Score": -20,
+      "Rank": 1020,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4536.T": {
-      "Rank": 1030,
-      "Score": -20,
+      "Rank": 1021,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4554.T": {
-      "Rank": 1031,
-      "Score": -20,
+      "Rank": 1022,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "4620.T": {
-      "Rank": 1032,
-      "Score": -20,
+      "Rank": 1023,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4629.T": {
-      "Rank": 1033,
-      "Score": -20,
+      "Rank": 1024,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4631.T": {
-      "Rank": 1034,
-      "Score": -20,
+      "Rank": 1025,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4665.T": {
-      "Rank": 1035,
-      "Score": -20,
+      "Rank": 1026,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7047.T": {
-      "Rank": 1036,
-      "Score": -20,
+      "Rank": 1027,
+      "Score": -20.0,
       "Latest Quarter Period": null
     },
     "7081.T": {
-      "Rank": 1037,
-      "Score": -20,
+      "Rank": 1028,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7091.T": {
-      "Rank": 1038,
-      "Score": -20,
+      "Rank": 1029,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7119.T": {
-      "Rank": 1039,
-      "Score": -20,
+      "Rank": 1030,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
-    "7138.T": {
-      "Rank": 1040,
-      "Score": -20,
-      "Latest Quarter Period": null
-    },
     "7172.T": {
-      "Rank": 1041,
-      "Score": -20,
+      "Rank": 1031,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7278.T": {
-      "Rank": 1042,
-      "Score": -20,
+      "Rank": 1032,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7282.T": {
-      "Rank": 1043,
-      "Score": -20,
+      "Rank": 1033,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7317.T": {
-      "Rank": 1044,
-      "Score": -20,
+      "Rank": 1034,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7354.T": {
-      "Rank": 1045,
-      "Score": -20,
+      "Rank": 1035,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7417.T": {
-      "Rank": 1046,
-      "Score": -20,
+      "Rank": 1036,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7446.T": {
-      "Rank": 1047,
-      "Score": -20,
+      "Rank": 1037,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "7466.T": {
-      "Rank": 1048,
-      "Score": -20,
+      "Rank": 1038,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7481.T": {
-      "Rank": 1049,
-      "Score": -20,
+      "Rank": 1039,
+      "Score": -20.0,
       "Latest Quarter Period": null
     },
     "7480.T": {
-      "Rank": 1050,
-      "Score": -20,
+      "Rank": 1040,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7521.T": {
-      "Rank": 1051,
-      "Score": -20,
+      "Rank": 1041,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7544.T": {
-      "Rank": 1052,
-      "Score": -20,
+      "Rank": 1042,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7562.T": {
-      "Rank": 1053,
-      "Score": -20,
+      "Rank": 1043,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7609.T": {
-      "Rank": 1054,
-      "Score": -20,
+      "Rank": 1044,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7610.T": {
-      "Rank": 1055,
-      "Score": -20,
+      "Rank": 1045,
+      "Score": -20.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "7625.T": {
-      "Rank": 1056,
-      "Score": -20,
+      "Rank": 1046,
+      "Score": -20.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1853.T": {
-      "Rank": 1057,
-      "Score": -25,
+      "Rank": 1047,
+      "Score": -25.0,
       "Latest Quarter Period": null
     },
-    "3900.T": {
-      "Rank": 1058,
-      "Score": -25,
+    "4615.T": {
+      "Rank": 1048,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
-    "4429.T": {
-      "Rank": 1059,
-      "Score": -25,
+    "3670.T": {
+      "Rank": 1049,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "1724.T": {
-      "Rank": 1060,
-      "Score": -30,
+      "Rank": 1050,
+      "Score": -30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "1776.T": {
-      "Rank": 1061,
-      "Score": -30,
+      "Rank": 1051,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1793.T": {
-      "Rank": 1062,
-      "Score": -30,
+      "Rank": 1052,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1811.T": {
-      "Rank": 1063,
-      "Score": -30,
+      "Rank": 1053,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1930.T": {
-      "Rank": 1064,
-      "Score": -30,
+      "Rank": 1054,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1944.T": {
-      "Rank": 1065,
-      "Score": -30,
+      "Rank": 1055,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1945.T": {
-      "Rank": 1066,
-      "Score": -30,
+      "Rank": 1056,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1961.T": {
-      "Rank": 1067,
-      "Score": -30,
+      "Rank": 1057,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1968.T": {
-      "Rank": 1068,
-      "Score": -30,
+      "Rank": 1058,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1982.T": {
-      "Rank": 1069,
-      "Score": -30,
+      "Rank": 1059,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2053.T": {
-      "Rank": 1070,
-      "Score": -30,
+      "Rank": 1060,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2122.T": {
-      "Rank": 1071,
-      "Score": -30,
+      "Rank": 1061,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-12-31"
     },
     "2207.T": {
-      "Rank": 1072,
-      "Score": -30,
+      "Rank": 1062,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2224.T": {
-      "Rank": 1073,
-      "Score": -30,
+      "Rank": 1063,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2264.T": {
-      "Rank": 1074,
-      "Score": -30,
+      "Rank": 1064,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2286.T": {
-      "Rank": 1075,
-      "Score": -30,
+      "Rank": 1065,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2376.T": {
-      "Rank": 1076,
-      "Score": -30,
+      "Rank": 1066,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "2498.T": {
-      "Rank": 1077,
-      "Score": -30,
+      "Rank": 1067,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "3286.T": {
-      "Rank": 1078,
-      "Score": -30,
+      "Rank": 1068,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "3276.T": {
-      "Rank": 1079,
-      "Score": -30,
+      "Rank": 1069,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "3401.T": {
-      "Rank": 1080,
-      "Score": -30,
+      "Rank": 1070,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3436.T": {
-      "Rank": 1081,
-      "Score": -30,
+      "Rank": 1071,
+      "Score": -30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3454.T": {
-      "Rank": 1082,
-      "Score": -30,
+      "Rank": 1072,
+      "Score": -30.0,
       "Latest Quarter Period": "2026-02-28"
     },
-    "3457.T": {
-      "Rank": 1083,
-      "Score": -30,
-      "Latest Quarter Period": null
-    },
     "3550.T": {
-      "Rank": 1084,
-      "Score": -30,
+      "Rank": 1073,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-05-31"
     },
     "3551.T": {
-      "Rank": 1085,
-      "Score": -30,
+      "Rank": 1074,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3672.T": {
-      "Rank": 1086,
-      "Score": -30,
+      "Rank": 1075,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "3877.T": {
-      "Rank": 1087,
-      "Score": -30,
+      "Rank": 1076,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3891.T": {
-      "Rank": 1088,
-      "Score": -30,
+      "Rank": 1077,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "3950.T": {
-      "Rank": 1089,
-      "Score": -30,
+      "Rank": 1078,
+      "Score": -30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4462.T": {
-      "Rank": 1090,
-      "Score": -30,
+      "Rank": 1079,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "4624.T": {
-      "Rank": 1091,
-      "Score": -30,
+      "Rank": 1080,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "4634.T": {
-      "Rank": 1092,
-      "Score": -30,
+      "Rank": 1081,
+      "Score": -30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "4676.T": {
-      "Rank": 1093,
-      "Score": -30,
+      "Rank": 1082,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7058.T": {
-      "Rank": 1094,
-      "Score": -30,
+      "Rank": 1083,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7085.T": {
-      "Rank": 1095,
-      "Score": -30,
+      "Rank": 1084,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-11-30"
     },
     "7097.T": {
-      "Rank": 1096,
-      "Score": -30,
+      "Rank": 1085,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "7173.T": {
-      "Rank": 1097,
-      "Score": -30,
+      "Rank": 1086,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "7181.T": {
-      "Rank": 1098,
-      "Score": -30,
+      "Rank": 1087,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "7182.T": {
-      "Rank": 1099,
-      "Score": -30,
+      "Rank": 1088,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "7186.T": {
-      "Rank": 1100,
-      "Score": -30,
+      "Rank": 1089,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7208.T": {
-      "Rank": 1101,
-      "Score": -30,
+      "Rank": 1090,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7337.T": {
-      "Rank": 1102,
-      "Score": -30,
+      "Rank": 1091,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
-    "7376.T": {
-      "Rank": 1103,
-      "Score": -30,
-      "Latest Quarter Period": null
-    },
     "7384.T": {
-      "Rank": 1104,
-      "Score": -30,
+      "Rank": 1092,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7462.T": {
-      "Rank": 1105,
-      "Score": -30,
+      "Rank": 1093,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7509.T": {
-      "Rank": 1106,
-      "Score": -30,
+      "Rank": 1094,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "7570.T": {
-      "Rank": 1107,
-      "Score": -30,
+      "Rank": 1095,
+      "Score": -30.0,
       "Latest Quarter Period": null
     },
     "7613.T": {
-      "Rank": 1108,
-      "Score": -30,
+      "Rank": 1096,
+      "Score": -30.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "7619.T": {
-      "Rank": 1109,
-      "Score": -30,
+      "Rank": 1097,
+      "Score": -30.0,
       "Latest Quarter Period": "2025-06-30"
     },
     "1798.T": {
-      "Rank": 1110,
-      "Score": -35,
-      "Latest Quarter Period": null
-    },
-    "3440.T": {
-      "Rank": 1111,
-      "Score": -35,
-      "Latest Quarter Period": null
-    },
-    "3760.T": {
-      "Rank": 1112,
-      "Score": -35,
-      "Latest Quarter Period": null
-    },
-    "3895.T": {
-      "Rank": 1113,
-      "Score": -35,
+      "Rank": 1098,
+      "Score": -35.0,
       "Latest Quarter Period": null
     },
     "7634.T": {
-      "Rank": 1114,
-      "Score": -35,
+      "Rank": 1099,
+      "Score": -35.0,
+      "Latest Quarter Period": null
+    },
+    "4367.T": {
+      "Rank": 1100,
+      "Score": -40.0,
       "Latest Quarter Period": null
     },
     "2153.T": {
-      "Rank": 1115,
-      "Score": -40,
+      "Rank": 1101,
+      "Score": -40.0,
       "Latest Quarter Period": null
     },
-    "3815.T": {
-      "Rank": 1116,
-      "Score": -45,
+    "4598.T": {
+      "Rank": 1102,
+      "Score": -50.0,
+      "Latest Quarter Period": null
+    },
+    "1377.T": {
+      "Rank": 1103,
+      "Score": -50.0,
       "Latest Quarter Period": null
     },
     "2185.T": {
-      "Rank": 1117,
-      "Score": -50,
+      "Rank": 1104,
+      "Score": -50.0,
       "Latest Quarter Period": null
     },
     "3321.T": {
-      "Rank": 1118,
-      "Score": -50,
+      "Rank": 1105,
+      "Score": -50.0,
       "Latest Quarter Period": null
     },
     "3560.T": {
-      "Rank": 1119,
-      "Score": -50,
+      "Rank": 1106,
+      "Score": -50.0,
       "Latest Quarter Period": null
     },
-    "4650.T": {
-      "Rank": 1120,
-      "Score": -50,
+    "7255.T": {
+      "Rank": 1107,
+      "Score": -55.0,
       "Latest Quarter Period": null
-    },
-    "4664.T": {
-      "Rank": 1121,
-      "Score": -50,
-      "Latest Quarter Period": null
-    },
-    "7361.T": {
-      "Rank": 1122,
-      "Score": -50,
-      "Latest Quarter Period": null
-    },
-    "3653.T": {
-      "Rank": 1123,
-      "Score": -55,
-      "Latest Quarter Period": null
-    },
-    "7267.T": {
-      "Rank": 1124,
-      "Score": -55,
-      "Latest Quarter Period": "2026-03-31"
     },
     "7504.T": {
-      "Rank": 1125,
-      "Score": -60,
+      "Rank": 1108,
+      "Score": -60.0,
       "Latest Quarter Period": null
     },
-    "3350.T": {
-      "Rank": 1126,
-      "Score": -65,
-      "Latest Quarter Period": "2026-03-31"
-    },
-    "3624.T": {
-      "Rank": 1127,
-      "Score": -65,
-      "Latest Quarter Period": null
-    },
-    "4657.T": {
-      "Rank": 1128,
-      "Score": -65,
-      "Latest Quarter Period": null
-    },
-    "7514.T": {
-      "Rank": 1129,
-      "Score": -65,
-      "Latest Quarter Period": null
-    },
-    "3791.T": {
-      "Rank": 1130,
-      "Score": -70,
+    "7593.T": {
+      "Rank": 1109,
+      "Score": -75.0,
       "Latest Quarter Period": null
     },
     "1438.T": {
-      "Rank": 1131,
-      "Score": -75,
+      "Rank": 1110,
+      "Score": -75.0,
       "Latest Quarter Period": null
     },
     "2345.T": {
-      "Rank": 1132,
-      "Score": -75,
+      "Rank": 1111,
+      "Score": -75.0,
       "Latest Quarter Period": null
     },
     "2459.T": {
-      "Rank": 1133,
-      "Score": -75,
+      "Rank": 1112,
+      "Score": -75.0,
       "Latest Quarter Period": null
     },
     "7219.T": {
-      "Rank": 1134,
-      "Score": -75,
-      "Latest Quarter Period": null
-    },
-    "2301.T": {
-      "Rank": 1135,
-      "Score": -80,
+      "Rank": 1113,
+      "Score": -75.0,
       "Latest Quarter Period": null
     },
     "3280.T": {
-      "Rank": 1136,
-      "Score": -80,
+      "Rank": 1114,
+      "Score": -80.0,
       "Latest Quarter Period": null
     },
-    "4577.T": {
-      "Rank": 1137,
-      "Score": -85,
+    "4429.T": {
+      "Rank": 1115,
+      "Score": -85.0,
       "Latest Quarter Period": null
     },
-    "3674.T": {
-      "Rank": 1138,
-      "Score": -90,
-      "Latest Quarter Period": null
-    },
-    "3810.T": {
-      "Rank": 1139,
-      "Score": -90,
-      "Latest Quarter Period": null
-    },
-    "4378.T": {
-      "Rank": 1140,
-      "Score": -90,
+    "3457.T": {
+      "Rank": 1116,
+      "Score": -90.0,
       "Latest Quarter Period": null
     },
     "4430.T": {
-      "Rank": 1141,
-      "Score": -90,
-      "Latest Quarter Period": null
-    },
-    "7065.T": {
-      "Rank": 1142,
-      "Score": -90,
+      "Rank": 1117,
+      "Score": -90.0,
       "Latest Quarter Period": null
     },
     "7438.T": {
-      "Rank": 1143,
-      "Score": -90,
+      "Rank": 1118,
+      "Score": -90.0,
       "Latest Quarter Period": null
     },
-    "1840.T": {
-      "Rank": 1144,
-      "Score": -95,
+    "7640.T": {
+      "Rank": 1119,
+      "Score": -95.0,
       "Latest Quarter Period": null
     },
-    "3851.T": {
-      "Rank": 1145,
-      "Score": -95,
+    "3440.T": {
+      "Rank": 1120,
+      "Score": -95.0,
       "Latest Quarter Period": null
     },
-    "7477.T": {
-      "Rank": 1146,
-      "Score": -95,
+    "3760.T": {
+      "Rank": 1121,
+      "Score": -95.0,
       "Latest Quarter Period": null
     },
-    "2424.T": {
-      "Rank": 1147,
-      "Score": -100,
-      "Latest Quarter Period": null
-    },
-    "3892.T": {
-      "Rank": 1148,
-      "Score": -100,
+    "3895.T": {
+      "Rank": 1122,
+      "Score": -95.0,
       "Latest Quarter Period": null
     },
     "4441.T": {
-      "Rank": 1149,
-      "Score": -100,
-      "Latest Quarter Period": null
-    },
-    "7215.T": {
-      "Rank": 1150,
-      "Score": -100,
-      "Latest Quarter Period": null
-    },
-    "3600.T": {
-      "Rank": 1151,
-      "Score": -105,
-      "Latest Quarter Period": null
-    },
-    "3652.T": {
-      "Rank": 1152,
-      "Score": -105,
+      "Rank": 1123,
+      "Score": -100.0,
       "Latest Quarter Period": null
     },
     "4556.T": {
-      "Rank": 1153,
-      "Score": -105,
+      "Rank": 1124,
+      "Score": -105.0,
       "Latest Quarter Period": null
     },
     "7409.T": {
-      "Rank": 1154,
-      "Score": -105,
+      "Rank": 1125,
+      "Score": -105.0,
       "Latest Quarter Period": null
     },
-    "2168.T": {
-      "Rank": 1155,
-      "Score": -110,
+    "4650.T": {
+      "Rank": 1126,
+      "Score": -110.0,
       "Latest Quarter Period": null
     },
-    "2183.T": {
-      "Rank": 1156,
-      "Score": -110,
+    "4664.T": {
+      "Rank": 1127,
+      "Score": -110.0,
+      "Latest Quarter Period": null
+    },
+    "7361.T": {
+      "Rank": 1128,
+      "Score": -110.0,
+      "Latest Quarter Period": null
+    },
+    "4657.T": {
+      "Rank": 1129,
+      "Score": -125.0,
+      "Latest Quarter Period": null
+    },
+    "7514.T": {
+      "Rank": 1130,
+      "Score": -125.0,
+      "Latest Quarter Period": null
+    },
+    "2303.T": {
+      "Rank": 1131,
+      "Score": -125.0,
+      "Latest Quarter Period": null
+    },
+    "3791.T": {
+      "Rank": 1132,
+      "Score": -130.0,
+      "Latest Quarter Period": null
+    },
+    "2301.T": {
+      "Rank": 1133,
+      "Score": -140.0,
+      "Latest Quarter Period": null
+    },
+    "4577.T": {
+      "Rank": 1134,
+      "Score": -145.0,
+      "Latest Quarter Period": null
+    },
+    "7065.T": {
+      "Rank": 1135,
+      "Score": -150.0,
+      "Latest Quarter Period": null
+    },
+    "7477.T": {
+      "Rank": 1136,
+      "Score": -155.0,
+      "Latest Quarter Period": null
+    },
+    "2424.T": {
+      "Rank": 1137,
+      "Score": -160.0,
+      "Latest Quarter Period": null
+    },
+    "3892.T": {
+      "Rank": 1138,
+      "Score": -160.0,
+      "Latest Quarter Period": null
+    },
+    "3652.T": {
+      "Rank": 1139,
+      "Score": -165.0,
+      "Latest Quarter Period": null
+    },
+    "4425.T": {
+      "Rank": 1140,
+      "Score": -170,
       "Latest Quarter Period": null
     },
     "4398.T": {
-      "Rank": 1157,
-      "Score": -110,
+      "Rank": 1141,
+      "Score": -170.0,
       "Latest Quarter Period": null
     },
     "7273.T": {
-      "Rank": 1158,
-      "Score": -110,
+      "Rank": 1142,
+      "Score": -170.0,
       "Latest Quarter Period": null
     },
     "1726.T": {
-      "Rank": 1159,
-      "Score": -115,
+      "Rank": 1143,
+      "Score": -175.0,
       "Latest Quarter Period": null
     },
     "1419.T": {
-      "Rank": 1160,
-      "Score": -120,
-      "Latest Quarter Period": null
-    },
-    "1783.T": {
-      "Rank": 1161,
-      "Score": -120,
+      "Rank": 1144,
+      "Score": -180.0,
       "Latest Quarter Period": null
     },
     "3423.T": {
-      "Rank": 1162,
-      "Score": -120,
-      "Latest Quarter Period": null
-    },
-    "3641.T": {
-      "Rank": 1163,
-      "Score": -120,
-      "Latest Quarter Period": null
-    },
-    "3953.T": {
-      "Rank": 1164,
-      "Score": -120,
+      "Rank": 1145,
+      "Score": -180.0,
       "Latest Quarter Period": null
     },
     "1773.T": {
-      "Rank": 1165,
-      "Score": -125,
+      "Rank": 1146,
+      "Score": -185.0,
       "Latest Quarter Period": "2026-03-31"
     },
-    "2303.T": {
-      "Rank": 1166,
-      "Score": -125,
-      "Latest Quarter Period": null
-    },
     "3475.T": {
-      "Rank": 1167,
-      "Score": -125,
+      "Rank": 1147,
+      "Score": -185.0,
       "Latest Quarter Period": null
     },
     "3835.T": {
-      "Rank": 1168,
-      "Score": -125,
+      "Rank": 1148,
+      "Score": -185.0,
       "Latest Quarter Period": null
     },
-    "4502.T": {
-      "Rank": 1169,
-      "Score": -140,
-      "Latest Quarter Period": "2026-03-31"
+    "7138.T": {
+      "Rank": 1149,
+      "Score": -190.0,
+      "Latest Quarter Period": null
+    },
+    "7376.T": {
+      "Rank": 1150,
+      "Score": -200.0,
+      "Latest Quarter Period": null
     },
     "7203.T": {
-      "Rank": 1170,
-      "Score": -145,
+      "Rank": 1151,
+      "Score": -205.0,
       "Latest Quarter Period": "2026-03-31"
     },
     "3512.T": {
-      "Rank": 1171,
-      "Score": -150,
+      "Rank": 1152,
+      "Score": -210.0,
       "Latest Quarter Period": null
     },
     "4447.T": {
-      "Rank": 1172,
-      "Score": -150,
+      "Rank": 1153,
+      "Score": -210.0,
       "Latest Quarter Period": null
     },
-    "4422.T": {
-      "Rank": 1173,
-      "Score": -155,
+    "3645.T": {
+      "Rank": 1154,
+      "Score": -215.0,
+      "Latest Quarter Period": null
+    },
+    "3815.T": {
+      "Rank": 1155,
+      "Score": -215.0,
+      "Latest Quarter Period": null
+    },
+    "3900.T": {
+      "Rank": 1156,
+      "Score": -235.0,
+      "Latest Quarter Period": null
+    },
+    "3350.T": {
+      "Rank": 1157,
+      "Score": -235.0,
+      "Latest Quarter Period": "2026-03-31"
+    },
+    "3624.T": {
+      "Rank": 1158,
+      "Score": -235.0,
       "Latest Quarter Period": null
     },
     "1928.T": {
-      "Rank": 1174,
-      "Score": -185,
+      "Rank": 1159,
+      "Score": -245.0,
       "Latest Quarter Period": "2026-04-30"
+    },
+    "3810.T": {
+      "Rank": 1160,
+      "Score": -260.0,
+      "Latest Quarter Period": null
+    },
+    "3653.T": {
+      "Rank": 1161,
+      "Score": -265.0,
+      "Latest Quarter Period": null
+    },
+    "7267.T": {
+      "Rank": 1162,
+      "Score": -265.0,
+      "Latest Quarter Period": "2026-03-31"
+    },
+    "3674.T": {
+      "Rank": 1163,
+      "Score": -300.0,
+      "Latest Quarter Period": null
+    },
+    "4378.T": {
+      "Rank": 1164,
+      "Score": -300.0,
+      "Latest Quarter Period": null
+    },
+    "1840.T": {
+      "Rank": 1165,
+      "Score": -305.0,
+      "Latest Quarter Period": null
+    },
+    "3851.T": {
+      "Rank": 1166,
+      "Score": -305.0,
+      "Latest Quarter Period": null
+    },
+    "7215.T": {
+      "Rank": 1167,
+      "Score": -310.0,
+      "Latest Quarter Period": null
+    },
+    "3600.T": {
+      "Rank": 1168,
+      "Score": -315.0,
+      "Latest Quarter Period": null
+    },
+    "2168.T": {
+      "Rank": 1169,
+      "Score": -320.0,
+      "Latest Quarter Period": null
+    },
+    "2183.T": {
+      "Rank": 1170,
+      "Score": -320.0,
+      "Latest Quarter Period": null
+    },
+    "1783.T": {
+      "Rank": 1171,
+      "Score": -330.0,
+      "Latest Quarter Period": null
+    },
+    "3641.T": {
+      "Rank": 1172,
+      "Score": -330.0,
+      "Latest Quarter Period": null
+    },
+    "3953.T": {
+      "Rank": 1173,
+      "Score": -330.0,
+      "Latest Quarter Period": null
+    },
+    "4502.T": {
+      "Rank": 1174,
+      "Score": -350.0,
+      "Latest Quarter Period": "2026-03-31"
+    },
+    "4422.T": {
+      "Rank": 1175,
+      "Score": -365.0,
+      "Latest Quarter Period": null
     }
-  }
+  },
+  "refresh_cursor": 900,
+  "universe_count": 3626
 }
