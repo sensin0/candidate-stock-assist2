@@ -17,7 +17,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://github.com/sensin0/candidate-stock-assist2/blob/main/weekly_ranking_report.json"
-SAFETY_VERSION = 1
+SAFETY_VERSION = 2
 
 
 def clean_number(value):
@@ -99,6 +99,59 @@ def apply_stored_safety_guard(item):
     if item.get("Safety Version") == SAFETY_VERSION:
         return item
 
+    score = 0
+    status = str(item.get("Status") or "")
+    if "2-YR LOSS" in status:
+        score += 60
+    elif item.get("Net Income") is not None and item.get("Net Income") < 0:
+        score += 10
+
+    if item.get("Operating Loss Improving") is True:
+        score += 55
+    elif item.get("Operating Loss Improving") is False:
+        score -= 80
+
+    if item.get("Pretax Loss Improving") is True:
+        score += 25
+    elif item.get("Pretax Loss Improving") is False:
+        score -= 35
+
+    revenue_growth = item.get("Revenue Growth")
+    if revenue_growth is not None:
+        if revenue_growth >= 15:
+            score += 30
+        elif revenue_growth >= 10:
+            score += 55
+        elif revenue_growth >= 0:
+            score += 10
+        elif revenue_growth < -10:
+            score -= 90
+        else:
+            score -= 40
+
+    psr = item.get("PSR")
+    if psr is not None:
+        if psr < 0.5:
+            score += 25
+        elif psr < 1:
+            score += 10
+
+    price_location = item.get("Price Location")
+    if price_location is not None:
+        if price_location < 0.15:
+            score += 75
+        elif price_location < 0.3:
+            score += 20
+        elif price_location > 0.7:
+            score -= 100
+        elif price_location > 0.5:
+            score -= 45
+
+    if item.get("Net Loss Improving") is True:
+        score += 35
+    elif item.get("Net Loss Improving") is False:
+        score -= 90
+
     history = item.get("Net Income History") or []
     latest = history[0] if len(history) > 0 else item.get("Net Income")
     previous = history[1] if len(history) > 1 else None
@@ -106,7 +159,6 @@ def apply_stored_safety_guard(item):
 
     blocks = list(item.get("Blocks") or [])
     notes = list(item.get("Notes") or [])
-    score = clean_number(item.get("Score")) or 0
 
     if risk == "profit_to_loss":
         score -= 160
@@ -125,9 +177,16 @@ def apply_stored_safety_guard(item):
         if "純利益減少" not in notes:
             notes.append("純利益減少")
 
+    if revenue_growth is not None and revenue_growth < -10 and "売上悪化" not in blocks:
+        blocks.append("売上悪化")
+    if price_location is not None and price_location > 0.7 and "高値圏" not in blocks:
+        blocks.append("高値圏")
+
     if blocks and risk in {"profit_to_loss", "deeper_loss"}:
         score -= 50
         item["Action"] = "監視（除外条件あり）"
+    elif blocks:
+        score -= 50
 
     item["Score"] = round(score, 1)
     item["Entry Score"] = round(score, 1)
@@ -237,62 +296,66 @@ def score_stock(row):
         and previous_net_income < 0
     )
     if two_year_net_loss:
-        score += 70
+        score += 60
         notes.append("2期連続赤字")
 
     if latest_operating is not None and latest_operating < 0:
-        score += 20
+        score += 10
         notes.append("営業赤字")
     if operating_loss_improving is True:
-        score += 70
+        score += 55
         notes.append("営業赤字縮小")
     elif operating_loss_improving is False:
-        score -= 70
+        score -= 80
         blocks.append("営業赤字拡大")
 
     if pretax_loss_improving is True:
-        score += 35
+        score += 25
         notes.append("経常/税前赤字縮小")
     elif pretax_loss_improving is False:
         score -= 35
 
     if revenue_growth is not None:
-        if revenue_growth >= 10:
-            score += 35
+        if revenue_growth >= 15:
+            score += 30
+            notes.append("売上大幅成長")
+        elif revenue_growth >= 10:
+            score += 55
             notes.append("売上成長")
         elif revenue_growth >= 0:
-            score += 15
+            score += 10
             notes.append("売上維持")
         elif revenue_growth < -10:
-            score -= 60
+            score -= 90
             blocks.append("売上悪化")
         else:
-            score -= 20
+            score -= 40
 
     if psr is not None:
         if psr < 0.5:
-            score += 35
+            score += 25
             notes.append("PSR低位")
         elif psr < 1:
-            score += 15
+            score += 10
 
     if price_location is not None:
         if price_location < 0.15:
-            score += 30
+            score += 75
             notes.append("底値圏")
         elif price_location < 0.3:
-            score += 15
+            score += 20
         elif price_location > 0.7:
-            score -= 30
+            score -= 100
+            blocks.append("高値圏")
             notes.append("高値圏・押し目待ち")
         elif price_location > 0.5:
-            score -= 15
+            score -= 45
 
     if net_loss_improving is True:
-        score += 25
+        score += 35
         notes.append("純損失縮小")
     elif net_loss_improving is False:
-        score -= 30
+        score -= 90
 
     if net_risk == "profit_to_loss":
         score -= 160
@@ -308,11 +371,11 @@ def score_stock(row):
 
     if len(capex) >= 2 and capex[0] is not None and capex[1] is not None:
         if abs(capex[0]) > abs(capex[1]) * 1.05:
-            score += 20
+            score += 10
             notes.append("赤字下の投資")
     if len(total_assets) >= 2 and total_assets[0] is not None and total_assets[1] is not None:
         if total_assets[0] > total_assets[1] * 1.02:
-            score += 10
+            score += 5
             notes.append("資産増")
 
     if blocks:

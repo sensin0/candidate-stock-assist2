@@ -87,13 +87,13 @@ def score_current(features):
 
     if price_loc is not None:
         if price_loc < 0.1:
-            score += 25
+            score += 40
         elif price_loc < 0.2:
-            score += 10
+            score += 20
         elif price_loc > 0.7:
-            score -= 30
+            score -= 100
         elif price_loc > 0.5:
-            score -= 15
+            score -= 45
 
     if sector_status == "Downturn":
         score += 20
@@ -105,17 +105,17 @@ def score_current(features):
 
     if rev_growth is not None:
         if rev_growth >= 20:
-            score += 50
+            score += 30
         elif rev_growth >= 15:
-            score += 70
+            score += 45
         elif rev_growth >= 10:
-            score += 35
+            score += 55
         elif rev_growth >= 5:
             score += 5
         elif rev_growth < -10:
-            score -= 60
+            score -= 90
         elif rev_growth < 0:
-            score -= 20
+            score -= 40
 
     if loss_margin is not None:
         if loss_margin > -3:
@@ -124,9 +124,9 @@ def score_current(features):
             score += 10
 
     if loss_improving is True:
-        score += 50
+        score += 70
     elif loss_improving is False:
-        score -= 50
+        score -= 80
 
     if features["net_income_risk"] == "profit_to_loss":
         score -= 160
@@ -154,20 +154,20 @@ def score_reversal(features):
     aggressive = features["aggressive"]
 
     if features["two_year_loss"]:
-        score += 70
+        score += 60
     if net_income is not None and not pd.isna(net_income) and net_income < 0:
-        score += 20
+        score += 10
     if loss_improving is True:
-        score += 70
+        score += 55
     elif loss_improving is False:
-        score -= 70
+        score -= 80
 
     if previous_net_income is not None and net_income is not None:
         net_loss_improving = loss_improving
         if net_loss_improving is True:
-            score += 25
+            score += 35
         elif net_loss_improving is False:
-            score -= 30
+            score -= 90
 
     if features["net_income_risk"] == "profit_to_loss":
         score -= 160
@@ -177,27 +177,29 @@ def score_reversal(features):
         score -= 60
 
     if rev_growth is not None:
-        if rev_growth >= 10:
-            score += 35
+        if rev_growth >= 15:
+            score += 30
+        elif rev_growth >= 10:
+            score += 55
         elif rev_growth >= 0:
-            score += 15
+            score += 10
         elif rev_growth < -10:
-            score -= 60
+            score -= 90
         else:
-            score -= 20
+            score -= 40
 
     if price_loc is not None:
         if price_loc < 0.15:
-            score += 30
+            score += 75
         elif price_loc < 0.3:
-            score += 15
+            score += 20
         elif price_loc > 0.7:
-            score -= 30
+            score -= 100
         elif price_loc > 0.5:
-            score -= 15
+            score -= 45
 
     if aggressive:
-        score += 20
+        score += 10
 
     return score
 
