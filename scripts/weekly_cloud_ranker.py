@@ -363,6 +363,56 @@ def load_state(path):
         return {"tickers": {}}
 
 
+def load_existing_report(path):
+    report_path = Path(path)
+    if not report_path.exists():
+        return {}
+    try:
+        return json.loads(report_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def ticker_from_row(row):
+    code = str(row.get("code", "")).strip()
+    if not code:
+        return ""
+    return code if code.endswith(".T") else f"{code}.T"
+
+
+def select_refresh_rows(rows, state, chunk_size):
+    if chunk_size <= 0 or chunk_size >= len(rows):
+        return rows, 0, len(rows), 0
+
+    start = int(state.get("refresh_cursor", 0) or 0) % len(rows)
+    selected = []
+    for offset in range(chunk_size):
+        selected.append(rows[(start + offset) % len(rows)])
+    next_cursor = (start + chunk_size) % len(rows)
+    return selected, start, len(selected), next_cursor
+
+
+def merge_rankings(existing_report, fetched_rankings, now_utc, now_jst):
+    merged = {}
+    for item in existing_report.get("rankings", []):
+        ticker = item.get("Ticker")
+        if ticker:
+            merged[ticker] = item
+
+    refreshed_utc = now_utc.isoformat()
+    refreshed_jst = now_jst.strftime("%Y-%m-%d %H:%M:%S %Z")
+    for item in fetched_rankings:
+        item["Last Successful Refresh UTC"] = refreshed_utc
+        item["Last Successful Refresh JST"] = refreshed_jst
+        merged[item["Ticker"]] = item
+
+    rankings = list(merged.values())
+    rankings.sort(key=lambda item: item.get("Score", 0), reverse=True)
+    for index, item in enumerate(rankings, start=1):
+        item["Rank"] = index
+    return rankings
+
+
 def detect_top_earnings_updates(rankings, top_n, state):
     previous = state.get("tickers", {}) if isinstance(state, dict) else {}
     if not previous:
@@ -383,8 +433,8 @@ def detect_top_earnings_updates(rankings, top_n, state):
     return updates
 
 
-def build_state(rankings, now_utc):
-    return {
+def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, universe_count=None):
+    state = {
         "updated_at_utc": now_utc.isoformat(),
         "tickers": {
             item["Ticker"]: {
@@ -396,6 +446,15 @@ def build_state(rankings, now_utc):
             if item.get("Ticker")
         },
     }
+    if isinstance(existing_state, dict):
+        for key in ("refresh_cursor", "universe_count"):
+            if key in existing_state:
+                state[key] = existing_state[key]
+    if refresh_cursor is not None:
+        state["refresh_cursor"] = refresh_cursor
+    if universe_count is not None:
+        state["universe_count"] = universe_count
+    return state
 
 
 def save_state(path, state):
@@ -423,18 +482,26 @@ def main():
     parser.add_argument("--update-state", action="store_true")
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
     parser.add_argument("--workers", type=int, default=2, help="Number of parallel ticker fetches")
+    parser.add_argument("--chunk-size", type=int, default=450, help="Tickers to refresh per run. Use 0 for full refresh")
     args = parser.parse_args()
 
     df = pd.read_csv(args.tickers, names=["code", "name", "sector"], dtype={"code": str})
     if args.limit > 0:
         df = df.head(args.limit)
 
-    rankings = []
+    now_utc = datetime.now(timezone.utc)
+    now_jst = now_utc.astimezone(ZoneInfo("Asia/Tokyo"))
+    generated_at_jst = now_jst.strftime("%Y-%m-%d %H:%M:%S %Z")
+    state = load_state(args.state_file)
+    existing_report = load_existing_report(args.output)
+
+    fetched_rankings = []
     errors = []
     rows = [row for _, row in df.iterrows()]
+    rows_to_fetch, refresh_start, refresh_count, next_cursor = select_refresh_rows(rows, state, args.chunk_size)
     workers = max(1, args.workers)
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {executor.submit(score_stock, row): row for row in rows}
+        futures = {executor.submit(score_stock, row): row for row in rows_to_fetch}
         for index, future in enumerate(as_completed(futures), start=1):
             try:
                 item = future.result()
@@ -450,23 +517,16 @@ def main():
             if "Error" in item:
                 errors.append(item)
             else:
-                rankings.append(item)
+                fetched_rankings.append(item)
             if index % 100 == 0:
-                print(f"Fetched {index}/{len(rows)} tickers...")
+                print(f"Fetched {index}/{len(rows_to_fetch)} tickers in this run...")
 
-    rankings.sort(key=lambda item: item.get("Score", 0), reverse=True)
-    for index, item in enumerate(rankings, start=1):
-        item["Rank"] = index
-
-    now_utc = datetime.now(timezone.utc)
-    now_jst = now_utc.astimezone(ZoneInfo("Asia/Tokyo"))
+    rankings = merge_rankings(existing_report, fetched_rankings, now_utc, now_jst)
     for item in rankings:
         days = days_since(item.get("Latest Quarter Period"), now_jst)
         item["Days Since Latest Quarter"] = days
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
-    generated_at_jst = now_jst.strftime("%Y-%m-%d %H:%M:%S %Z")
-    state = load_state(args.state_file)
     earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
 
     report = {
@@ -475,7 +535,12 @@ def main():
         "source": {
             "tickers_file": str(Path(args.tickers).name),
             "requested_tickers": len(df),
-            "successful_tickers": len(rankings),
+            "stored_successful_tickers": len(rankings),
+            "refreshed_this_run": len(fetched_rankings),
+            "failed_this_run": len(errors),
+            "refresh_start": refresh_start,
+            "refresh_count": refresh_count,
+            "next_refresh_cursor": next_cursor,
             "failed_tickers": len(errors),
             "provider": "yfinance",
         },
@@ -491,12 +556,22 @@ def main():
     output_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
     if args.update_state:
-        save_state(args.state_file, build_state(rankings, now_utc))
+        save_state(
+            args.state_file,
+            build_state(
+                rankings,
+                now_utc,
+                existing_state=state,
+                refresh_cursor=next_cursor,
+                universe_count=len(df),
+            ),
+        )
 
     if args.mode == "refresh":
         print(
-            f"Ranking data refreshed: {len(rankings)}/{len(df)} tickers "
-            f"at {generated_at_jst}. Notification skipped."
+            f"Ranking data refreshed: {len(fetched_rankings)}/{len(rows_to_fetch)} tickers this run, "
+            f"{len(rankings)}/{len(df)} stored successful tickers at {generated_at_jst}. "
+            "Notification skipped."
         )
         return
 

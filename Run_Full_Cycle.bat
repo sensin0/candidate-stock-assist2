@@ -32,7 +32,7 @@ echo.
 echo.
 echo [3/5] Generating Unified Ranking for Web and Discord...
 echo ------------------------------------------
-python scripts\weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github\ranking-state.json --update-state --workers 2
+python scripts\weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github\ranking-state.json --update-state --workers 2 --chunk-size 450
 if %ERRORLEVEL% NEQ 0 (
     echo Error generating unified ranking.
     pause

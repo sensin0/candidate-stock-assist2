@@ -34,7 +34,7 @@ jobs:
         run: python -m pip install -r requirements-cloud.txt
 
       - name: Refresh latest ranking data
-        run: python scripts/weekly_cloud_ranker.py --mode refresh --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2
+        run: python scripts/weekly_cloud_ranker.py --mode refresh --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450
 
       - name: Save refreshed data
         run: |
@@ -72,7 +72,7 @@ jobs:
       - name: Build latest ranking and notify
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python scripts/weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2
+        run: python scripts/weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450
 
       - name: Save ranking data
         run: |
@@ -110,7 +110,7 @@ jobs:
       - name: Check top ranked earnings updates
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python scripts/weekly_cloud_ranker.py --mode earnings --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2
+        run: python scripts/weekly_cloud_ranker.py --mode earnings --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450
 
       - name: Save ranking data
         run: |
