@@ -402,6 +402,13 @@ def main():
         .head(15)
         .to_dict(orient="records")
     )
+    by_month = {}
+    for (month, strategy), group in all_trades.groupby(["Entry Date", "Strategy"]):
+        by_month.setdefault(month[:7], {})[strategy] = (
+            group.sort_values("Score", ascending=False)
+            .head(50)
+            .to_dict(orient="records")
+        )
     result = {
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "assumptions": {
@@ -411,6 +418,7 @@ def main():
         },
         "summary": summary,
         "timing": timing,
+        "by_month": by_month,
         "top_examples": top_examples,
     }
     REPORT_JSON.parent.mkdir(parents=True, exist_ok=True)
