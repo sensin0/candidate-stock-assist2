@@ -257,18 +257,34 @@ def score_stock(row):
     else:
         action = "パス"
 
+    if two_year_net_loss:
+        status = "**2-YR LOSS**"
+    elif latest_net_income is not None and latest_net_income < 0:
+        status = "Red Ink (1yr)"
+    elif latest_net_income is not None and latest_net_income >= 0:
+        status = "Profitable"
+    else:
+        status = "-"
+
     return {
         "Ticker": ticker,
         "Name": name,
         "Sector": sector,
         "Current Price": current_price,
+        "Market Cap": market_cap,
         "Score": round(score, 1),
+        "Entry Score": round(score, 1),
         "Action": action,
+        "Status": status,
+        "Sector Status": "-",
         "Price Location": round(price_location, 3) if price_location is not None else None,
         "Revenue Growth": round(revenue_growth, 1) if revenue_growth is not None else None,
         "Revenue Growth Label": growth_label(revenue_growth),
+        "PSR Rank": None,
         "PSR": round(psr, 3) if psr is not None else None,
         "Net Income": latest_net_income,
+        "Net Income History": net_incomes[:5],
+        "RSI": None,
         "Operating Income": latest_operating,
         "Pretax Income": latest_pretax,
         "Operating Loss Improving": operating_loss_improving,

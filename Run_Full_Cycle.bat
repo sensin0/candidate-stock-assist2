@@ -29,7 +29,18 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo.
-echo [3/4] Running Backtest (Validation)...
+echo.
+echo [3/5] Generating Unified Ranking for Web and Discord...
+echo ------------------------------------------
+python scripts\weekly_cloud_ranker.py --mode weekly --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github\ranking-state.json --update-state
+if %ERRORLEVEL% NEQ 0 (
+    echo Error generating unified ranking.
+    pause
+    exit /b %ERRORLEVEL%
+)
+
+echo.
+echo [4/5] Running Backtest (Validation)...
 echo ------------------------------------------
 python backtest_cyclical.py
 if %ERRORLEVEL% NEQ 0 (
@@ -39,7 +50,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo.
-echo [4/4] Launching Web Dashboard...
+echo [5/5] Launching Web Dashboard...
 echo ------------------------------------------
 cd web-dashboard
 echo Starting Next.js Dev Server...

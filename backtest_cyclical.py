@@ -23,17 +23,20 @@ def run_backtest(db_path='stocks.db'):
     print(f"Backtesting on {len(tickers)} tickers...")
     
     # We simulate decisions made at specific dates.
-    # Given data limitation (past 5 years), we can check signals at:
-    # 2021-03-31, 2022-03-31, 2023-03-31
-    # (Assuming fiscal year ends)
+    # Generate end-of-month (or start-of-month) dates from 2021-01-01 to roughly 6 months ago
     
     # Evaluation Points (Hypothetical entry dates)
-    entry_dates = [
-        '2021-06-01', # After 2021-03 results
-        '2022-06-01', # After 2022-03 results
-        '2023-06-01', # After 2023-03 results
-        '2024-06-01'  # After 2024-03 results (Short term verification)
-    ]
+    entry_dates = []
+    current_date = datetime(2021, 1, 1)
+    end_date = datetime.now() - timedelta(days=180) # Stop 6 months ago to allow for some return measurement
+    
+    while current_date <= end_date:
+        entry_dates.append(current_date.strftime('%Y-%m-%d'))
+        # Add 1 month
+        if current_date.month == 12:
+            current_date = current_date.replace(year=current_date.year + 1, month=1)
+        else:
+            current_date = current_date.replace(month=current_date.month + 1)
     
     for ticker in tickers:
         try:
@@ -192,6 +195,10 @@ def run_backtest(db_path='stocks.db'):
                             entry_score += 35   # transition zone
                         elif rev_growth >= 5:
                             entry_score += 5
+                        elif rev_growth < -10:
+                            entry_score -= 60
+                        elif rev_growth < 0:
+                            entry_score -= 20
 
                     # Aggressive Investment (reduced weight)
                     if is_aggressive:
@@ -208,7 +215,7 @@ def run_backtest(db_path='stocks.db'):
                     if loss_margin_improving is True:
                         entry_score += 50  # 最重要
                     elif loss_margin_improving is False:
-                        entry_score -= 20
+                        entry_score -= 50
 
                     # Combo Bonuses
                     if rev_growth is not None and rev_growth >= 10:
@@ -216,6 +223,13 @@ def run_backtest(db_path='stocks.db'):
                             entry_score += 30  # combo MB率50%
                         if price_loc < 0.15:
                             entry_score += 20  # combo MB率50%
+
+                    # Rank quality guards: worsening businesses and high-price entries
+                    # should not sit near the top even if they have one attractive signal.
+                    if price_loc > 0.7:
+                        entry_score -= 30
+                    elif price_loc > 0.5:
+                        entry_score -= 15
                     
                     results.append({
                         'Ticker': ticker,
@@ -244,15 +258,16 @@ def run_backtest(db_path='stocks.db'):
             
     conn.close()
     
-    # Organize by Year
-    results_by_year = {}
+    # Organize by Month (Year-Month)
+    results_by_month = {}
     for res in results:
-        year = res['Entry Date'].split('-')[0]
-        if year not in results_by_year:
-            results_by_year[year] = []
-        results_by_year[year].append(res)
+        # 'Entry Date' is 'YYYY-MM-DD', so slice to 'YYYY-MM'
+        month_key = res['Entry Date'][:7] 
+        if month_key not in results_by_month:
+            results_by_month[month_key] = []
+        results_by_month[month_key].append(res)
         
-    return pd.DataFrame(results), results_by_year
+    return pd.DataFrame(results), results_by_month
 
 def generate_report(df):
     if df.empty:

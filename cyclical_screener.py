@@ -350,6 +350,12 @@ def main():
             elif price_loc is not None and price_loc < 0.2:
                 buy_signals.append("Price at Bottom")
                 score += 10
+            elif price_loc is not None and price_loc > 0.7:
+                buy_signals.append("高値圏・押し目待ち (>70%)")
+                score -= 30
+            elif price_loc is not None and price_loc > 0.5:
+                buy_signals.append("中高値圏 (>50%)")
+                score -= 15
             
             if psr_rank is not None and psr_rank < 0.2:
                 buy_signals.append("PSR Historic Low")
@@ -377,6 +383,12 @@ def main():
                 elif rev_growth >= 5:
                     buy_signals.append("売上兆し (+5%↑)")
                     score += 5
+                elif rev_growth < -10:
+                    buy_signals.append("売上悪化 (-10%↓)")
+                    score -= 60
+                elif rev_growth < 0:
+                    buy_signals.append("売上減少")
+                    score -= 20
             
             # Loss Margin Absolute Value (黒字まであと少し = 回復が近い)
             loss_margin = row.get('Loss Margin', None)
@@ -393,7 +405,7 @@ def main():
                 score += 50  # 最重要: MB率6倍の差
             elif loss_margin_improving is False:
                 buy_signals.append("⚠️ 赤字率悪化中")
-                score -= 20
+                score -= 50
             
             # Combo Bonuses (コンボでMB率50%到達)
             if rev_growth is not None and rev_growth >= 10:
@@ -409,11 +421,25 @@ def main():
             if sector_status == "Boom":
                 buy_signals.append("⚠️ セクター好調なのに赤字")
                 score -= 40
-                
-            if len(buy_signals) >= 1:
+
+            buy_blocks = []
+            if loss_margin_improving is False:
+                buy_blocks.append("赤字率悪化")
+            if rev_growth is not None and rev_growth < -10:
+                buy_blocks.append("売上悪化")
+
+            if buy_blocks:
+                action = "Watch (Blocked: " + "/".join(buy_blocks) + ")"
+            elif price_loc is not None and price_loc > 0.7 and score >= 110:
+                action = "Watch (Pullback)"
+            elif score >= 150:
+                action = "**BUY CANDIDATE** (STRONG)"
+            elif score >= 110:
                 action = "**BUY CANDIDATE**"
-                if len(buy_signals) >= 2 or is_aggressive or (rev_growth is not None and rev_growth >= 10):
-                    action += " (STRONG)"
+            elif score >= 80:
+                action = "Watch (Wait for Profit Turn)"
+            elif len(buy_signals) >= 1:
+                action = "Watch (Wait for Price/Vol)"
             else:
                 action = "Watch (Wait for Price/Vol)"
                 
