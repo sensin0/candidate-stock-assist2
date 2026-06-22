@@ -808,7 +808,7 @@ def main():
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--top", type=int, default=10)
     parser.add_argument("--earnings-window-days", type=int, default=120)
-    parser.add_argument("--mode", choices=["refresh", "weekly", "earnings"], default="weekly")
+    parser.add_argument("--mode", choices=["refresh", "notify", "weekly", "earnings"], default="weekly")
     parser.add_argument("--state-file", default=str(DEFAULT_STATE))
     parser.add_argument("--update-state", action="store_true")
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
@@ -816,15 +816,35 @@ def main():
     parser.add_argument("--chunk-size", type=int, default=450, help="Tickers to refresh per run. Use 0 for full refresh")
     args = parser.parse_args()
 
-    df = pd.read_csv(args.tickers, names=["code", "name", "sector"], dtype={"code": str})
-    if args.limit > 0:
-        df = df.head(args.limit)
-
     now_utc = datetime.now(timezone.utc)
     now_jst = now_utc.astimezone(ZoneInfo("Asia/Tokyo"))
     generated_at_jst = now_jst.strftime("%Y-%m-%d %H:%M:%S %Z")
     state = load_state(args.state_file)
     existing_report = load_existing_report(args.output)
+
+    if args.mode == "notify":
+        if not existing_report.get("rankings"):
+            raise RuntimeError("No saved ranking report found. Run refresh mode first.")
+        rankings = existing_report.get("rankings", [])
+        if not existing_report.get("current_rankings"):
+            existing_report["current_rankings"] = build_current_rankings(rankings)[:200]
+        for item in rankings:
+            days = days_since(item.get("Latest Quarter Period"), now_jst)
+            item["Days Since Latest Quarter"] = days
+            item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
+        existing_report["top_n"] = args.top
+        existing_report["earnings_window_days"] = args.earnings_window_days
+        discord_webhook = os.getenv("DISCORD_WEBHOOK_URL")
+        if discord_webhook:
+            send_discord(build_weekly_message(existing_report, args.top, args.earnings_window_days), discord_webhook)
+        else:
+            print("DISCORD_WEBHOOK_URL is not set. Notification skipped.")
+        print("Weekly notification sent from saved ranking report. Data refresh skipped.")
+        return
+
+    df = pd.read_csv(args.tickers, names=["code", "name", "sector"], dtype={"code": str})
+    if args.limit > 0:
+        df = df.head(args.limit)
 
     fetched_rankings = []
     errors = []
