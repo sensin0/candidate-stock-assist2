@@ -68,9 +68,12 @@ def future_returns(prices, entry_date, buy_price):
         return None
     one_year_close = float(one_year.iloc[-1]["close"])
     max_two_year_high = float(two_year["high"].max()) if not two_year.empty else one_year_close
+    exit_window = two_year if not two_year.empty else one_year
+    final_exit_close = float(exit_window.iloc[-1]["close"])
     result = {
         "1yr Return": (one_year_close - buy_price) / buy_price,
         "2yr Max Return": (max_two_year_high - buy_price) / buy_price,
+        "2yr Final Return": (final_exit_close - buy_price) / buy_price,
     }
     targets = {30: 1.3, 50: 1.5, 100: 2.0, 200: 3.0}
     stop_price = buy_price * 0.75
@@ -88,7 +91,27 @@ def future_returns(prices, entry_date, buy_price):
         result[f"Days to Target {pct}"] = int((hit_date - entry_date).days) if hit else None
         result[f"Stop Before Target {pct}"] = bool(stop_date is not None and (not hit or stop_date < hit_date))
     result["Stop 25 Hit"] = stop_date is not None
+    result["Rule 50 Return"] = exit_rule_return(two_year, buy_price, entry_date, 1.5, 0.75)
+    result["Rule 100 Return"] = exit_rule_return(two_year, buy_price, entry_date, 2.0, 0.75)
     return result
+
+
+def exit_rule_return(window, buy_price, entry_date, target_multiplier, stop_multiplier):
+    if window.empty:
+        return None
+    target_price = buy_price * target_multiplier
+    stop_price = buy_price * stop_multiplier
+    target_rows = window[window["high"] >= target_price]
+    stop_rows = window[window["low"] <= stop_price] if "low" in window else pd.DataFrame()
+    target_date = target_rows.index[0] if not target_rows.empty else None
+    stop_date = stop_rows.index[0] if not stop_rows.empty else None
+
+    if stop_date is not None and (target_date is None or stop_date < target_date):
+        return stop_multiplier - 1
+    if target_date is not None:
+        return target_multiplier - 1
+    final_close = float(window.iloc[-1]["close"])
+    return (final_close - buy_price) / buy_price
 
 
 def score_current(features):
@@ -282,6 +305,11 @@ def summarize(df, label):
         "Median Days to 100": safe_median_days(df["Days to Target 100"]),
         "Stop Before 50": round(df["Stop Before Target 50"].mean() * 100, 1),
         "Stop Before 100": round(df["Stop Before Target 100"].mean() * 100, 1),
+        "Win 1yr > 0": round((df["1yr Return"] > 0).mean() * 100, 1),
+        "Rule 50 Avg": round(df["Rule 50 Return"].mean() * 100, 1),
+        "Rule 50 Win": round((df["Rule 50 Return"] > 0).mean() * 100, 1),
+        "Rule 100 Avg": round(df["Rule 100 Return"].mean() * 100, 1),
+        "Rule 100 Win": round((df["Rule 100 Return"] > 0).mean() * 100, 1),
     }
 
 
@@ -319,6 +347,8 @@ def group_summary(df, group_col):
                 "Doubler 2yr Max": round((group["2yr Max Return"] >= 1.0).mean() * 100, 1),
                 "Target 50 Hit": round(group["Target 50 Hit"].mean() * 100, 1),
                 "Target 100 Hit": round(group["Target 100 Hit"].mean() * 100, 1),
+                "Rule 50 Avg": round(group["Rule 50 Return"].mean() * 100, 1),
+                "Rule 50 Win": round((group["Rule 50 Return"] > 0).mean() * 100, 1),
             }
         )
     return sorted(grouped, key=lambda row: (row["Avg 1yr"], row["Trades"]), reverse=True)
@@ -491,6 +521,7 @@ def main():
             "financial_availability": "Uses only financial periods ending at least 60 days before entry.",
             "outperformance": "1yr return above equal-weight universe average for the same entry month.",
             "sell_rule": "Checks whether +30%, +50%, +100%, and +200% targets are hit within 2 years, and whether -25% stop is hit before each target.",
+            "profit_rule": "Rule 50 Return exits at +50%, exits at -25% if the stop is hit first, otherwise marks at the final close within the 2-year window. Rule 100 uses +100% instead of +50%.",
         },
         "summary": summary,
         "timing": timing,
@@ -509,7 +540,8 @@ def main():
             f"win vs universe={row.get('Win 1yr > Universe')}%, avg 2yr max={row.get('Avg 2yr Max')}%, "
             f"doubler={row.get('Doubler 2yr Max')}%, target50={row.get('Target 50 Hit')}%, "
             f"target100={row.get('Target 100 Hit')}%, median days to 50={row.get('Median Days to 50')}, "
-            f"stop before 50={row.get('Stop Before 50')}%"
+            f"stop before 50={row.get('Stop Before 50')}%, rule50 avg={row.get('Rule 50 Avg')}%, "
+            f"rule50 win={row.get('Rule 50 Win')}%, rule100 avg={row.get('Rule 100 Avg')}%"
         )
     lines.append("")
     lines.append("## Timing Highlights")
