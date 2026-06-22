@@ -7,8 +7,6 @@ on:
     - cron: "40 20 * * *"
     # Monday 07:10 JST. GitHub schedule times are evaluated in UTC.
     - cron: "10 22 * * 0"
-    # Weekdays 18:10 JST. Checks whether top 10 stocks have newly updated quarterly data.
-    - cron: "10 9 * * 1-5"
 
 permissions:
   contents: write
@@ -79,43 +77,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: weekly-ranking-report
-          path: weekly_ranking_report.json
-
-  top-earnings-check:
-    if: github.event.schedule == '10 9 * * 1-5'
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: requirements-cloud.txt
-
-      - name: Install dependencies
-        run: python -m pip install -r requirements-cloud.txt
-
-      - name: Check top ranked earnings updates
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
-        run: python scripts/weekly_cloud_ranker.py --mode earnings --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450
-
-      - name: Save ranking data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add weekly_ranking_report.json .github/ranking-state.json
-          git commit -m "Update earnings ranking data" || echo "No ranking data changes"
-          git push || echo "Ranking data push skipped"
-
-      - name: Upload ranking report
-        uses: actions/upload-artifact@v4
-        with:
-          name: earnings-ranking-report
           path: weekly_ranking_report.json
