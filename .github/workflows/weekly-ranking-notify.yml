@@ -32,7 +32,10 @@ jobs:
         run: python -m pip install -r requirements-cloud.txt
 
       - name: Refresh latest ranking data
-        run: python scripts/weekly_cloud_ranker.py --mode refresh --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+        run: python scripts/weekly_cloud_ranker.py --mode refresh --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json --update-state --workers 2 --chunk-size 450 --notify-new-top 3
 
       - name: Save refreshed data
         run: |

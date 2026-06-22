@@ -764,6 +764,43 @@ def detect_top_earnings_updates(rankings, top_n, state):
     return updates
 
 
+def detect_new_top_rank_entries(rankings, top_n, state):
+    previous = state.get("tickers", {}) if isinstance(state, dict) else {}
+    if not previous:
+        return []
+
+    updates = []
+    for item in rankings[:top_n]:
+        ticker = item.get("Ticker")
+        if not ticker:
+            continue
+        previous_rank = previous.get(ticker, {}).get("Rank")
+        if previous_rank is None or previous_rank > top_n:
+            updates.append({**item, "Previous Rank": previous_rank})
+    return updates
+
+
+def build_new_top_rank_message(report, rows, top_n):
+    generated_at = report["generated_at_jst"]
+    lines = [f"ランキング上位{top_n}に新顔が入りました ({generated_at})", ""]
+    for item in rows:
+        previous_rank = item.get("Previous Rank")
+        previous_text = "圏外" if previous_rank is None else f"#{previous_rank}"
+        price_location = item.get("Price Location")
+        price_text = "-" if price_location is None else f"{price_location * 100:.0f}%"
+        growth = item.get("Revenue Growth")
+        growth_text = "-" if growth is None else f"{growth:+.1f}%"
+        target = item.get("Target Price 1")
+        target_text = "-" if target is None else f"{target:.0f}円"
+        notes = " / ".join(item.get("Notes", [])[:3]) or "-"
+        lines.append(
+            f"・{previous_text} -> #{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
+            f"Score {item['Score']} | 位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
+        )
+    append_dashboard_link(lines)
+    return "\n".join(lines)
+
+
 def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, universe_count=None):
     state = {
         "updated_at_utc": now_utc.isoformat(),
@@ -814,6 +851,7 @@ def main():
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
     parser.add_argument("--workers", type=int, default=2, help="Number of parallel ticker fetches")
     parser.add_argument("--chunk-size", type=int, default=450, help="Tickers to refresh per run. Use 0 for full refresh")
+    parser.add_argument("--notify-new-top", type=int, default=0, help="Notify if a ticker newly enters the top N after refresh")
     args = parser.parse_args()
 
     now_utc = datetime.now(timezone.utc)
@@ -880,6 +918,7 @@ def main():
 
     current_rankings = build_current_rankings(rankings)[:200]
     earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
+    new_top_entries = detect_new_top_rank_entries(rankings, args.notify_new_top, state) if args.notify_new_top > 0 else []
 
     report = {
         "generated_at_utc": now_utc.isoformat(),
@@ -901,6 +940,7 @@ def main():
         "rankings": rankings,
         "current_rankings": current_rankings,
         "earnings_updates": earnings_updates,
+        "new_top_entries": new_top_entries,
         "top_n": args.top,
         "earnings_window_days": args.earnings_window_days,
         "errors": errors[:50],
@@ -923,10 +963,18 @@ def main():
         )
 
     if args.mode == "refresh":
+        if new_top_entries:
+            message = build_new_top_rank_message(report, new_top_entries, args.notify_new_top)
+            print(message)
+            discord_webhook = os.getenv("DISCORD_WEBHOOK_URL")
+            if discord_webhook:
+                send_discord(message, discord_webhook)
+            else:
+                print("\nNo notification secret configured. Set DISCORD_WEBHOOK_URL.")
         print(
             f"Ranking data refreshed: {len(fetched_rankings)}/{len(rows_to_fetch)} tickers this run, "
             f"{len(rankings)}/{len(df)} stored successful tickers at {generated_at_jst}. "
-            "Notification skipped."
+            f"New top {args.notify_new_top} entries: {len(new_top_entries)}."
         )
         return
 
