@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
-DEFAULT_REPORT_URL = "https://github.com/sensin0/candidate-stock-assist2/blob/main/weekly_ranking_report.json"
+DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
 SAFETY_VERSION = 3
 
 
@@ -146,6 +146,114 @@ def exit_plan_values(current_price, price_location, revenue_growth, blocks=None,
         "Sell Plan": plan,
         "Sell Notes": notes,
     }
+
+
+def current_version_score(item):
+    status = str(item.get("Status") or "")
+    price_location = item.get("Price Location")
+    revenue_growth = item.get("Revenue Growth")
+    net_risk = item.get("Net Income Risk")
+    blocks = list(item.get("Blocks") or [])
+    score = 0
+    notes = []
+
+    if "2-YR LOSS" in status:
+        score += 100
+        notes.append("2期連続赤字")
+    elif item.get("Net Income") is not None and item.get("Net Income") < 0:
+        score += 55
+        notes.append("赤字")
+    else:
+        score -= 40
+
+    if price_location is not None:
+        if price_location < 0.1:
+            score += 40
+            notes.append("底値圏")
+        elif price_location < 0.2:
+            score += 20
+        elif price_location > 0.7:
+            score -= 100
+            if "高値圏" not in blocks:
+                blocks.append("高値圏")
+        elif price_location > 0.5:
+            score -= 45
+
+    if revenue_growth is not None:
+        if revenue_growth >= 20:
+            score += 30
+            notes.append("売上大幅成長")
+        elif revenue_growth >= 15:
+            score += 45
+            notes.append("売上成長")
+        elif revenue_growth >= 10:
+            score += 55
+            notes.append("売上成長")
+        elif revenue_growth >= 5:
+            score += 5
+        elif revenue_growth < -10:
+            score -= 90
+            if "売上悪化" not in blocks:
+                blocks.append("売上悪化")
+        elif revenue_growth < 0:
+            score -= 40
+
+    if item.get("Net Loss Improving") is True:
+        score += 70
+        notes.append("純損失縮小")
+    elif item.get("Net Loss Improving") is False:
+        score -= 80
+
+    if item.get("Operating Loss Improving") is True:
+        score += 35
+        notes.append("営業赤字縮小")
+    elif item.get("Operating Loss Improving") is False:
+        score -= 35
+
+    if net_risk == "profit_to_loss":
+        score -= 160
+        if "黒字から赤字転落" not in blocks:
+            blocks.append("黒字から赤字転落")
+    elif net_risk == "deeper_loss":
+        score -= 120
+        if "純損失拡大" not in blocks:
+            blocks.append("純損失拡大")
+    elif net_risk == "profit_decline":
+        score -= 60
+
+    score += item.get("Exit Score") or 0
+    if blocks:
+        score -= 30
+
+    if blocks:
+        action = "監視（除外条件あり）"
+    elif score >= 150:
+        action = "買い候補 強"
+    elif score >= 110:
+        action = "買い候補"
+    elif score >= 80:
+        action = "監視"
+    else:
+        action = "パス"
+
+    return round(score, 1), action, notes[:5], blocks
+
+
+def build_current_rankings(rankings):
+    current_rankings = []
+    for item in rankings:
+        score, action, notes, blocks = current_version_score(item)
+        row = dict(item)
+        row["Score"] = score
+        row["Entry Score"] = score
+        row["Action"] = action
+        row["Current Version Notes"] = notes
+        row["Blocks"] = blocks
+        current_rankings.append(row)
+    current_rankings.sort(key=lambda row: row.get("Score", 0), reverse=True)
+    for index, item in enumerate(current_rankings, start=1):
+        item["Rank"] = index
+    return current_rankings
 
 
 def apply_stored_safety_guard(item):
@@ -508,25 +616,34 @@ def append_dashboard_link(lines):
 
 def build_weekly_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
-    rows = report["rankings"][:top_n]
-    lines = [f"反転狙い版 週次ランキング更新 ({generated_at})", ""]
-    if not rows:
+    reversal_rows = report["rankings"][:top_n]
+    current_rows = report.get("current_rankings", [])[:top_n]
+    lines = [f"週次ランキング更新 ({generated_at})", ""]
+    if not reversal_rows and not current_rows:
         lines.append("ランキングを作成できませんでした。Actionsのログを確認してください。")
         return "\n".join(lines)
 
-    for item in rows:
-        price_location = item.get("Price Location")
-        price_text = "-" if price_location is None else f"{price_location * 100:.0f}%"
-        growth = item.get("Revenue Growth")
-        growth_text = "-" if growth is None else f"{growth:+.1f}%"
-        notes = " / ".join(item.get("Notes", [])[:3]) or "-"
-        lines.append(
-            f"{item['Rank']}. {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"Score {item['Score']} | 位置 {price_text} | 売上 {growth_text} | {notes}"
-        )
+    def append_rows(title, rows):
+        lines.extend([title])
+        for item in rows[:5]:
+            price_location = item.get("Price Location")
+            price_text = "-" if price_location is None else f"{price_location * 100:.0f}%"
+            growth = item.get("Revenue Growth")
+            growth_text = "-" if growth is None else f"{growth:+.1f}%"
+            notes = " / ".join((item.get("Current Version Notes") or item.get("Notes") or [])[:3]) or "-"
+            target = item.get("Target Price 1")
+            target_text = "-" if target is None else f"{target:.0f}円"
+            lines.append(
+                f"{item['Rank']}. {item['Ticker']} {item['Name']} | {item['Action']} | "
+                f"Score {item['Score']} | 位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
+            )
+        lines.append("")
+
+    append_rows("反転狙い版 Top5", reversal_rows)
+    append_rows("現行版 Top5", current_rows)
     earnings_rows = [
         item
-        for item in rows
+        for item in reversal_rows
         if item.get("Recent Earnings Data") is True
     ]
     if earnings_rows:
@@ -560,6 +677,9 @@ def build_earnings_message(report, earnings_rows):
             f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
             f"Score {item['Score']} | 最新期 {period} | 位置 {price_text} | 売上 {growth_text} | {notes}"
         )
+    if report.get("current_rankings"):
+        current_top = report["current_rankings"][0]
+        lines.extend(["", f"現行版トップ: #{current_top['Rank']} {current_top['Ticker']} {current_top['Name']} | Score {current_top['Score']}"])
     append_dashboard_link(lines)
     return "\n".join(lines)
 
@@ -738,6 +858,7 @@ def main():
         item["Days Since Latest Quarter"] = days
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
+    current_rankings = build_current_rankings(rankings)[:200]
     earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
 
     report = {
@@ -754,8 +875,11 @@ def main():
             "next_refresh_cursor": next_cursor,
             "failed_tickers": len(errors),
             "provider": "yfinance",
+            "safety_version": SAFETY_VERSION,
+            "ranking_note": "反転版は売上成長・底値圏・赤字縮小・Exit Score重視。現行版も同じデータから保守的に再採点。",
         },
         "rankings": rankings,
+        "current_rankings": current_rankings,
         "earnings_updates": earnings_updates,
         "top_n": args.top,
         "earnings_window_days": args.earnings_window_days,

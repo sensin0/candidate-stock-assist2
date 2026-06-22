@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>候補株ランキング</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --text: #111827;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --good: #047857;
+        --warn: #b45309;
+        --bad: #be123c;
+        --ink: #0f172a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      header {
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(14px);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .wrap {
+        width: min(1120px, calc(100% - 28px));
+        margin: 0 auto;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 0;
+      }
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: 0;
+      }
+      .updated {
+        color: var(--muted);
+        font-size: 13px;
+        text-align: right;
+      }
+      main {
+        padding: 22px 0 40px;
+      }
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .stat,
+      .card,
+      .table-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      }
+      .stat {
+        padding: 14px;
+      }
+      .stat span {
+        color: var(--muted);
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .stat strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 22px;
+      }
+      .tabs {
+        display: inline-flex;
+        gap: 4px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #eef2f7;
+        padding: 4px;
+        margin-bottom: 16px;
+      }
+      .tabs button {
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 800;
+        padding: 9px 14px;
+      }
+      .tabs button.active {
+        background: #fff;
+        color: var(--ink);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .card {
+        padding: 14px;
+      }
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .rank {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .ticker {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-weight: 900;
+      }
+      .name {
+        margin-top: 4px;
+        font-size: 17px;
+        font-weight: 900;
+      }
+      .badge {
+        align-self: start;
+        border-radius: 999px;
+        background: #ecfdf5;
+        color: var(--good);
+        font-size: 12px;
+        font-weight: 900;
+        padding: 5px 8px;
+        white-space: nowrap;
+      }
+      .badge.warn {
+        background: #fffbeb;
+        color: var(--warn);
+      }
+      .badge.bad {
+        background: #fff1f2;
+        color: var(--bad);
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .metric {
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 9px;
+      }
+      .metric span {
+        color: var(--muted);
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .metric strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 13px;
+      }
+      .plan {
+        border-top: 1px solid var(--line);
+        color: #334155;
+        margin-top: 12px;
+        padding-top: 10px;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .table-panel {
+        margin-top: 18px;
+        overflow: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 760px;
+        font-size: 13px;
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background: #f8fafc;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .error {
+        border: 1px solid #fecdd3;
+        border-radius: 8px;
+        background: #fff1f2;
+        color: #9f1239;
+        padding: 14px;
+      }
+      @media (max-width: 760px) {
+        .top {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .updated {
+          text-align: left;
+        }
+        .summary,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap top">
+        <div>
+          <h1>候補株ランキング</h1>
+          <div class="updated" id="subtitle">読み込み中</div>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="active" data-tab="reversal">反転狙い版</button>
+          <button data-tab="current">現行版</button>
+        </div>
+      </div>
+    </header>
+    <main class="wrap">
+      <section class="summary" id="summary"></section>
+      <section class="grid" id="cards"></section>
+      <section class="table-panel">
+        <table>
+          <thead>
+            <tr>
+              <th>順位</th>
+              <th>銘柄</th>
+              <th>Score</th>
+              <th>株価位置</th>
+              <th>売上</th>
+              <th>+50%</th>
+              <th>判定</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </section>
+    </main>
+    <script>
+      const state = { report: null, tab: "reversal" };
+      const yen = (value) => (typeof value === "number" ? `${Math.floor(value).toLocaleString()}円` : "-");
+      const pct = (value, digits = 0) => (typeof value === "number" ? `${(value * 100).toFixed(digits)}%` : "-");
+      const signed = (value) => (typeof value === "number" ? `${value > 0 ? "+" : ""}${value.toFixed(1)}%` : "-");
+      const actionTone = (action = "") => {
+        if (action.includes("除外") || action.includes("パス")) return "bad";
+        if (action.includes("監視") || action.includes("押し目")) return "warn";
+        return "";
+      };
+      const activeRows = () => {
+        if (!state.report) return [];
+        return state.tab === "current" ? state.report.current_rankings || [] : state.report.rankings || [];
+      };
+      function render() {
+        const rows = activeRows();
+        document.querySelectorAll(".tabs button").forEach((button) => {
+          button.classList.toggle("active", button.dataset.tab === state.tab);
+        });
+        document.getElementById("subtitle").textContent = state.report
+          ? `更新: ${state.report.generated_at_jst || "-"} / ${state.tab === "current" ? "現行版" : "反転狙い版"}`
+          : "読み込み中";
+        const top = rows[0] || {};
+        document.getElementById("summary").innerHTML = [
+          ["表示銘柄", `${rows.length.toLocaleString()}件`],
+          ["トップ", top.Ticker || "-"],
+          ["トップScore", top.Score ?? "-"],
+          ["ランキング改良", "Safety v3 + Exit"],
+        ]
+          .map(([label, value]) => `<div class="stat"><span>${label}</span><strong>${value}</strong></div>`)
+          .join("");
+        document.getElementById("cards").innerHTML = rows
+          .slice(0, 10)
+          .map((item) => {
+            const tone = actionTone(item.Action);
+            const notes = (item["Current Version Notes"] || item.Notes || []).slice(0, 3).join(" / ") || "-";
+            return `<article class="card">
+              <div class="card-head">
+                <div>
+                  <div><span class="rank">#${item.Rank}</span> <span class="ticker">${item.Ticker}</span></div>
+                  <div class="name">${item.Name || "-"}</div>
+                </div>
+                <span class="badge ${tone}">${item.Action || "-"}</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Score</span><strong>${item.Score ?? "-"}</strong></div>
+                <div class="metric"><span>株価位置</span><strong>${pct(item["Price Location"])}</strong></div>
+                <div class="metric"><span>売上</span><strong>${signed(item["Revenue Growth"])}</strong></div>
+                <div class="metric"><span>現在値</span><strong>${yen(item["Current Price"])}</strong></div>
+                <div class="metric"><span>+50%</span><strong>${yen(item["Target Price 1"])}</strong></div>
+                <div class="metric"><span>+100%</span><strong>${yen(item["Target Price 2"])}</strong></div>
+                <div class="metric"><span>撤退</span><strong>${yen(item["Stop Loss"])}</strong></div>
+                <div class="metric"><span>Exit</span><strong>${item["Exit Score"] ?? "-"}</strong></div>
+              </div>
+              <div class="plan">${item["Sell Plan"] || "+50%で一部利確、+100%で主力利確、-25%で撤退確認"}<br>${notes}</div>
+            </article>`;
+          })
+          .join("");
+        document.getElementById("rows").innerHTML = rows
+          .slice(0, 50)
+          .map(
+            (item) => `<tr>
+              <td>#${item.Rank}</td>
+              <td><strong>${item.Ticker}</strong><br>${item.Name || "-"}</td>
+              <td>${item.Score ?? "-"}</td>
+              <td>${pct(item["Price Location"])}</td>
+              <td>${signed(item["Revenue Growth"])}</td>
+              <td>${yen(item["Target Price 1"])}</td>
+              <td>${item.Action || "-"}</td>
+            </tr>`
+          )
+          .join("");
+      }
+      async function load() {
+        try {
+          const response = await fetch("weekly_ranking_report.json", { cache: "no-store" });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          state.report = await response.json();
+          render();
+        } catch (error) {
+          document.querySelector("main").innerHTML = `<div class="error">ランキングを読み込めませんでした。GitHub Actionsの更新後にもう一度開いてください。</div>`;
+          console.error(error);
+        }
+      }
+      document.querySelectorAll(".tabs button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.tab = button.dataset.tab;
+          render();
+        });
+      });
+      load();
+    </script>
+  </body>
+</html>

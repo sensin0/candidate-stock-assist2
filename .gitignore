@@ -10,3 +10,4 @@ web-dashboard/.next/
 .env
 .idea/
 .vscode/
+.local/
