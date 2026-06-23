@@ -10,6 +10,7 @@ on:
     paths:
       - "docs/**"
       - "weekly_ranking_report.json"
+      - ".gitignore"
       - ".github/workflows/pages-dashboard.yml"
 
 permissions:
