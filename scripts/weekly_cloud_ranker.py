@@ -639,8 +639,8 @@ def build_weekly_message(report, top_n, earnings_window_days):
             )
         lines.append("")
 
-    append_rows("反転狙い版 Top5", reversal_rows)
     append_rows("現行版 Top5", current_rows)
+    append_rows("反転狙い版 Top5", reversal_rows)
     earnings_rows = [
         item
         for item in reversal_rows
@@ -764,8 +764,8 @@ def detect_top_earnings_updates(rankings, top_n, state):
     return updates
 
 
-def detect_new_top_rank_entries(rankings, top_n, state):
-    previous = state.get("tickers", {}) if isinstance(state, dict) else {}
+def detect_new_top_rank_entries(rankings, top_n, state, state_key="tickers"):
+    previous = state.get(state_key, {}) if isinstance(state, dict) else {}
     if not previous:
         return []
 
@@ -782,7 +782,7 @@ def detect_new_top_rank_entries(rankings, top_n, state):
 
 def build_new_top_rank_message(report, rows, top_n):
     generated_at = report["generated_at_jst"]
-    lines = [f"ランキング上位{top_n}に新顔が入りました ({generated_at})", ""]
+    lines = [f"現行版ランキング上位{top_n}に新顔が入りました ({generated_at})", ""]
     for item in rows:
         previous_rank = item.get("Previous Rank")
         previous_text = "圏外" if previous_rank is None else f"#{previous_rank}"
@@ -801,7 +801,7 @@ def build_new_top_rank_message(report, rows, top_n):
     return "\n".join(lines)
 
 
-def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, universe_count=None):
+def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, universe_count=None, current_rankings=None):
     state = {
         "updated_at_utc": now_utc.isoformat(),
         "tickers": {
@@ -811,6 +811,15 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
             for item in rankings
+            if item.get("Ticker")
+        },
+        "current_tickers": {
+            item["Ticker"]: {
+                "Rank": item.get("Rank"),
+                "Score": item.get("Score"),
+                "Latest Quarter Period": item.get("Latest Quarter Period"),
+            }
+            for item in (current_rankings or [])
             if item.get("Ticker")
         },
     }
@@ -918,7 +927,11 @@ def main():
 
     current_rankings = build_current_rankings(rankings)[:200]
     earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
-    new_top_entries = detect_new_top_rank_entries(rankings, args.notify_new_top, state) if args.notify_new_top > 0 else []
+    new_top_entries = (
+        detect_new_top_rank_entries(current_rankings, args.notify_new_top, state, state_key="current_tickers")
+        if args.notify_new_top > 0
+        else []
+    )
 
     report = {
         "generated_at_utc": now_utc.isoformat(),
@@ -959,6 +972,7 @@ def main():
                 existing_state=state,
                 refresh_cursor=next_cursor,
                 universe_count=len(df),
+                current_rankings=current_rankings,
             ),
         )
 
