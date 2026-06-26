@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
+DEFAULT_LOCAL_CURRENT = ROOT / "docs" / "local_current_rankings.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
 SAFETY_VERSION = 3
 
@@ -254,6 +255,26 @@ def build_current_rankings(rankings):
     for index, item in enumerate(current_rankings, start=1):
         item["Rank"] = index
     return current_rankings
+
+
+def load_local_current_rankings(path=DEFAULT_LOCAL_CURRENT):
+    data_path = Path(path)
+    if not data_path.exists():
+        return []
+    try:
+        data = json.loads(data_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+    if not isinstance(data, list):
+        return []
+    rows = []
+    for index, item in enumerate(data, start=1):
+        if not isinstance(item, dict) or not item.get("Ticker"):
+            continue
+        row = dict(item)
+        row["Rank"] = index
+        rows.append(row)
+    return rows
 
 
 def apply_stored_safety_guard(item):
@@ -903,7 +924,10 @@ def main():
         if not existing_report.get("rankings"):
             raise RuntimeError("No saved ranking report found. Run refresh mode first.")
         rankings = existing_report.get("rankings", [])
-        if not existing_report.get("current_rankings"):
+        local_current_rankings = load_local_current_rankings()
+        if local_current_rankings:
+            existing_report["current_rankings"] = local_current_rankings[:200]
+        elif not existing_report.get("current_rankings"):
             existing_report["current_rankings"] = build_current_rankings(rankings)[:200]
         for item in rankings:
             days = days_since(item.get("Latest Quarter Period"), now_jst)
@@ -955,7 +979,8 @@ def main():
         item["Days Since Latest Quarter"] = days
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
-    current_rankings = build_current_rankings(rankings)[:200]
+    local_current_rankings = load_local_current_rankings()
+    current_rankings = (local_current_rankings or build_current_rankings(rankings))[:200]
     earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
     top_rank_changes = (
         detect_top_rank_changes(current_rankings, args.notify_new_top, state, state_key="current_tickers")
