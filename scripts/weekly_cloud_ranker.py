@@ -618,7 +618,7 @@ def build_weekly_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
     reversal_rows = report["rankings"][:top_n]
     current_rows = report.get("current_rankings", [])[:top_n]
-    lines = [f"週次ランキング更新 ({generated_at})", ""]
+    lines = [f"隔週ランキング確認 ({generated_at})", ""]
     if not reversal_rows and not current_rows:
         lines.append("ランキングを作成できませんでした。Actionsのログを確認してください。")
         return "\n".join(lines)

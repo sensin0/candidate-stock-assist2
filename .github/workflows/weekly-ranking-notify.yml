@@ -5,6 +5,8 @@ on:
   schedule:
     # Daily 05:40 JST. Refreshes ranking data and notifies Discord only when the current-version top 5 changes.
     - cron: "40 20 * * *"
+    # Saturday 07:10 JST. Sends a Discord check-in every other week.
+    - cron: "10 22 * * 5"
 
 permissions:
   contents: write
@@ -48,3 +50,41 @@ jobs:
         with:
           name: daily-ranking-report
           path: weekly_ranking_report.json
+
+  biweekly-ranking-check:
+    if: github.event.schedule == '10 22 * * 5'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check biweekly cadence
+        id: cadence
+        run: |
+          week="$(TZ=Asia/Tokyo date +%V)"
+          if [ $((10#$week % 2)) -eq 0 ]; then
+            echo "send=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "send=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python
+        if: steps.cadence.outputs.send == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements-cloud.txt
+
+      - name: Install dependencies
+        if: steps.cadence.outputs.send == 'true'
+        run: python -m pip install -r requirements-cloud.txt
+
+      - name: Send biweekly ranking check
+        if: steps.cadence.outputs.send == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+        run: python scripts/weekly_cloud_ranker.py --mode notify --output weekly_ranking_report.json --top 10 --earnings-window-days 120 --state-file .github/ranking-state.json
