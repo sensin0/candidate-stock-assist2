@@ -3,7 +3,7 @@ name: Publish Ranking Dashboard
 on:
   workflow_dispatch: {}
   workflow_run:
-    workflows: ["Weekly Ranking Notify"]
+    workflows: ["Ranking Change Notify"]
     types: [completed]
   push:
     branches: [main]

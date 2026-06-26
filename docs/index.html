@@ -240,8 +240,8 @@
           <div class="updated" id="subtitle">読み込み中</div>
         </div>
         <div class="tabs" role="tablist">
-          <button class="active" data-tab="reversal">反転狙い版</button>
-          <button data-tab="current">現行版</button>
+          <button class="active" data-tab="current">現行版</button>
+          <button data-tab="reversal">反転狙い版</button>
         </div>
       </div>
     </header>
@@ -266,7 +266,7 @@
       </section>
     </main>
     <script>
-      const state = { report: null, tab: "reversal" };
+      const state = { report: null, tab: "current" };
       const yen = (value) => (typeof value === "number" ? `${Math.floor(value).toLocaleString()}円` : "-");
       const pct = (value, digits = 0) => (typeof value === "number" ? `${(value * 100).toFixed(digits)}%` : "-");
       const signed = (value) => (typeof value === "number" ? `${value > 0 ? "+" : ""}${value.toFixed(1)}%` : "-");

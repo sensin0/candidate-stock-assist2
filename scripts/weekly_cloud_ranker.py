@@ -611,7 +611,7 @@ def dashboard_url():
 def append_dashboard_link(lines):
     url = dashboard_url()
     if url:
-        lines.extend(["", f"Web/結果: {url}"])
+        lines.extend(["", f"GitHubサイト: {url}"])
 
 
 def build_weekly_message(report, top_n, earnings_window_days):
