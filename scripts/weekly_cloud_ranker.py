@@ -18,7 +18,19 @@ DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
 SAFETY_VERSION = 3
-CURRENT_EXCLUDED_SECTORS = {"サービス業"}
+CURRENT_TARGET_SECTORS = {
+    "鉄鋼",
+    "非鉄金属",
+    "鉱業",
+    "石油・石炭製品",
+    "ガラス・土石製品",
+    "ゴム製品",
+    "化学",
+    "パルプ・紙",
+    "繊維製品",
+    "海運業",
+    "輸送用機器",
+}
 
 
 def clean_number(value):
@@ -284,7 +296,7 @@ def local_current_version_score(item):
 def build_current_rankings(rankings):
     current_rankings = []
     for item in rankings:
-        if item.get("Sector") in CURRENT_EXCLUDED_SECTORS:
+        if item.get("Sector") not in CURRENT_TARGET_SECTORS:
             continue
         score, action, notes, blocks, status = local_current_version_score(item)
         row = dict(item)
