@@ -266,7 +266,7 @@
       </section>
     </main>
     <script>
-      const state = { report: null, localCurrentRows: [], tab: "current" };
+      const state = { report: null, tab: "current" };
       const yen = (value) => (typeof value === "number" ? `${Math.floor(value).toLocaleString()}円` : "-");
       const pct = (value, digits = 0) => (typeof value === "number" ? `${(value * 100).toFixed(digits)}%` : "-");
       const signed = (value) => (typeof value === "number" ? `${value > 0 ? "+" : ""}${value.toFixed(1)}%` : "-");
@@ -277,9 +277,7 @@
       };
       const activeRows = () => {
         if (!state.report) return [];
-        return state.tab === "current"
-          ? state.localCurrentRows.length > 0 ? state.localCurrentRows : state.report.current_rankings || []
-          : state.report.rankings || [];
+        return state.tab === "current" ? state.report.current_rankings || [] : state.report.rankings || [];
       };
       function render() {
         const rows = activeRows();
@@ -345,14 +343,6 @@
           const response = await fetch("weekly_ranking_report.json", { cache: "no-store" });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           state.report = await response.json();
-          try {
-            const localCurrentResponse = await fetch("local_current_rankings.json", { cache: "no-store" });
-            if (localCurrentResponse.ok) {
-              state.localCurrentRows = await localCurrentResponse.json();
-            }
-          } catch {
-            state.localCurrentRows = [];
-          }
           render();
         } catch (error) {
           document.querySelector("main").innerHTML = `<div class="error">ランキングを読み込めませんでした。GitHub Actionsの更新後にもう一度開いてください。</div>`;

@@ -16,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
-DEFAULT_LOCAL_CURRENT = ROOT / "docs" / "local_current_rankings.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
 SAFETY_VERSION = 3
 
@@ -149,132 +148,163 @@ def exit_plan_values(current_price, price_location, revenue_growth, blocks=None,
     }
 
 
-def current_version_score(item):
-    status = str(item.get("Status") or "")
+def local_current_version_score(item):
     price_location = item.get("Price Location")
     revenue_growth = item.get("Revenue Growth")
-    net_risk = item.get("Net Income Risk")
-    blocks = list(item.get("Blocks") or [])
+    loss_margin_improving = item.get("Loss Margin Improving")
+    loss_margin = item.get("Loss Margin")
+    psr_rank = item.get("PSR Rank")
+    sector_status = item.get("Sector Status")
+    net_history = item.get("Net Income History") or []
+    latest_net_income = net_history[0] if len(net_history) >= 1 else item.get("Net Income")
+    previous_net_income = net_history[1] if len(net_history) >= 2 else item.get("Prev Net Income")
+    is_aggressive = item.get("Is Aggressive") is True
+
     score = 0
     notes = []
+    blocks = []
 
-    if "2-YR LOSS" in status:
+    two_year_loss = (
+        latest_net_income is not None
+        and previous_net_income is not None
+        and latest_net_income < 0
+        and previous_net_income < 0
+    )
+    if two_year_loss:
         score += 100
         notes.append("2期連続赤字")
-    elif item.get("Net Income") is not None and item.get("Net Income") < 0:
-        score += 55
-        notes.append("赤字")
-    else:
-        score -= 40
 
-    if price_location is not None:
-        if price_location < 0.1:
-            score += 40
-            notes.append("底値圏")
-        elif price_location < 0.2:
+        if price_location is not None:
+            if price_location < 0.1:
+                score += 25
+                notes.append("Price at Bottom 10%")
+            elif price_location < 0.2:
+                score += 10
+                notes.append("Price at Bottom")
+            elif price_location > 0.7:
+                score -= 30
+                notes.append("高値圏・押し目待ち (>70%)")
+            elif price_location > 0.5:
+                score -= 15
+                notes.append("中高値圏 (>50%)")
+
+        if psr_rank is not None and psr_rank < 0.2:
+            score += 10
+            notes.append("PSR Historic Low")
+
+        if sector_status == "Downturn":
             score += 20
-        elif price_location > 0.7:
-            score -= 100
-            if "高値圏" not in blocks:
-                blocks.append("高値圏")
-        elif price_location > 0.5:
-            score -= 45
+            notes.append("Sector Sync")
 
-    if revenue_growth is not None:
-        if revenue_growth >= 20:
+        if is_aggressive:
+            score += 15
+            reason = item.get("Aggressive Reason") or ""
+            notes.append(f"AGGRESSIVE ({reason})")
+
+        if revenue_growth is not None:
+            if revenue_growth >= 20:
+                score += 50
+                notes.append("売上爆発 (+20%↑)")
+            elif revenue_growth >= 15:
+                score += 70
+                notes.append("売上急成長 (+15%↑)")
+            elif revenue_growth >= 10:
+                score += 35
+                notes.append("売上確信 (+10%↑)")
+            elif revenue_growth >= 5:
+                score += 5
+                notes.append("売上兆し (+5%↑)")
+            elif revenue_growth < -10:
+                score -= 60
+                notes.append("売上悪化 (-10%↓)")
+            elif revenue_growth < 0:
+                score -= 20
+                notes.append("売上減少")
+
+        if loss_margin is not None and loss_margin > -3:
             score += 30
-            notes.append("売上大幅成長")
-        elif revenue_growth >= 15:
-            score += 45
-            notes.append("売上成長")
-        elif revenue_growth >= 10:
-            score += 55
-            notes.append("売上成長")
-        elif revenue_growth >= 5:
-            score += 5
-        elif revenue_growth < -10:
-            score -= 90
-            if "売上悪化" not in blocks:
-                blocks.append("売上悪化")
-        elif revenue_growth < 0:
+            notes.append("赤字率軽微 (>-3%)")
+        elif loss_margin is not None and loss_margin > -5:
+            score += 10
+            notes.append("赤字率小 (>-5%)")
+
+        if loss_margin_improving is True:
+            score += 50
+            notes.append("赤字率改善中")
+        elif loss_margin_improving is False:
+            score -= 50
+            notes.append("赤字率悪化中")
+
+        if revenue_growth is not None and revenue_growth >= 10:
+            if loss_margin_improving is True:
+                score += 30
+                notes.append("売上成長+赤字改善コンボ")
+            if price_location is not None and price_location < 0.15:
+                score += 20
+                notes.append("売上成長+底値圏コンボ")
+
+        if sector_status == "Boom":
             score -= 40
+            notes.append("セクター好調なのに赤字")
 
-    if item.get("Net Loss Improving") is True:
-        score += 70
-        notes.append("純損失縮小")
-    elif item.get("Net Loss Improving") is False:
-        score -= 80
+        if loss_margin_improving is False:
+            blocks.append("赤字率悪化")
+        if revenue_growth is not None and revenue_growth < -10:
+            blocks.append("売上悪化")
 
-    if item.get("Operating Loss Improving") is True:
-        score += 35
-        notes.append("営業赤字縮小")
-    elif item.get("Operating Loss Improving") is False:
-        score -= 35
-
-    if net_risk == "profit_to_loss":
-        score -= 160
-        if "黒字から赤字転落" not in blocks:
-            blocks.append("黒字から赤字転落")
-    elif net_risk == "deeper_loss":
-        score -= 120
-        if "純損失拡大" not in blocks:
-            blocks.append("純損失拡大")
-    elif net_risk == "profit_decline":
-        score -= 60
-
-    score += item.get("Exit Score") or 0
-    if blocks:
-        score -= 30
-
-    if blocks:
-        action = "監視（除外条件あり）"
-    elif score >= 150:
-        action = "買い候補 強"
-    elif score >= 110:
-        action = "買い候補"
-    elif score >= 80:
-        action = "監視"
+        if blocks:
+            action = "Watch (Blocked: " + "/".join(blocks) + ")"
+        elif price_location is not None and price_location > 0.7 and score >= 110:
+            action = "Watch (Pullback)"
+        elif score >= 150:
+            action = "**BUY CANDIDATE** (STRONG)"
+        elif score >= 110:
+            action = "**BUY CANDIDATE**"
+        elif score >= 80:
+            action = "Watch (Wait for Profit Turn)"
+        else:
+            action = "Watch (Wait for Price/Vol)"
+        status = "**2-YR LOSS**"
+    elif latest_net_income is not None and latest_net_income < 0:
+        score += 50
+        status = "Red Ink (1yr)"
+        action = "Watch (Wait for 2nd yr?)"
+    elif previous_net_income is not None and previous_net_income < 0:
+        score += 30
+        status = "Recovering"
+        action = "Check Trend"
     else:
-        action = "パス"
+        status = "Profitable"
+        action = "Pass"
 
-    return round(score, 1), action, notes[:5], blocks
+    return round(score, 1), action, notes, blocks, status
 
 
 def build_current_rankings(rankings):
     current_rankings = []
     for item in rankings:
-        score, action, notes, blocks = current_version_score(item)
+        score, action, notes, blocks, status = local_current_version_score(item)
         row = dict(item)
         row["Score"] = score
         row["Entry Score"] = score
         row["Action"] = action
         row["Current Version Notes"] = notes
         row["Blocks"] = blocks
+        row["Status"] = status
+        current_price = row.get("Current Price")
+        if "BUY CANDIDATE" in action and current_price is not None:
+            row["Target Price 1"] = round(current_price * 1.5, 2)
+            row["Target Price 2"] = round(current_price * 2.0, 2)
+            row["Stop Loss"] = round(current_price * 0.8, 2)
+        else:
+            row["Target Price 1"] = None
+            row["Target Price 2"] = None
+            row["Stop Loss"] = None
         current_rankings.append(row)
     current_rankings.sort(key=lambda row: row.get("Score", 0), reverse=True)
     for index, item in enumerate(current_rankings, start=1):
         item["Rank"] = index
     return current_rankings
-
-
-def load_local_current_rankings(path=DEFAULT_LOCAL_CURRENT):
-    data_path = Path(path)
-    if not data_path.exists():
-        return []
-    try:
-        data = json.loads(data_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return []
-    if not isinstance(data, list):
-        return []
-    rows = []
-    for index, item in enumerate(data, start=1):
-        if not isinstance(item, dict) or not item.get("Ticker"):
-            continue
-        row = dict(item)
-        row["Rank"] = index
-        rows.append(row)
-    return rows
 
 
 def apply_stored_safety_guard(item):
@@ -470,6 +500,17 @@ def score_stock(row):
     operating_loss_improving = loss_improving(latest_operating, previous_operating, latest_revenue, previous_revenue)
     pretax_loss_improving = loss_improving(latest_pretax, previous_pretax, latest_revenue, previous_revenue)
     net_risk = net_income_risk(latest_net_income, previous_net_income)
+    loss_margin = None
+    if latest_net_income is not None and latest_revenue not in (None, 0):
+        loss_margin = latest_net_income / abs(latest_revenue) * 100
+
+    aggressive_reasons = []
+    if len(capex) >= 2 and capex[0] is not None and capex[1] is not None:
+        if abs(capex[0]) > abs(capex[1]) * 1.05:
+            aggressive_reasons.append("CapEx Up")
+    if len(total_assets) >= 2 and total_assets[0] is not None and total_assets[1] is not None:
+        if total_assets[0] > total_assets[1] * 1.02:
+            aggressive_reasons.append("Assets Up")
 
     score = 0
     notes = []
@@ -555,14 +596,12 @@ def score_stock(row):
         score -= 60
         notes.append("純利益減少")
 
-    if len(capex) >= 2 and capex[0] is not None and capex[1] is not None:
-        if abs(capex[0]) > abs(capex[1]) * 1.05:
-            score += 10
-            notes.append("赤字下の投資")
-    if len(total_assets) >= 2 and total_assets[0] is not None and total_assets[1] is not None:
-        if total_assets[0] > total_assets[1] * 1.02:
-            score += 5
-            notes.append("資産増")
+    if "CapEx Up" in aggressive_reasons:
+        score += 10
+        notes.append("赤字下の投資")
+    if "Assets Up" in aggressive_reasons:
+        score += 5
+        notes.append("資産増")
 
     if blocks:
         score -= 50
@@ -606,6 +645,10 @@ def score_stock(row):
         "Price Location": round(price_location, 3) if price_location is not None else None,
         "Revenue Growth": round(revenue_growth, 1) if revenue_growth is not None else None,
         "Revenue Growth Label": growth_label(revenue_growth),
+        "Loss Margin Improving": net_loss_improving,
+        "Loss Margin": round(loss_margin, 1) if loss_margin is not None else None,
+        "Is Aggressive": bool(aggressive_reasons),
+        "Aggressive Reason": "/".join(aggressive_reasons),
         "PSR Rank": None,
         "PSR": round(psr, 3) if psr is not None else None,
         "Net Income": latest_net_income,
@@ -924,10 +967,7 @@ def main():
         if not existing_report.get("rankings"):
             raise RuntimeError("No saved ranking report found. Run refresh mode first.")
         rankings = existing_report.get("rankings", [])
-        local_current_rankings = load_local_current_rankings()
-        if local_current_rankings:
-            existing_report["current_rankings"] = local_current_rankings[:200]
-        elif not existing_report.get("current_rankings"):
+        if not existing_report.get("current_rankings"):
             existing_report["current_rankings"] = build_current_rankings(rankings)[:200]
         for item in rankings:
             days = days_since(item.get("Latest Quarter Period"), now_jst)
@@ -979,8 +1019,7 @@ def main():
         item["Days Since Latest Quarter"] = days
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
-    local_current_rankings = load_local_current_rankings()
-    current_rankings = (local_current_rankings or build_current_rankings(rankings))[:200]
+    current_rankings = build_current_rankings(rankings)[:200]
     earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
     top_rank_changes = (
         detect_top_rank_changes(current_rankings, args.notify_new_top, state, state_key="current_tickers")
