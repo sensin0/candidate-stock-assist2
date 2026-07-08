@@ -131,6 +131,17 @@
         background: #fff1f2;
         color: var(--bad);
       }
+      .badge.double {
+        background: #fdf4ff;
+        color: #a21caf;
+      }
+      .badges {
+        align-items: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+      }
       .metrics {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -246,6 +257,7 @@
         if (action.includes("監視") || action.includes("押し目")) return "warn";
         return "";
       };
+      const twoBaggerTag = (item) => Number(item["Revenue Growth"]) >= 15 ? `<span class="badge double">2倍候補</span>` : "";
       const activeRows = () => {
         if (!state.report) return [];
         return state.report.current_rankings || [];
@@ -275,7 +287,7 @@
                   <div><span class="rank">#${item.Rank}</span> <span class="ticker">${item.Ticker}</span></div>
                   <div class="name">${item.Name || "-"}</div>
                 </div>
-                <span class="badge ${tone}">${item.Action || "-"}</span>
+                <div class="badges"><span class="badge ${tone}">${item.Action || "-"}</span>${twoBaggerTag(item)}</div>
               </div>
               <div class="metrics">
                 <div class="metric"><span>Score</span><strong>${item.Score ?? "-"}</strong></div>
@@ -301,7 +313,7 @@
               <td>${pct(item["Price Location"])}</td>
               <td>${signed(item["Revenue Growth"])}</td>
               <td>${yen(item["Target Price 1"])}</td>
-              <td>${item.Action || "-"}</td>
+              <td>${item.Action || "-"} ${twoBaggerTag(item)}</td>
             </tr>`
           )
           .join("");
