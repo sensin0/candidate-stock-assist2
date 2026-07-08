@@ -86,31 +86,6 @@
         margin-top: 6px;
         font-size: 22px;
       }
-      .tabs {
-        display: inline-flex;
-        gap: 4px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #eef2f7;
-        padding: 4px;
-        margin-bottom: 16px;
-      }
-      .tabs button {
-        border: 0;
-        border-radius: 6px;
-        background: transparent;
-        color: var(--muted);
-        cursor: pointer;
-        font: inherit;
-        font-size: 14px;
-        font-weight: 800;
-        padding: 9px 14px;
-      }
-      .tabs button.active {
-        background: #fff;
-        color: var(--ink);
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-      }
       .grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -239,10 +214,6 @@
           <h1>候補株ランキング</h1>
           <div class="updated" id="subtitle">読み込み中</div>
         </div>
-        <div class="tabs" role="tablist">
-          <button class="active" data-tab="current">現行版</button>
-          <button data-tab="reversal">反転狙い版</button>
-        </div>
       </div>
     </header>
     <main class="wrap">
@@ -277,15 +248,12 @@
       };
       const activeRows = () => {
         if (!state.report) return [];
-        return state.tab === "current" ? state.report.current_rankings || [] : state.report.rankings || [];
+        return state.report.current_rankings || [];
       };
       function render() {
         const rows = activeRows();
-        document.querySelectorAll(".tabs button").forEach((button) => {
-          button.classList.toggle("active", button.dataset.tab === state.tab);
-        });
         document.getElementById("subtitle").textContent = state.report
-          ? `更新: ${state.report.generated_at_jst || "-"} / ${state.tab === "current" ? "現行版" : "反転狙い版"}`
+          ? `更新: ${state.report.generated_at_jst || "-"} / 現行版`
           : "読み込み中";
         const top = rows[0] || {};
         document.getElementById("summary").innerHTML = [
@@ -349,12 +317,6 @@
           console.error(error);
         }
       }
-      document.querySelectorAll(".tabs button").forEach((button) => {
-        button.addEventListener("click", () => {
-          state.tab = button.dataset.tab;
-          render();
-        });
-      });
       load();
     </script>
   </body>

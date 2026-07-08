@@ -695,10 +695,9 @@ def append_dashboard_link(lines):
 
 def build_weekly_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
-    reversal_rows = report["rankings"][:top_n]
     current_rows = report.get("current_rankings", [])[:top_n]
     lines = [f"隔週ランキング確認 ({generated_at})", ""]
-    if not reversal_rows and not current_rows:
+    if not current_rows:
         lines.append("ランキングを作成できませんでした。Actionsのログを確認してください。")
         return "\n".join(lines)
 
@@ -719,12 +718,7 @@ def build_weekly_message(report, top_n, earnings_window_days):
         lines.append("")
 
     append_rows("現行版 Top5", current_rows)
-    append_rows("反転狙い版 Top5", reversal_rows)
-    earnings_rows = [
-        item
-        for item in reversal_rows
-        if item.get("Recent Earnings Data") is True
-    ]
+    earnings_rows = [item for item in current_rows if item.get("Recent Earnings Data") is True]
     if earnings_rows:
         lines.extend(["", f"決算チェック優先（上位{top_n}位以内・直近{earnings_window_days}日以内の四半期データ）"])
         for item in earnings_rows:
