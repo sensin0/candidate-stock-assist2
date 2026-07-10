@@ -257,7 +257,14 @@
         if (action.includes("監視") || action.includes("押し目")) return "warn";
         return "";
       };
-      const twoBaggerTag = (item) => Number(item["Revenue Growth"]) >= 15 ? `<span class="badge double">2倍候補</span>` : "";
+      const twoBaggerTag = (item) => {
+        if (Number(item["Revenue Growth"]) < 15) return "";
+        const action = item.Action || "";
+        if (action.includes("BUY") || action.includes("Watch") || action.includes("Check")) {
+          return `<span class="badge double">2倍候補</span>`;
+        }
+        return `<span class="badge warn">売上15%+ 対象外</span>`;
+      };
       const activeRows = () => {
         if (!state.report) return [];
         return state.report.current_rankings || [];
@@ -272,7 +279,7 @@
           ["表示銘柄", `${rows.length.toLocaleString()}件`],
           ["トップ", top.Ticker || "-"],
           ["トップScore", top.Score ?? "-"],
-          ["ランキング改良", "Safety v3 + Exit"],
+          ["ランキング改良", "Safety v4 + Exit"],
         ]
           .map(([label, value]) => `<div class="stat"><span>${label}</span><strong>${value}</strong></div>`)
           .join("");

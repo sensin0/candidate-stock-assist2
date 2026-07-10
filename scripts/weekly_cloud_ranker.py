@@ -17,7 +17,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 3
+SAFETY_VERSION = 4
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -1053,7 +1053,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "反転版は売上成長・底値圏・赤字縮小・Exit Score重視。現行版も同じデータから保守的に再採点。",
+            "ranking_note": "現行版はシクリカル対象業種に絞り、赤字反転、売上成長、赤字縮小、株価位置、Exit Scoreを保守的に再採点。",
         },
         "rankings": rankings,
         "current_rankings": current_rankings,
