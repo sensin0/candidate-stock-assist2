@@ -216,10 +216,10 @@ def local_current_version_score(item):
 
         if revenue_growth is not None:
             if revenue_growth >= 20:
-                score += 50
+                score += 80
                 notes.append("売上爆発 (+20%↑)")
             elif revenue_growth >= 15:
-                score += 70
+                score += 60
                 notes.append("売上急成長 (+15%↑)")
             elif revenue_growth >= 10:
                 score += 35
@@ -345,10 +345,12 @@ def apply_stored_safety_guard(item):
 
     revenue_growth = item.get("Revenue Growth")
     if revenue_growth is not None:
-        if revenue_growth >= 15:
-            score += 30
-        elif revenue_growth >= 10:
+        if revenue_growth >= 20:
+            score += 75
+        elif revenue_growth >= 15:
             score += 55
+        elif revenue_growth >= 10:
+            score += 30
         elif revenue_growth >= 0:
             score += 10
         elif revenue_growth < -10:
