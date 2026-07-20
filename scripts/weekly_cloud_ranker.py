@@ -17,7 +17,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 4
+SAFETY_VERSION = 5
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -86,6 +86,26 @@ def growth_label(growth):
     return "横ばい"
 
 
+def revenue_growth_score(growth, high=90, mid=80, base=35, early=10, flat=5):
+    if growth is None:
+        return 0, None
+    if 20 <= growth < 30:
+        return high, "売上20%台・2倍到達率重視"
+    if 15 <= growth < 20:
+        return mid, "売上15-19%台・利確成績重視"
+    if growth >= 30:
+        return -10, "売上30%超・過熱注意"
+    if growth >= 10:
+        return base, "売上成長 (+10%↑)"
+    if growth >= 5:
+        return early, "売上兆し (+5%↑)"
+    if growth >= 0:
+        return flat, "売上維持"
+    if growth < -10:
+        return -90, "売上悪化 (-10%↓)"
+    return -40, "売上減少"
+
+
 def loss_improving(latest_loss, previous_loss, latest_revenue, previous_revenue):
     if latest_loss is None or previous_loss is None:
         return None
@@ -130,10 +150,13 @@ def exit_plan_values(current_price, price_location, revenue_growth, blocks=None,
             score -= 20
 
     if revenue_growth is not None:
-        if 10 <= revenue_growth < 15:
-            score += 10
-            notes.append("過去検証で到達率良好")
-        elif revenue_growth >= 15:
+        if 15 <= revenue_growth < 30:
+            score += 12
+            notes.append("過去検証で売買成績良好")
+        elif revenue_growth >= 30:
+            score -= 5
+            notes.append("高成長すぎるため過熱注意")
+        elif 10 <= revenue_growth < 15:
             score += 5
         elif revenue_growth < 0:
             score -= 10
@@ -215,24 +238,12 @@ def local_current_version_score(item):
             notes.append(f"AGGRESSIVE ({reason})")
 
         if revenue_growth is not None:
-            if revenue_growth >= 20:
-                score += 80
-                notes.append("売上爆発 (+20%↑)")
-            elif revenue_growth >= 15:
-                score += 60
-                notes.append("売上急成長 (+15%↑)")
-            elif revenue_growth >= 10:
-                score += 35
-                notes.append("売上確信 (+10%↑)")
-            elif revenue_growth >= 5:
-                score += 5
-                notes.append("売上兆し (+5%↑)")
-            elif revenue_growth < -10:
-                score -= 60
-                notes.append("売上悪化 (-10%↓)")
-            elif revenue_growth < 0:
-                score -= 20
-                notes.append("売上減少")
+            growth_points, growth_note = revenue_growth_score(
+                revenue_growth, high=90, mid=80, base=35, early=5, flat=0
+            )
+            score += growth_points
+            if growth_note:
+                notes.append(growth_note)
 
         if loss_margin is not None and loss_margin > -3:
             score += 30
@@ -328,6 +339,8 @@ def apply_stored_safety_guard(item):
 
     score = 0
     status = str(item.get("Status") or "")
+    blocks = list(item.get("Blocks") or [])
+    notes = list(item.get("Notes") or [])
     if "2-YR LOSS" in status:
         score += 60
     elif item.get("Net Income") is not None and item.get("Net Income") < 0:
@@ -345,18 +358,12 @@ def apply_stored_safety_guard(item):
 
     revenue_growth = item.get("Revenue Growth")
     if revenue_growth is not None:
-        if revenue_growth >= 20:
-            score += 75
-        elif revenue_growth >= 15:
-            score += 55
-        elif revenue_growth >= 10:
-            score += 30
-        elif revenue_growth >= 0:
-            score += 10
-        elif revenue_growth < -10:
-            score -= 90
-        else:
-            score -= 40
+        growth_points, growth_note = revenue_growth_score(
+            revenue_growth, high=90, mid=80, base=35, early=10, flat=5
+        )
+        score += growth_points
+        if growth_note and growth_note not in notes:
+            notes.append(growth_note)
 
     psr = item.get("PSR")
     if psr is not None:
@@ -385,9 +392,6 @@ def apply_stored_safety_guard(item):
     latest = history[0] if len(history) > 0 else item.get("Net Income")
     previous = history[1] if len(history) > 1 else None
     risk = net_income_risk(latest, previous)
-
-    blocks = list(item.get("Blocks") or [])
-    notes = list(item.get("Notes") or [])
 
     if risk == "profit_to_loss":
         score -= 160
@@ -560,20 +564,14 @@ def score_stock(row):
         score -= 35
 
     if revenue_growth is not None:
-        if revenue_growth >= 15:
-            score += 30
-            notes.append("売上大幅成長")
-        elif revenue_growth >= 10:
-            score += 55
-            notes.append("売上成長")
-        elif revenue_growth >= 0:
-            score += 10
-            notes.append("売上維持")
-        elif revenue_growth < -10:
-            score -= 90
+        growth_points, growth_note = revenue_growth_score(
+            revenue_growth, high=90, mid=80, base=35, early=10, flat=5
+        )
+        score += growth_points
+        if growth_note:
+            notes.append(growth_note)
+        if revenue_growth < -10:
             blocks.append("売上悪化")
-        else:
-            score -= 40
 
     if psr is not None:
         if psr < 0.5:

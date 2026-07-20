@@ -144,12 +144,14 @@ def score_current(features):
         score += 15
 
     if rev_growth is not None:
-        if rev_growth >= 20:
-            score += 30
-        elif rev_growth >= 15:
-            score += 45
+        if 20 <= rev_growth < 30:
+            score += 90
+        elif 15 <= rev_growth < 20:
+            score += 80
+        elif rev_growth >= 30:
+            score -= 10
         elif rev_growth >= 10:
-            score += 55
+            score += 35
         elif rev_growth >= 5:
             score += 5
         elif rev_growth < -10:
