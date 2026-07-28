@@ -107,6 +107,16 @@
         font-weight: 900;
         margin: 18px 0 8px;
       }
+      .notice {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fffbeb;
+        color: #92400e;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 12px;
+        padding: 12px 14px;
+      }
       .card {
         padding: 14px;
       }
@@ -295,12 +305,14 @@
         return state.report.current_rankings || [];
       };
       const isPass = (item) => (item.Action || "").includes("パス") || (item.Action || "").includes("Pass");
+      const isBuy = (item) => (item.Action || "").includes("買い候補") || (item.Action || "").includes("BUY");
       const candidateRows = (rows) => rows.filter((item) => !isPass(item));
       const referenceRows = (rows) => rows.filter((item) => isPass(item));
       function render() {
         const rows = activeRows();
         const candidates = candidateRows(rows);
         const references = referenceRows(rows);
+        const buys = candidates.filter(isBuy);
         document.getElementById("subtitle").textContent = state.report
           ? `更新: ${state.report.generated_at_jst || "-"} / 現行版`
           : "読み込み中";
@@ -308,8 +320,8 @@
         document.getElementById("summary").innerHTML = [
           ["表示銘柄", `${rows.length.toLocaleString()}件`],
           ["候補銘柄", `${candidates.length.toLocaleString()}件`],
+          ["買い候補", `${buys.length.toLocaleString()}件`],
           ["トップ", top.Ticker || "-"],
-          ["トップScore", top.Score ?? "-"],
         ]
           .map(([label, value]) => `<div class="stat"><span>${label}</span><strong>${value}</strong></div>`)
           .join("");
@@ -340,8 +352,11 @@
             </article>`;
           })
           .join("");
+        const notice = buys.length
+          ? ""
+          : `<div class="notice">現在は買い候補がありません。監視候補と参考銘柄を表示しています。</div>`;
         document.getElementById("cards").innerHTML =
-          (candidates.length ? "" : `<div class="error">買い候補・監視候補が少ないため、参考銘柄を表示しています。</div>`) + cardRows;
+          notice + (candidates.length ? "" : `<div class="error">監視候補も少ないため、参考銘柄を表示しています。</div>`) + cardRows;
         const tableRows = [
           ...(candidates.length ? [{ section: "候補・監視", rows: candidates.slice(0, 50) }] : []),
           { section: "参考・パス", rows: references.slice(0, Math.max(0, 50 - Math.min(candidates.length, 50))) },
