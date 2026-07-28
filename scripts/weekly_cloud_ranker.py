@@ -709,7 +709,7 @@ def dashboard_url():
 def append_dashboard_link(lines):
     url = dashboard_url()
     if url:
-        lines.extend(["", f"GitHubサイト: {url}"])
+        lines.extend(["", f"ランキングサイト: {url}"])
 
 
 def build_weekly_message(report, top_n, earnings_window_days):
@@ -721,6 +721,7 @@ def build_weekly_message(report, top_n, earnings_window_days):
     lines = [f"隔週ランキング確認 ({generated_at})", ""]
     if not current_rows:
         lines.append("ランキングを作成できませんでした。Actionsのログを確認してください。")
+        append_dashboard_link(lines)
         return "\n".join(lines)
     if not buy_rows:
         lines.extend(["買い候補: 0件", "今日は無理に買う候補はありません。監視候補と参考銘柄だけ確認してください。", ""])
@@ -760,6 +761,7 @@ def build_earnings_message(report, earnings_rows):
     lines = [f"決算チェック通知 ({generated_at})", ""]
     if not earnings_rows:
         lines.append("上位10位以内で新しく決算データが更新された銘柄はありません。")
+        append_dashboard_link(lines)
         return "\n".join(lines)
 
     lines.append("ランキング上位10位以内で、前回チェック時から決算データが更新された銘柄です。")
