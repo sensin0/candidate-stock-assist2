@@ -17,7 +17,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 5
+SAFETY_VERSION = 8
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -86,24 +86,56 @@ def growth_label(growth):
     return "横ばい"
 
 
-def revenue_growth_score(growth, high=90, mid=80, base=35, early=10, flat=5):
+def first_known(*values):
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
+def revenue_growth_score(growth, price_location=None, loss_improving=None, high=70, mid=75, base=30, early=5, flat=0):
     if growth is None:
         return 0, None
     if 20 <= growth < 30:
-        return high, "売上20%台・2倍到達率重視"
-    if 15 <= growth < 20:
-        return mid, "売上15-19%台・利確成績重視"
-    if growth >= 30:
+        score = high
+        note = "売上20%台・2倍到達率重視"
+    elif 15 <= growth < 20:
+        score = mid
+        note = "売上15-19%台・利確成績重視"
+    elif growth >= 30:
         return -10, "売上30%超・過熱注意"
-    if growth >= 10:
+    elif growth >= 10:
         return base, "売上成長 (+10%↑)"
-    if growth >= 5:
+    elif growth >= 5:
         return early, "売上兆し (+5%↑)"
-    if growth >= 0:
+    elif growth >= 0:
         return flat, "売上維持"
-    if growth < -10:
+    elif growth < -10:
         return -90, "売上悪化 (-10%↓)"
-    return -40, "売上減少"
+    else:
+        return -40, "売上減少"
+
+    if price_location is not None:
+        if price_location < 0.15:
+            score += 25
+            note += "+底値圏"
+        elif price_location < 0.3:
+            score += 10
+        elif price_location > 0.7:
+            score -= 70
+            note += "・高値圏で減点"
+        elif price_location > 0.5:
+            score -= 35
+            note += "・中高値圏で減点"
+
+    if loss_improving is True:
+        score += 15
+        note += "+赤字縮小"
+    elif loss_improving is False:
+        score -= 20
+        note += "・赤字悪化で減点"
+
+    return score, note
 
 
 def loss_improving(latest_loss, previous_loss, latest_revenue, previous_revenue):
@@ -239,7 +271,14 @@ def local_current_version_score(item):
 
         if revenue_growth is not None:
             growth_points, growth_note = revenue_growth_score(
-                revenue_growth, high=90, mid=80, base=35, early=5, flat=0
+                revenue_growth,
+                price_location=price_location,
+                loss_improving=loss_margin_improving,
+                high=70,
+                mid=75,
+                base=30,
+                early=5,
+                flat=0,
             )
             score += growth_points
             if growth_note:
@@ -259,14 +298,6 @@ def local_current_version_score(item):
             score -= 50
             notes.append("赤字率悪化中")
 
-        if revenue_growth is not None and revenue_growth >= 10:
-            if loss_margin_improving is True:
-                score += 30
-                notes.append("売上成長+赤字改善コンボ")
-            if price_location is not None and price_location < 0.15:
-                score += 20
-                notes.append("売上成長+底値圏コンボ")
-
         if sector_status == "Boom":
             score -= 40
             notes.append("セクター好調なのに赤字")
@@ -277,31 +308,46 @@ def local_current_version_score(item):
             blocks.append("売上悪化")
 
         if blocks:
-            action = "Watch (Blocked: " + "/".join(blocks) + ")"
+            action = "監視（除外条件あり: " + "/".join(blocks) + ")"
         elif price_location is not None and price_location > 0.7 and score >= 110:
-            action = "Watch (Pullback)"
+            action = "押し目待ち"
         elif score >= 150:
-            action = "**BUY CANDIDATE** (STRONG)"
+            action = "買い候補 強"
         elif score >= 110:
-            action = "**BUY CANDIDATE**"
+            action = "買い候補"
         elif score >= 80:
-            action = "Watch (Wait for Profit Turn)"
+            action = "監視（黒字化待ち）"
         else:
-            action = "Watch (Wait for Price/Vol)"
+            action = "監視（価格・出来高待ち）"
         status = "**2-YR LOSS**"
     elif latest_net_income is not None and latest_net_income < 0:
         score += 50
         status = "Red Ink (1yr)"
-        action = "Watch (Wait for 2nd yr?)"
+        action = "監視（2期目待ち）"
     elif previous_net_income is not None and previous_net_income < 0:
         score += 30
         status = "Recovering"
-        action = "Check Trend"
+        action = "確認（回復継続）"
     else:
         status = "Profitable"
-        action = "Pass"
+        action = "パス"
 
-    return round(score, 1), action, notes, blocks, status
+    if action == "パス":
+        exit_plan = {
+            "Target Price 1": None,
+            "Target Price 2": None,
+            "Target Price 3": None,
+            "Stop Loss": None,
+            "Exit Score": 0,
+            "Sell Plan": None,
+            "Sell Notes": [],
+        }
+    else:
+        exit_plan = exit_plan_values(
+            item.get("Current Price"), price_location, revenue_growth, blocks, net_income_risk(latest_net_income, previous_net_income)
+        )
+        score += exit_plan["Exit Score"]
+    return round(score, 1), action, notes, blocks, status, exit_plan
 
 
 def build_current_rankings(rankings):
@@ -309,7 +355,7 @@ def build_current_rankings(rankings):
     for item in rankings:
         if item.get("Sector") not in CURRENT_TARGET_SECTORS:
             continue
-        score, action, notes, blocks, status = local_current_version_score(item)
+        score, action, notes, blocks, status, exit_plan = local_current_version_score(item)
         row = dict(item)
         row["Score"] = score
         row["Entry Score"] = score
@@ -317,15 +363,7 @@ def build_current_rankings(rankings):
         row["Current Version Notes"] = notes
         row["Blocks"] = blocks
         row["Status"] = status
-        current_price = row.get("Current Price")
-        if "BUY CANDIDATE" in action and current_price is not None:
-            row["Target Price 1"] = round(current_price * 1.5, 2)
-            row["Target Price 2"] = round(current_price * 2.0, 2)
-            row["Stop Loss"] = round(current_price * 0.8, 2)
-        else:
-            row["Target Price 1"] = None
-            row["Target Price 2"] = None
-            row["Stop Loss"] = None
+        row.update(exit_plan)
         current_rankings.append(row)
     current_rankings.sort(key=lambda row: row.get("Score", 0), reverse=True)
     for index, item in enumerate(current_rankings, start=1):
@@ -357,9 +395,17 @@ def apply_stored_safety_guard(item):
         score -= 35
 
     revenue_growth = item.get("Revenue Growth")
+    stored_loss_improving = first_known(item.get("Operating Loss Improving"), item.get("Net Loss Improving"))
     if revenue_growth is not None:
         growth_points, growth_note = revenue_growth_score(
-            revenue_growth, high=90, mid=80, base=35, early=10, flat=5
+            revenue_growth,
+            price_location=item.get("Price Location"),
+            loss_improving=stored_loss_improving,
+            high=70,
+            mid=75,
+            base=30,
+            early=5,
+            flat=0,
         )
         score += growth_points
         if growth_note and growth_note not in notes:
@@ -415,17 +461,28 @@ def apply_stored_safety_guard(item):
     if price_location is not None and price_location > 0.7 and "高値圏" not in blocks:
         blocks.append("高値圏")
 
-    if blocks and risk in {"profit_to_loss", "deeper_loss"}:
-        score -= 50
-        item["Action"] = "監視（除外条件あり）"
-    elif blocks:
+    if blocks:
         score -= 50
 
     exit_plan = exit_plan_values(item.get("Current Price"), price_location, revenue_growth, blocks, risk)
     score += exit_plan["Exit Score"]
 
+    if blocks:
+        action = "監視（除外条件あり）"
+    elif price_location is not None and price_location > 0.7 and score >= 110:
+        action = "押し目待ち"
+    elif score >= 150:
+        action = "買い候補 強"
+    elif score >= 110:
+        action = "買い候補"
+    elif score >= 80:
+        action = "監視"
+    else:
+        action = "パス"
+
     item["Score"] = round(score, 1)
     item["Entry Score"] = round(score, 1)
+    item["Action"] = action
     item["Blocks"] = blocks
     item["Notes"] = notes
     item["Net Income Risk"] = risk
@@ -565,7 +622,14 @@ def score_stock(row):
 
     if revenue_growth is not None:
         growth_points, growth_note = revenue_growth_score(
-            revenue_growth, high=90, mid=80, base=35, early=10, flat=5
+            revenue_growth,
+            price_location=price_location,
+            loss_improving=first_known(operating_loss_improving, net_loss_improving),
+            high=70,
+            mid=75,
+            base=30,
+            early=5,
+            flat=0,
         )
         score += growth_points
         if growth_note:

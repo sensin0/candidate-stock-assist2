@@ -271,7 +271,15 @@
       const twoBaggerTag = (item) => {
         if (Number(item["Revenue Growth"]) < 15) return "";
         const action = item.Action || "";
-        if (action.includes("BUY") || action.includes("Watch") || action.includes("Check")) {
+        if (
+          action.includes("BUY") ||
+          action.includes("Watch") ||
+          action.includes("Check") ||
+          action.includes("買い候補") ||
+          action.includes("監視") ||
+          action.includes("押し目") ||
+          action.includes("確認")
+        ) {
           return `<span class="badge double">2倍候補</span>`;
         }
         return `<span class="badge warn">売上15%+ 対象外</span>`;

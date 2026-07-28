@@ -114,6 +114,44 @@ def exit_rule_return(window, buy_price, entry_date, target_multiplier, stop_mult
     return (final_close - buy_price) / buy_price
 
 
+def revenue_growth_score(growth, price_location_value=None, loss_improving=None):
+    if growth is None:
+        return 0
+    if 20 <= growth < 30:
+        score = 70
+    elif 15 <= growth < 20:
+        score = 75
+    elif growth >= 30:
+        return -10
+    elif growth >= 10:
+        return 30
+    elif growth >= 5:
+        return 5
+    elif growth >= 0:
+        return 0
+    elif growth < -10:
+        return -90
+    else:
+        return -40
+
+    if price_location_value is not None:
+        if price_location_value < 0.15:
+            score += 25
+        elif price_location_value < 0.3:
+            score += 10
+        elif price_location_value > 0.7:
+            score -= 70
+        elif price_location_value > 0.5:
+            score -= 35
+
+    if loss_improving is True:
+        score += 15
+    elif loss_improving is False:
+        score -= 20
+
+    return score
+
+
 def score_current(features):
     if not features["two_year_loss"]:
         return None
@@ -144,20 +182,7 @@ def score_current(features):
         score += 15
 
     if rev_growth is not None:
-        if 20 <= rev_growth < 30:
-            score += 90
-        elif 15 <= rev_growth < 20:
-            score += 80
-        elif rev_growth >= 30:
-            score -= 10
-        elif rev_growth >= 10:
-            score += 35
-        elif rev_growth >= 5:
-            score += 5
-        elif rev_growth < -10:
-            score -= 90
-        elif rev_growth < 0:
-            score -= 40
+        score += revenue_growth_score(rev_growth, price_loc, loss_improving)
 
     if loss_margin is not None:
         if loss_margin > -3:
@@ -176,12 +201,6 @@ def score_current(features):
         score -= 120
     elif features["net_income_risk"] == "profit_decline":
         score -= 60
-
-    if rev_growth is not None and rev_growth >= 10:
-        if loss_improving is True:
-            score += 30
-        if price_loc is not None and price_loc < 0.15:
-            score += 20
 
     return score
 
