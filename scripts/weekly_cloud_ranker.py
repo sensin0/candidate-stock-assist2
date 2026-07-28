@@ -714,11 +714,16 @@ def append_dashboard_link(lines):
 
 def build_weekly_message(report, top_n, earnings_window_days):
     generated_at = report["generated_at_jst"]
-    current_rows = report.get("current_rankings", [])[:top_n]
+    current_rankings = report.get("current_rankings", [])
+    active_rows = [item for item in current_rankings if "パス" not in str(item.get("Action") or "") and "Pass" not in str(item.get("Action") or "")]
+    buy_rows = [item for item in active_rows if "買い候補" in str(item.get("Action") or "") or "BUY" in str(item.get("Action") or "")]
+    current_rows = (active_rows or current_rankings)[:top_n]
     lines = [f"隔週ランキング確認 ({generated_at})", ""]
     if not current_rows:
         lines.append("ランキングを作成できませんでした。Actionsのログを確認してください。")
         return "\n".join(lines)
+    if not buy_rows:
+        lines.extend(["買い候補: 0件", "今日は無理に買う候補はありません。監視候補と参考銘柄だけ確認してください。", ""])
 
     def append_rows(title, rows):
         lines.extend([title])

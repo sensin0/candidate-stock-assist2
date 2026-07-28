@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>決算後エントリー検証</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --panel: #fff;
+        --text: #111827;
+        --muted: #64748b;
+        --line: #dbe3ef;
+        --good: #047857;
+        --bad: #be123c;
+        --accent: #2563eb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      header {
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .wrap {
+        width: min(1120px, calc(100% - 28px));
+        margin: 0 auto;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 0;
+      }
+      h1, h2 { margin: 0; letter-spacing: 0; }
+      h1 { font-size: 26px; }
+      h2 { font-size: 18px; }
+      a {
+        color: var(--accent);
+        font-weight: 800;
+        text-decoration: none;
+      }
+      main { padding: 22px 0 42px; }
+      .sub {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 8px;
+      }
+      .slide {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin-bottom: 14px;
+        padding: 18px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfdff;
+        padding: 12px;
+      }
+      .kpi span {
+        color: var(--muted);
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .kpi strong {
+        display: block;
+        font-size: 24px;
+        margin-top: 6px;
+      }
+      .good { color: var(--good); font-weight: 900; }
+      .bad { color: var(--bad); font-weight: 900; }
+      table {
+        border-collapse: collapse;
+        font-size: 14px;
+        margin-top: 12px;
+        width: 100%;
+      }
+      th, td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px 8px;
+        text-align: right;
+        vertical-align: top;
+      }
+      th:first-child, td:first-child, .left { text-align: left; }
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .note {
+        background: #eff6ff;
+        border-left: 4px solid var(--accent);
+        color: #1e3a8a;
+        font-weight: 700;
+        margin-top: 14px;
+        padding: 10px 12px;
+      }
+      @media (max-width: 860px) {
+        .top { display: block; }
+        .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        table { font-size: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap top">
+        <div>
+          <h1>決算後エントリー検証</h1>
+          <div class="sub">期末+60日後の翌営業日に買う近似検証</div>
+        </div>
+        <a href="./index.html">ランキングへ戻る</a>
+      </div>
+    </header>
+    <main class="wrap">
+      <section class="slide">
+        <h2>結論</h2>
+        <div class="kpis">
+          <div class="kpi"><span>検証件数</span><strong>22件</strong></div>
+          <div class="kpi"><span>1年後平均</span><strong>10.0%</strong></div>
+          <div class="kpi"><span>2倍到達率</span><strong class="good">40.9%</strong></div>
+          <div class="kpi"><span>100%利確ルール平均</span><strong class="good">28.1%</strong></div>
+        </div>
+        <p class="note">月初固定より実運用に近いが、実際の決算発表日ではなく期末+60日を使った近似。買いタイミング検証としては前進だが、まだ粗い。</p>
+      </section>
+
+      <section class="slide">
+        <h2>売上成長率帯別</h2>
+        <table>
+          <thead>
+            <tr><th>売上成長率帯</th><th>件数</th><th>1年後平均</th><th>2倍到達率</th><th>100%利確平均</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">+15%以上</td><td>11</td><td>7.9%</td><td class="good">45.5%</td><td class="good">34.0%</td></tr>
+            <tr><td class="left">-10% to 0%</td><td>4</td><td>24.1%</td><td>50.0%</td><td>44.0%</td></tr>
+            <tr><td class="left">0% to +10%</td><td>3</td><td>1.6%</td><td>0.0%</td><td>14.6%</td></tr>
+            <tr><td class="left">+10% to +15%</td><td>3</td><td>0.3%</td><td>33.3%</td><td class="bad">-25.0%</td></tr>
+            <tr><td class="left">below -10%</td><td>1</td><td>31.2%</td><td>100.0%</td><td>100.0%</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="slide">
+        <h2>上昇率上位例</h2>
+        <table>
+          <thead>
+            <tr><th>Entry</th><th>銘柄</th><th>売上</th><th>Score</th><th>2年内最大</th><th>2倍</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">2023-05-30</td><td class="left">5721.T エス・サイエンス</td><td>17.7%</td><td>260.0</td><td class="good">437.5%</td><td>達成</td></tr>
+            <tr><td class="left">2025-05-30</td><td class="left">5707.T 東邦亜鉛</td><td>-3.5%</td><td>125.0</td><td class="good">287.9%</td><td>達成</td></tr>
+            <tr><td class="left">2024-05-30</td><td class="left">3409.T 北紡</td><td>10.2%</td><td>150.0</td><td class="good">205.2%</td><td>達成</td></tr>
+            <tr><td class="left">2024-05-30</td><td class="left">7256.T 河西工業</td><td>22.1%</td><td>235.0</td><td class="good">166.3%</td><td>達成</td></tr>
+            <tr><td class="left">2025-05-30</td><td class="left">4100.T 戸田工業</td><td>20.7%</td><td>250.0</td><td class="good">129.9%</td><td>達成</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>
