@@ -110,6 +110,20 @@ def summarize_topn(rows, top_n):
     return summarize([r for r in rows if r["Rank"] <= top_n])
 
 
+def dedupe_by_ticker(rows):
+    best_by_ticker = {}
+    for row in rows:
+        ticker = row.get("Ticker")
+        if not ticker:
+            continue
+        current = best_by_ticker.get(ticker)
+        current_score = current.get("Score", -10**9) if current else -10**9
+        row_score = row.get("Score", -10**9)
+        if current is None or row_score > current_score or (row_score == current_score and row["Month"] < current["Month"]):
+            best_by_ticker[ticker] = row
+    return sorted(best_by_ticker.values(), key=lambda r: (r["Month"], r["Rank"]))
+
+
 def markdown_table(headers, rows):
     lines = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
     for row in rows:
@@ -202,7 +216,10 @@ def build_report(data, rows):
     summary_all = summarize(rows)
     summary_top5 = summarize_topn(rows, 5)
     summary_top10 = summarize_topn(rows, 10)
+    deduped_rows = dedupe_by_ticker(rows)
+    summary_deduped = summarize(deduped_rows)
     bucket20 = next((s for s in summary_all if s["売上成長率帯"] == "20-29.9%"), None)
+    bucket20_deduped = next((s for s in summary_deduped if s["売上成長率帯"] == "20-29.9%"), None)
     best_doubler = max(summary_all, key=lambda s: (s["2倍到達率"], s["件数"]))
     best_rule100 = max(summary_all, key=lambda s: (s["100%利確ルール平均"] if s["100%利確ルール平均"] is not None else -999, s["件数"]))
 
@@ -218,6 +235,12 @@ def build_report(data, rows):
             f"20%台は件数{bucket20['件数']}、2倍到達率{pct(bucket20['2倍到達率'])}、"
             f"100%利確ルール平均{pct(bucket20['100%利確ルール平均'])}。"
         )
+        if bucket20_deduped:
+            conclusion.append(
+                f"銘柄重複を除くと20%台は件数{bucket20_deduped['件数']}、"
+                f"2倍到達率{pct(bucket20_deduped['2倍到達率'])}、"
+                f"100%利確ルール平均{pct(bucket20_deduped['100%利確ルール平均'])}。"
+            )
     else:
         conclusion.append("20%台のサンプルがなく、仮説検証できなかった。")
     conclusion.append(
@@ -250,7 +273,11 @@ def build_report(data, rows):
     report.append(make_summary_table(summary_top10))
     report.append("")
 
-    report.append("## 5. 20%台候補の代表例\n")
+    report.append("## 5. 銘柄重複を除いた場合\n")
+    report.append(make_summary_table(summary_deduped))
+    report.append("")
+
+    report.append("## 6. 20%台候補の代表例\n")
     report.append(
         markdown_table(
             ["月", "順位", "銘柄", "売上成長", "買値", "2年内最大", "2倍", "日数", "100%利確ルール"],
@@ -259,7 +286,7 @@ def build_report(data, rows):
     )
     report.append("")
 
-    report.append("## 6. 30%以上候補の代表例（比較用）\n")
+    report.append("## 7. 30%以上候補の代表例（比較用）\n")
     report.append(
         markdown_table(
             ["月", "順位", "銘柄", "売上成長", "買値", "2年内最大", "2倍", "日数", "100%利確ルール"],
@@ -268,11 +295,12 @@ def build_report(data, rows):
     )
     report.append("")
 
-    report.append("## 7. 実運用への読み替え\n")
+    report.append("## 8. 実運用への読み替え\n")
     report.append("- 20%台は「候補として強い」かを見たが、単独条件ではなくランキング上位・低位置・赤字縮小などとセットで見る。")
     report.append("- 2倍狙いでは、2年以内2倍到達率と損切り先行率を同時に見る。到達率だけ高くても損切り先行率が高い帯は扱いにくい。")
     report.append("- 利確は、検証上は100%利確ルール平均を主指標にし、50%利確ルールは守り重視の比較指標として見る。")
     report.append("- 件数が少ない帯は過信しない。特に20%台はサンプル件数を見て判断する。")
+    report.append("- 月違いで同じ銘柄が何度も入るため、銘柄重複を除いた表を優先して見る。")
     report.append("")
     REPORT_MD.write_text("\n".join(report), encoding="utf-8")
 

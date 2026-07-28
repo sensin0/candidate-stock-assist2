@@ -101,6 +101,12 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
       }
+      .section-title {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 900;
+        margin: 18px 0 8px;
+      }
       .card {
         padding: 14px;
       }
@@ -288,21 +294,26 @@
         if (!state.report) return [];
         return state.report.current_rankings || [];
       };
+      const isPass = (item) => (item.Action || "").includes("パス") || (item.Action || "").includes("Pass");
+      const candidateRows = (rows) => rows.filter((item) => !isPass(item));
+      const referenceRows = (rows) => rows.filter((item) => isPass(item));
       function render() {
         const rows = activeRows();
+        const candidates = candidateRows(rows);
+        const references = referenceRows(rows);
         document.getElementById("subtitle").textContent = state.report
           ? `更新: ${state.report.generated_at_jst || "-"} / 現行版`
           : "読み込み中";
-        const top = rows[0] || {};
+        const top = candidates[0] || rows[0] || {};
         document.getElementById("summary").innerHTML = [
           ["表示銘柄", `${rows.length.toLocaleString()}件`],
+          ["候補銘柄", `${candidates.length.toLocaleString()}件`],
           ["トップ", top.Ticker || "-"],
           ["トップScore", top.Score ?? "-"],
-          ["ランキング改良", "Safety v4 + Exit"],
         ]
           .map(([label, value]) => `<div class="stat"><span>${label}</span><strong>${value}</strong></div>`)
           .join("");
-        document.getElementById("cards").innerHTML = rows
+        const cardRows = (candidates.length ? candidates : rows)
           .slice(0, 10)
           .map((item) => {
             const tone = actionTone(item.Action);
@@ -329,10 +340,21 @@
             </article>`;
           })
           .join("");
+        document.getElementById("cards").innerHTML =
+          (candidates.length ? "" : `<div class="error">買い候補・監視候補が少ないため、参考銘柄を表示しています。</div>`) + cardRows;
+        const tableRows = [
+          ...(candidates.length ? [{ section: "候補・監視", rows: candidates.slice(0, 50) }] : []),
+          { section: "参考・パス", rows: references.slice(0, Math.max(0, 50 - Math.min(candidates.length, 50))) },
+        ];
         document.getElementById("rows").innerHTML = rows
-          .slice(0, 50)
-          .map(
-            (item) => `<tr>
+          ? tableRows
+              .filter((group) => group.rows.length)
+              .map(
+                (group) => `
+            <tr><td colspan="7" class="section-title">${group.section}</td></tr>
+            ${group.rows
+              .map(
+                (item) => `<tr>
               <td>#${item.Rank}</td>
               <td><strong>${item.Ticker}</strong><br>${item.Name || "-"}</td>
               <td>${item.Score ?? "-"}</td>
@@ -341,8 +363,11 @@
               <td>${yen(item["Target Price 1"])}</td>
               <td>${item.Action || "-"} ${twoBaggerTag(item)}</td>
             </tr>`
-          )
-          .join("");
+              )
+              .join("")}`
+              )
+              .join("")
+          : "";
       }
       async function load() {
         try {

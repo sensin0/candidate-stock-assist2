@@ -17,7 +17,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 8
+SAFETY_VERSION = 9
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -324,13 +324,16 @@ def local_current_version_score(item):
         score += 50
         status = "Red Ink (1yr)"
         action = "監視（2期目待ち）"
+        notes.append("単年度赤字・2期連続赤字待ち")
     elif previous_net_income is not None and previous_net_income < 0:
         score += 30
         status = "Recovering"
         action = "確認（回復継続）"
+        notes.append("前期赤字から回復確認")
     else:
         status = "Profitable"
         action = "パス"
+        notes.append("黒字または赤字反転条件外")
 
     if action == "パス":
         exit_plan = {

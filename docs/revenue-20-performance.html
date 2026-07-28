@@ -178,7 +178,7 @@
       <div class="wrap top">
         <div>
           <h1>売上成長20%台 パフォーマンス検証</h1>
-          <div class="sub">現行版ランキングの月初候補84件を売上成長率帯で比較</div>
+          <div class="sub">現行版ランキングの月初候補84件を売上成長率帯で比較。銘柄重複を除いた見方も併記。</div>
         </div>
         <a href="./index.html">ランキングへ戻る</a>
       </div>
@@ -187,13 +187,13 @@
       <section class="slide">
         <h2>結論</h2>
         <div class="kpis">
-          <div class="kpi"><span>20%台の件数</span><strong>13件</strong></div>
-          <div class="kpi"><span>20%台の2倍到達率</span><strong class="good">92.3%</strong></div>
-          <div class="kpi"><span>20%台の2倍日数中央値</span><strong>458日</strong></div>
-          <div class="kpi"><span>20%台の100%利確平均</span><strong class="bad">-11.2%</strong></div>
+          <div class="kpi"><span>20%台 月次件数</span><strong>13件</strong></div>
+          <div class="kpi"><span>20%台 月次2倍到達率</span><strong class="good">92.3%</strong></div>
+          <div class="kpi"><span>20%台 重複除外件数</span><strong>2件</strong></div>
+          <div class="kpi"><span>20%台 重複除外2倍到達率</span><strong>50.0%</strong></div>
         </div>
         <p class="note warning">
-          20%台は2倍到達率だけ見ると最強。ただし先に-25%損切り判定へ触れるケースが多く、利確ルール込みでは一番とは言い切れない。
+          20%台は月次ベースでは強く見えるが、同じ銘柄の月違いを除くと優位性はかなり弱まる。売上成長率だけでランキング上位にするのは危険。
         </p>
       </section>
 
@@ -219,6 +219,32 @@
             <tr><td class="left">15-19.9%</td><td>25</td><td>13.7%</td><td>0.0%</td><td class="good">761.9%</td><td>64.0%</td><td>518日</td><td class="good">62.3%</td><td>28.0%</td></tr>
             <tr><td class="left">20-29.9%</td><td>13</td><td>34.2%</td><td>-2.5%</td><td>276.9%</td><td class="good">92.3%</td><td>458日</td><td class="bad">-11.2%</td><td class="bad">84.6%</td></tr>
             <tr><td class="left">30%以上</td><td>17</td><td>-10.1%</td><td>-4.5%</td><td>34.0%</td><td>0.0%</td><td>-</td><td>-4.5%</td><td>35.3%</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="slide">
+        <h2>銘柄重複を除いた比較</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>売上成長率帯</th>
+              <th>件数</th>
+              <th>平均1年後</th>
+              <th>中央値1年後</th>
+              <th>平均2年内最大</th>
+              <th>2倍到達率</th>
+              <th>2倍日数中央値</th>
+              <th>100%利確平均</th>
+              <th>損切り先行率</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">0-9.9%</td><td>1</td><td>48.9%</td><td>48.9%</td><td>106.5%</td><td class="good">100.0%</td><td>480日</td><td class="good">100.0%</td><td>0.0%</td></tr>
+            <tr><td class="left">10-14.9%</td><td>3</td><td>19.2%</td><td>-7.6%</td><td>96.9%</td><td>33.3%</td><td>146日</td><td>16.7%</td><td class="bad">66.7%</td></tr>
+            <tr><td class="left">15-19.9%</td><td>3</td><td>20.6%</td><td>6.0%</td><td class="good">204.0%</td><td>66.7%</td><td>656日</td><td class="good">58.3%</td><td>33.3%</td></tr>
+            <tr><td class="left">20-29.9%</td><td>2</td><td>0.7%</td><td>0.7%</td><td>198.1%</td><td>50.0%</td><td>443日</td><td>2.5%</td><td>50.0%</td></tr>
+            <tr><td class="left">30%以上</td><td>2</td><td>-26.7%</td><td>-26.7%</td><td>27.9%</td><td>0.0%</td><td>-</td><td>-8.6%</td><td>50.0%</td></tr>
           </tbody>
         </table>
       </section>
@@ -257,9 +283,10 @@
       <section class="slide">
         <h2>運用への反映</h2>
         <ul>
-          <li>「売上20%台」は2倍候補タグとして有効。ただし買い条件ではなく、ランキング上位かつ損切りにかかりにくい位置で使う。</li>
+          <li>「売上20%台」は2倍候補タグとして有効。ただし買い条件ではなく、底値圏・赤字縮小・損切り先行リスクとセットで使う。</li>
           <li>20%台は到達率が高い一方、途中の下落が大きい。エントリー位置が悪いと、後で2倍になってもルール上は負け扱いになる。</li>
-          <li>30%以上は今回の検証では弱い。高成長すぎるものを無条件に強く扱うより、20%台と15-19.9%を重視する方が現実的。</li>
+          <li>30%以上は今回の検証では弱い。高成長すぎるものを無条件に強く扱うより、15-29.9%を条件付きで見る方が現実的。</li>
+          <li>月違いで同じ銘柄が何度も入るため、重複除外後の表を優先して判断する。</li>
           <li>資料の元データは2026-06-23時点の月次バックテスト。最新ランキングの完全再生成とは分けて見る。</li>
         </ul>
       </section>
