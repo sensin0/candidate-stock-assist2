@@ -21,7 +21,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 9
+SAFETY_VERSION = 10
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -35,6 +35,48 @@ CURRENT_TARGET_SECTORS = {
     "海運業",
     "輸送用機器",
 }
+
+
+def danger_blocks(sector, psr, price_location, revenue_growth, net_risk):
+    blocks = []
+    notes = []
+    if sector == "サービス業":
+        blocks.append("サービス業除外")
+        notes.append("サービス業は反転狙い対象外")
+    if psr is not None:
+        if psr >= 10:
+            blocks.append("PSR高すぎ")
+            notes.append("PSR10倍超は下落実例あり")
+        elif psr >= 5:
+            blocks.append("PSR高め")
+            notes.append("PSR5倍超は買い見送り")
+    if price_location is not None and price_location > 0.5:
+        blocks.append("中高値圏")
+        notes.append("株価位置50%超は掴み回避")
+    if revenue_growth is not None and revenue_growth >= 30:
+        blocks.append("売上30%超過熱")
+        notes.append("売上30%超は一過性・過熱確認")
+    if net_risk == "profit_to_loss":
+        blocks.append("黒字から赤字転落")
+        notes.append("純利益悪化")
+    elif net_risk == "deeper_loss":
+        blocks.append("純損失拡大")
+        notes.append("純損失拡大")
+    return blocks, notes
+
+
+def buy_priority_bonus(revenue_growth, price_location, psr, loss_improving, net_risk):
+    if revenue_growth is None or not (20 <= revenue_growth < 30):
+        return 0, None
+    if price_location is not None and price_location > 0.5:
+        return 0, None
+    if psr is not None and psr >= 5:
+        return 0, None
+    if loss_improving is not True:
+        return 0, None
+    if net_risk in {"profit_to_loss", "deeper_loss"}:
+        return 0, None
+    return 35, "買い優先条件: 売上20%台+赤字縮小+危険条件なし"
 
 
 def clean_number(value):
@@ -169,16 +211,19 @@ def exit_plan_values(current_price, price_location, revenue_growth, blocks=None,
 
 
 def local_current_version_score(item):
+    sector = item.get("Sector")
     price_location = item.get("Price Location")
     revenue_growth = item.get("Revenue Growth")
     loss_margin_improving = item.get("Loss Margin Improving")
     loss_margin = item.get("Loss Margin")
     psr_rank = item.get("PSR Rank")
+    psr = item.get("PSR")
     sector_status = item.get("Sector Status")
     net_history = item.get("Net Income History") or []
     latest_net_income = net_history[0] if len(net_history) >= 1 else item.get("Net Income")
     previous_net_income = net_history[1] if len(net_history) >= 2 else item.get("Prev Net Income")
     is_aggressive = item.get("Is Aggressive") is True
+    risk = net_income_risk(latest_net_income, previous_net_income)
 
     score = 0
     notes = []
@@ -236,6 +281,17 @@ def local_current_version_score(item):
             if growth_note:
                 notes.append(growth_note)
 
+        priority_points, priority_note = buy_priority_bonus(
+            revenue_growth,
+            price_location,
+            psr,
+            loss_margin_improving,
+            risk,
+        )
+        score += priority_points
+        if priority_note:
+            notes.append(priority_note)
+
         if loss_margin is not None and loss_margin > -3:
             score += 30
             notes.append("赤字率軽微 (>-3%)")
@@ -258,6 +314,12 @@ def local_current_version_score(item):
             blocks.append("赤字率悪化")
         if revenue_growth is not None and revenue_growth < -10:
             blocks.append("売上悪化")
+
+        danger, danger_notes = danger_blocks(sector, psr, price_location, revenue_growth, risk)
+        blocks.extend(block for block in danger if block not in blocks)
+        notes.extend(note for note in danger_notes if note not in notes)
+        if danger:
+            score -= 120
 
         if blocks:
             action = "監視（除外条件あり: " + "/".join(blocks) + ")"
@@ -299,7 +361,7 @@ def local_current_version_score(item):
         }
     else:
         exit_plan = exit_plan_values(
-            item.get("Current Price"), price_location, revenue_growth, blocks, net_income_risk(latest_net_income, previous_net_income)
+            item.get("Current Price"), price_location, revenue_growth, blocks, risk
         )
         score += exit_plan["Exit Score"]
     return round(score, 1), action, notes, blocks, status, exit_plan
@@ -351,10 +413,16 @@ def apply_stored_safety_guard(item):
 
     revenue_growth = item.get("Revenue Growth")
     stored_loss_improving = first_known(item.get("Operating Loss Improving"), item.get("Net Loss Improving"))
+    psr = item.get("PSR")
+    price_location = item.get("Price Location")
+    history = item.get("Net Income History") or []
+    latest = history[0] if len(history) > 0 else item.get("Net Income")
+    previous = history[1] if len(history) > 1 else None
+    risk = net_income_risk(latest, previous)
     if revenue_growth is not None:
         growth_points, growth_note = revenue_growth_score(
             revenue_growth,
-            price_location=item.get("Price Location"),
+            price_location=price_location,
             loss_improving=stored_loss_improving,
             high=70,
             mid=75,
@@ -366,14 +434,23 @@ def apply_stored_safety_guard(item):
         if growth_note and growth_note not in notes:
             notes.append(growth_note)
 
-    psr = item.get("PSR")
+    priority_points, priority_note = buy_priority_bonus(
+        revenue_growth,
+        price_location,
+        psr,
+        stored_loss_improving,
+        risk,
+    )
+    score += priority_points
+    if priority_note and priority_note not in notes:
+        notes.append(priority_note)
+
     if psr is not None:
         if psr < 0.5:
             score += 25
         elif psr < 1:
             score += 10
 
-    price_location = item.get("Price Location")
     if price_location is not None:
         if price_location < 0.15:
             score += 75
@@ -388,11 +465,6 @@ def apply_stored_safety_guard(item):
         score += 35
     elif item.get("Net Loss Improving") is False:
         score -= 90
-
-    history = item.get("Net Income History") or []
-    latest = history[0] if len(history) > 0 else item.get("Net Income")
-    previous = history[1] if len(history) > 1 else None
-    risk = net_income_risk(latest, previous)
 
     if risk == "profit_to_loss":
         score -= 160
@@ -415,9 +487,16 @@ def apply_stored_safety_guard(item):
         blocks.append("売上悪化")
     if price_location is not None and price_location > 0.7 and "高値圏" not in blocks:
         blocks.append("高値圏")
+    danger, danger_notes = danger_blocks(item.get("Sector"), psr, price_location, revenue_growth, risk)
+    for block in danger:
+        if block not in blocks:
+            blocks.append(block)
+    for note in danger_notes:
+        if note not in notes:
+            notes.append(note)
 
     if blocks:
-        score -= 50
+        score -= 120
 
     exit_plan = exit_plan_values(item.get("Current Price"), price_location, revenue_growth, blocks, risk)
     score += exit_plan["Exit Score"]
@@ -592,6 +671,17 @@ def score_stock(row):
         if revenue_growth < -10:
             blocks.append("売上悪化")
 
+    priority_points, priority_note = buy_priority_bonus(
+        revenue_growth,
+        price_location,
+        psr,
+        first_known(operating_loss_improving, net_loss_improving),
+        net_risk,
+    )
+    score += priority_points
+    if priority_note:
+        notes.append(priority_note)
+
     if psr is not None:
         if psr < 0.5:
             score += 25
@@ -637,8 +727,12 @@ def score_stock(row):
         score += 5
         notes.append("資産増")
 
+    danger, danger_notes = danger_blocks(sector, psr, price_location, revenue_growth, net_risk)
+    blocks.extend(block for block in danger if block not in blocks)
+    notes.extend(note for note in danger_notes if note not in notes)
+
     if blocks:
-        score -= 50
+        score -= 120
 
     exit_plan = exit_plan_values(current_price, price_location, revenue_growth, blocks, net_risk)
     score += exit_plan["Exit Score"]

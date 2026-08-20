@@ -137,7 +137,7 @@ def score_current(features):
         elif price_loc > 0.7:
             score -= 100
         elif price_loc > 0.5:
-            score -= 45
+            score -= 120
 
     if sector_status == "Downturn":
         score += 20
@@ -150,6 +150,8 @@ def score_current(features):
     if rev_growth is not None:
         growth_points, _ = revenue_growth_score(rev_growth, price_loc, loss_improving)
         score += growth_points
+        if rev_growth >= 30:
+            score -= 120
 
     if loss_margin is not None:
         if loss_margin > -3:
