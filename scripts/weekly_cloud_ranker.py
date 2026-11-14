@@ -23,7 +23,7 @@ DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_HISTORY = ROOT / "data" / "ranking_signal_history.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 12
+SAFETY_VERSION = 13
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -189,6 +189,36 @@ def decision_scores(sector, psr, price_location, revenue_growth, loss_improving,
     }
 
 
+def historical_growth_pattern(latest_net, previous_net, annual_revenue_growth, price_location):
+    if any(value is None for value in (latest_net, previous_net, annual_revenue_growth, price_location)):
+        return None, 0
+    if latest_net > 0 and previous_net > 0:
+        if 10 <= annual_revenue_growth < 15 and 0.3 <= price_location < 0.5:
+            return "検証A: 黒字継続+年商10-14.9%+株価位置30-49.9%", 100
+        if 15 <= annual_revenue_growth < 20:
+            return "検証B: 黒字継続+年商15-19.9%", 60
+    if previous_net < 0 <= latest_net and price_location >= 0.5:
+        return "検証C: 黒字転換+株価位置50%以上", 45
+    return None, 0
+
+
+def forecast_risk(item):
+    status = item.get("Forecast Status")
+    forecast_operating = clean_number(item.get("Forecast Operating Income"))
+    previous_operating = clean_number(item.get("Previous Annual Operating Income"))
+    if status == "unavailable":
+        return ["会社予想未確認"], ["営業利益予想を取得できないため買い保留"]
+    if status != "ok" or forecast_operating is None or previous_operating is None:
+        return [], []
+    if previous_operating >= 0 and forecast_operating < 0:
+        return ["営業利益予想が赤字転落"], ["会社予想で本業が黒字から赤字へ悪化"]
+    if previous_operating < 0 and forecast_operating < previous_operating:
+        return ["営業赤字予想拡大"], ["会社予想で営業赤字が拡大"]
+    if forecast_operating > previous_operating:
+        return [], ["会社予想で営業損益改善"]
+    return [], []
+
+
 def clean_number(value):
     if value is None:
         return None
@@ -290,6 +320,10 @@ def pct_change(latest, previous):
     if latest is None or previous in (None, 0):
         return None
     return (latest - previous) / abs(previous) * 100
+
+
+def financial_comparison_index(using_quarterly, values):
+    return 4 if using_quarterly and len(values) > 4 else 1
 
 
 def growth_label(growth):
@@ -409,6 +443,9 @@ def local_current_version_score(item):
     score = 0
     notes = []
     blocks = []
+    forecast_blocks, forecast_notes = forecast_risk(item)
+    blocks.extend(forecast_blocks)
+    notes.extend(forecast_notes)
 
     two_year_loss = (
         latest_net_income is not None
@@ -419,22 +456,6 @@ def local_current_version_score(item):
     if two_year_loss:
         score += 100
         notes.append("2期連続赤字")
-
-        forecast_status = item.get("Forecast Status")
-        forecast_operating = clean_number(item.get("Forecast Operating Income"))
-        previous_annual_operating = clean_number(item.get("Previous Annual Operating Income"))
-        if forecast_status == "unavailable":
-            blocks.append("会社予想未確認")
-            notes.append("営業利益予想を取得できないため買い保留")
-        elif forecast_status == "ok" and forecast_operating is not None and previous_annual_operating is not None:
-            if previous_annual_operating >= 0 and forecast_operating < 0:
-                blocks.append("営業利益予想が赤字転落")
-                notes.append("会社予想で本業が黒字から赤字へ悪化")
-            elif previous_annual_operating < 0 and forecast_operating < previous_annual_operating:
-                blocks.append("営業赤字予想拡大")
-                notes.append("会社予想で営業赤字が拡大")
-            elif forecast_operating > previous_annual_operating:
-                notes.append("会社予想で営業損益改善")
 
         if operating_loss_improving is False:
             score -= 120
@@ -588,6 +609,33 @@ def local_current_version_score(item):
             elif decision.get("Decision Tier") == "安全監視":
                 action = "安全監視"
 
+    pattern = item.get("Historical Pattern")
+    pattern_score = clean_number(item.get("Historical Pattern Score")) or 0
+    if pattern:
+        score += pattern_score
+        notes.append(pattern)
+        danger, danger_notes = danger_blocks(sector, psr, price_location, revenue_growth, risk)
+        blocks.extend(block for block in danger if block not in blocks)
+        notes.extend(note for note in danger_notes if note not in notes)
+        if blocks:
+            action = "監視（除外条件あり: " + "/".join(blocks) + ")"
+            decision["Decision Tier"] = "避ける"
+            decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
+        elif pattern.startswith("検証A"):
+            action = "買い候補 検証A"
+            decision["Decision Tier"] = "買い優先"
+            decision["Safety Score"] = max(decision.get("Safety Score", 0), 85)
+            decision["Two Bagger Score"] = max(decision.get("Two Bagger Score", 0), 70)
+            decision["Composite Score"] = max(decision.get("Composite Score", 0), 90)
+        elif pattern.startswith("検証B"):
+            action = "監視上位（検証B）"
+            decision["Decision Tier"] = "監視上位"
+            decision["Composite Score"] = max(decision.get("Composite Score", 0), 80)
+        elif pattern.startswith("検証C"):
+            action = "監視上位（検証C）"
+            decision["Decision Tier"] = "監視上位"
+            decision["Composite Score"] = max(decision.get("Composite Score", 0), 75)
+
     if action == "パス":
         exit_plan = {
             "Target Price 1": None,
@@ -610,6 +658,21 @@ def build_current_rankings(rankings):
     current_rankings = []
     for item in rankings:
         if item.get("Sector") not in CURRENT_TARGET_SECTORS:
+            continue
+        if item.get("Safety Version") != SAFETY_VERSION or item.get("Quarterly Comparison") != "year_over_year":
+            row = dict(item)
+            row.update(
+                {
+                    "Action": "データ再取得待ち",
+                    "Decision Tier": "見送り",
+                    "Composite Score": 0,
+                    "Safety Score": 0,
+                    "Two Bagger Score": 0,
+                    "Blocks": ["旧計算データ"],
+                    "Danger Notes": ["前年同期比・年次赤字判定で再取得が必要"],
+                }
+            )
+            current_rankings.append(row)
             continue
         score, action, notes, blocks, status, exit_plan, decision = local_current_version_score(item)
         row = dict(item)
@@ -640,6 +703,8 @@ def build_current_rankings(rankings):
 
 
 def apply_stored_safety_guard(item):
+    if item.get("Quarterly Comparison") != "year_over_year":
+        return item
     if item.get("Safety Version") == SAFETY_VERSION:
         return item
 
@@ -836,23 +901,31 @@ def score_stock(row):
         return {"Ticker": ticker, "Name": name, "Sector": sector, "Error": "price data unavailable"}
 
     latest_quarter_period = latest_statement_period(quarterly_income)
-    source_income = quarterly_income if quarterly_income is not None and not quarterly_income.empty else income
+    using_quarterly = quarterly_income is not None and not quarterly_income.empty
+    source_income = quarterly_income if using_quarterly else income
 
     revenues = find_statement_value(source_income, ["Total Revenue", "Operating Revenue"])
     net_incomes = find_statement_value(source_income, ["Net Income", "Net Income Common Stockholders"])
     operating_incomes = find_statement_value(source_income, ["Operating Income", "Operating Income Loss"])
     pretax_incomes = find_statement_value(source_income, ["Pretax Income", "Income Before Tax"])
+    annual_revenues = find_statement_value(income, ["Total Revenue", "Operating Revenue"])
+    annual_net_incomes = find_statement_value(income, ["Net Income", "Net Income Common Stockholders"])
     capex = find_statement_value(cashflow, ["Capital Expenditure", "Capital Expenditures"])
     total_assets = find_statement_value(balance, ["Total Assets"])
 
+    comparison_index = financial_comparison_index(using_quarterly, revenues)
     latest_revenue = revenues[0] if len(revenues) > 0 else None
-    previous_revenue = revenues[1] if len(revenues) > 1 else None
+    previous_revenue = revenues[comparison_index] if len(revenues) > comparison_index else None
     latest_net_income = net_incomes[0] if len(net_incomes) > 0 else None
-    previous_net_income = net_incomes[1] if len(net_incomes) > 1 else None
+    previous_net_income = net_incomes[comparison_index] if len(net_incomes) > comparison_index else None
     latest_operating = operating_incomes[0] if len(operating_incomes) > 0 else None
-    previous_operating = operating_incomes[1] if len(operating_incomes) > 1 else None
+    previous_operating = operating_incomes[comparison_index] if len(operating_incomes) > comparison_index else None
     latest_pretax = pretax_incomes[0] if len(pretax_incomes) > 0 else None
-    previous_pretax = pretax_incomes[1] if len(pretax_incomes) > 1 else None
+    previous_pretax = pretax_incomes[comparison_index] if len(pretax_incomes) > comparison_index else None
+    latest_annual_net_income = annual_net_incomes[0] if len(annual_net_incomes) > 0 else None
+    previous_annual_net_income = annual_net_incomes[1] if len(annual_net_incomes) > 1 else None
+    latest_annual_revenue = annual_revenues[0] if len(annual_revenues) > 0 else None
+    previous_annual_revenue = annual_revenues[1] if len(annual_revenues) > 1 else None
 
     current_price = clean_number(prices["Close"].iloc[-1])
     min_price = clean_number(prices["Close"].min())
@@ -866,9 +939,17 @@ def score_stock(row):
         market_cap = clean_number(stock.fast_info.get("marketCap"))
     except Exception:
         market_cap = None
-    psr = market_cap / latest_revenue if market_cap and latest_revenue and latest_revenue > 0 else None
+    psr_revenue = latest_annual_revenue if latest_annual_revenue and latest_annual_revenue > 0 else latest_revenue
+    psr = market_cap / psr_revenue if market_cap and psr_revenue and psr_revenue > 0 else None
 
     revenue_growth = pct_change(latest_revenue, previous_revenue)
+    annual_revenue_growth = pct_change(latest_annual_revenue, previous_annual_revenue)
+    growth_pattern, growth_pattern_score = historical_growth_pattern(
+        latest_annual_net_income,
+        previous_annual_net_income,
+        annual_revenue_growth,
+        price_location,
+    )
     net_loss_improving = loss_improving(latest_net_income, previous_net_income, latest_revenue, previous_revenue)
     operating_loss_improving = loss_improving(latest_operating, previous_operating, latest_revenue, previous_revenue)
     pretax_loss_improving = loss_improving(latest_pretax, previous_pretax, latest_revenue, previous_revenue)
@@ -890,10 +971,10 @@ def score_stock(row):
     blocks = []
 
     two_year_net_loss = (
-        latest_net_income is not None
-        and previous_net_income is not None
-        and latest_net_income < 0
-        and previous_net_income < 0
+        latest_annual_net_income is not None
+        and previous_annual_net_income is not None
+        and latest_annual_net_income < 0
+        and previous_annual_net_income < 0
     )
     if two_year_net_loss:
         score += 60
@@ -1050,14 +1131,18 @@ def score_stock(row):
         "Price Location": round(price_location, 3) if price_location is not None else None,
         "Revenue Growth": round(revenue_growth, 1) if revenue_growth is not None else None,
         "Revenue Growth Label": growth_label(revenue_growth),
+        "Annual Revenue Growth": round(annual_revenue_growth, 1) if annual_revenue_growth is not None else None,
+        "Historical Pattern": growth_pattern,
+        "Historical Pattern Score": growth_pattern_score,
         "Loss Margin Improving": first_known(operating_loss_improving, net_loss_improving),
         "Loss Margin": round(loss_margin, 1) if loss_margin is not None else None,
         "Is Aggressive": bool(aggressive_reasons),
         "Aggressive Reason": "/".join(aggressive_reasons),
         "PSR Rank": None,
         "PSR": round(psr, 3) if psr is not None else None,
-        "Net Income": latest_net_income,
-        "Net Income History": net_incomes[:5],
+        "Net Income": latest_annual_net_income,
+        "Net Income History": annual_net_incomes[:5],
+        "Quarterly Net Income": latest_net_income,
         "RSI": None,
         "Operating Income": latest_operating,
         "Pretax Income": latest_pretax,
@@ -1069,6 +1154,8 @@ def score_stock(row):
         "Notes": notes,
         "Blocks": blocks,
         "Safety Version": SAFETY_VERSION,
+        "Quarterly Comparison": "year_over_year",
+        "Annual Loss Test": True,
         **exit_plan,
         **decision,
     }
@@ -1208,6 +1295,25 @@ def select_refresh_rows(rows, state, chunk_size):
         selected.append(rows[(start + offset) % len(rows)])
     next_cursor = (start + chunk_size) % len(rows)
     return selected, start, len(selected), next_cursor
+
+
+def add_priority_refresh_rows(selected, all_rows, existing_report, limit=50):
+    selected_tickers = {ticker_from_row(row) for row in selected}
+    priority = {
+        item.get("Ticker")
+        for item in existing_report.get("current_rankings", [])[:limit]
+        if item.get("Ticker")
+    }
+    combined = []
+    seen = set()
+    for row in list(selected) + list(all_rows):
+        ticker = ticker_from_row(row)
+        if not ticker or ticker in seen:
+            continue
+        if ticker in selected_tickers or ticker in priority:
+            combined.append(row)
+            seen.add(ticker)
+    return combined
 
 
 def merge_rankings(existing_report, fetched_rankings, now_utc, now_jst):
@@ -1398,6 +1504,9 @@ def save_signal_snapshot(path, report):
                     "Decision Tier",
                     "Current Price",
                     "Revenue Growth",
+                    "Annual Revenue Growth",
+                    "Historical Pattern",
+                    "Historical Pattern Score",
                     "Price Location",
                     "PSR",
                     "Operating Income",
@@ -1441,6 +1550,7 @@ def main():
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
     parser.add_argument("--workers", type=int, default=2, help="Number of parallel ticker fetches")
     parser.add_argument("--chunk-size", type=int, default=450, help="Tickers to refresh per run. Use 0 for full refresh")
+    parser.add_argument("--priority-only", action="store_true", help="Refresh only the saved current-version top 50")
     parser.add_argument("--notify-new-top", type=int, default=0, help="Notify if the current-version top N membership changes after refresh")
     args = parser.parse_args()
 
@@ -1477,7 +1587,14 @@ def main():
     fetched_rankings = []
     errors = []
     rows = [row for _, row in df.iterrows()]
-    rows_to_fetch, refresh_start, refresh_count, next_cursor = select_refresh_rows(rows, state, args.chunk_size)
+    if args.priority_only:
+        rows_to_fetch = add_priority_refresh_rows([], rows, existing_report, limit=50)
+        refresh_start = -1
+        refresh_count = len(rows_to_fetch)
+        next_cursor = int(state.get("refresh_cursor", 0) or 0)
+    else:
+        rows_to_fetch, refresh_start, refresh_count, next_cursor = select_refresh_rows(rows, state, args.chunk_size)
+        rows_to_fetch = add_priority_refresh_rows(rows_to_fetch, rows, existing_report, limit=50)
     workers = max(1, args.workers)
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(score_stock, row): row for row in rows_to_fetch}
@@ -1552,7 +1669,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "現行版は実績と会社予想の営業利益・経常利益悪化を最優先で除外。売上成長だけでは買い候補にしない。",
+            "ranking_note": "前半・後半で再現した検証Aを買い優先。年商成長と四半期前年同期比を分離し、会社予想の営業赤字転落・拡大は除外。",
         },
         "rankings": rankings,
         "current_rankings": current_rankings,

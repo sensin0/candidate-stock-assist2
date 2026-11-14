@@ -10,8 +10,11 @@ sys.modules.setdefault("yfinance", types.ModuleType("yfinance"))
 
 from scripts.weekly_cloud_ranker import (  # noqa: E402
     SAFETY_VERSION,
+    add_priority_refresh_rows,
     build_current_rankings,
     decision_scores,
+    financial_comparison_index,
+    historical_growth_pattern,
     local_current_version_score,
     parse_company_forecast_tables,
 )
@@ -134,8 +137,53 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertEqual(result["Forecast Operating Income"], -900)
         self.assertEqual(result["Previous Annual Operating Income"], -309)
 
+    def test_priority_rankings_are_added_to_daily_refresh(self):
+        rows = [
+            {"code": "1001"},
+            {"code": "1002"},
+            {"code": "1003"},
+        ]
+        report = {"current_rankings": [{"Ticker": "1003.T"}]}
+        result = add_priority_refresh_rows(rows[:1], rows, report, limit=50)
+        self.assertEqual([row["code"] for row in result], ["1001", "1003"])
+
+    def test_quarterly_financials_compare_same_quarter_last_year(self):
+        self.assertEqual(financial_comparison_index(True, [1, 2, 3, 4, 5]), 4)
+        self.assertEqual(financial_comparison_index(False, [1, 2, 3, 4, 5]), 1)
+
+    def test_validated_pattern_a(self):
+        label, score = historical_growth_pattern(120.0, 100.0, 12.0, 0.4)
+        self.assertTrue(label.startswith("検証A"))
+        self.assertEqual(score, 100)
+
+    def test_validated_pattern_a_becomes_buy_candidate(self):
+        item = {
+            "Sector": "化学",
+            "Price Location": 0.4,
+            "Revenue Growth": 5.0,
+            "Annual Revenue Growth": 12.0,
+            "Historical Pattern": "検証A: 黒字継続+年商10-14.9%+株価位置30-49.9%",
+            "Historical Pattern Score": 100,
+            "Operating Loss Improving": True,
+            "Pretax Loss Improving": True,
+            "Net Loss Improving": True,
+            "Loss Margin Improving": True,
+            "PSR": 1.0,
+            "Net Income History": [120.0, 100.0],
+            "Current Price": 1000.0,
+            "Forecast Status": "ok",
+            "Previous Annual Operating Income": 100.0,
+            "Forecast Operating Income": 120.0,
+        }
+        _, action, _, blocks, _, _, decision = local_current_version_score(item)
+        self.assertEqual(blocks, [])
+        self.assertEqual(action, "買い候補 検証A")
+        self.assertEqual(decision["Decision Tier"], "買い優先")
+
     def test_active_rows_sort_above_pass_rows(self):
         active = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
             "Ticker": "A.T",
             "Name": "Active",
             "Sector": "化学",
@@ -150,6 +198,8 @@ class DecisionScoreTests(unittest.TestCase):
             "Current Price": 100.0,
         }
         passed = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
             "Ticker": "B.T",
             "Name": "Pass",
             "Sector": "化学",
@@ -162,7 +212,7 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertNotIn("パス", rankings[0]["Action"])
 
     def test_safety_version_bumped(self):
-        self.assertEqual(SAFETY_VERSION, 12)
+        self.assertEqual(SAFETY_VERSION, 13)
 
 
 if __name__ == "__main__":

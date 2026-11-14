@@ -311,7 +311,9 @@
         (item.Action || "").includes("パス") ||
         (item.Action || "").includes("Pass") ||
         (item.Action || "").includes("除外") ||
-        item["Decision Tier"] === "避ける";
+        (item.Action || "").includes("データ再取得待ち") ||
+        item["Decision Tier"] === "避ける" ||
+        item["Decision Tier"] === "見送り";
       const isBuy = (item) => (item.Action || "").includes("買い候補") || (item.Action || "").includes("BUY");
       const candidateRows = (rows) => rows.filter((item) => !isPass(item));
       const referenceRows = (rows) => rows.filter((item) => isPass(item));
@@ -338,7 +340,10 @@
           .slice(0, 10)
           .map((item) => {
             const tone = actionTone(item.Action);
-            const notes = (item["Decision Labels"] || item["Current Version Notes"] || item.Notes || []).slice(0, 3).join(" / ") || "-";
+            const notes = [
+              ...(item["Decision Labels"] || []),
+              ...(item["Current Version Notes"] || item.Notes || []),
+            ].slice(0, 4).join(" / ") || "-";
             const dangers = (item["Danger Notes"] || []).slice(0, 2).join(" / ");
             return `<article class="card">
               <div class="card-head">
@@ -353,6 +358,7 @@
                 <div class="metric"><span>安全</span><strong>${item["Safety Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>2倍期待</span><strong>${item["Two Bagger Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>売上</span><strong>${signed(item["Revenue Growth"])}</strong></div>
+                <div class="metric"><span>年商成長</span><strong>${signed(item["Annual Revenue Growth"])}</strong></div>
                 <div class="metric"><span>前期営業</span><strong>${millionYen(item["Previous Annual Operating Income"])}</strong></div>
                 <div class="metric"><span>会社予想営業</span><strong>${millionYen(item["Forecast Operating Income"])}</strong></div>
                 <div class="metric"><span>現在値</span><strong>${yen(item["Current Price"])}</strong></div>

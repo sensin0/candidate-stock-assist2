@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ランキング判定 v12 検証</title>
+    <title>ランキング判定 v13 検証</title>
     <style>
       :root { color-scheme: light; --ink: #172033; --muted: #64748b; --line: #dbe3ec; --good: #087f5b; --bad: #c2413b; --watch: #a16207; }
       * { box-sizing: border-box; }
@@ -34,7 +34,7 @@
     </style>
   </head>
   <body>
-    <header><div class="wrap"><h1>ランキング判定 v12 検証</h1><p>売上より本業の利益改善を優先</p></div></header>
+    <header><div class="wrap"><h1>ランキング判定 v13 検証</h1><p>前年同期比と年次赤字で判定</p></div></header>
     <main class="wrap">
       <a class="back" href="./index.html">ランキングへ戻る</a>
       <section class="panel">
@@ -50,9 +50,22 @@
         </table>
       </section>
       <section class="panel">
-        <h2>v12の買い条件</h2>
+        <h2>前半・後半で再現したパターン</h2>
+        <table>
+          <thead><tr><th>条件</th><th>期間</th><th>件数</th><th>1年中央値</th><th>勝率</th><th>市場中央値超え</th><th>-25％到達</th></tr></thead>
+          <tbody>
+            <tr><td>検証A: 黒字継続・年商10〜14.9％・株価位置30〜49.9％</td><td>前半</td><td>12</td><td class="good">+29.4％</td><td class="good">91.7％</td><td>75.0％</td><td>8.3％</td></tr>
+            <tr><td>検証A: 黒字継続・年商10〜14.9％・株価位置30〜49.9％</td><td>後半</td><td>12</td><td class="good">+34.2％</td><td class="good">91.7％</td><td>75.0％</td><td>33.3％</td></tr>
+            <tr><td>旧主条件: 2期連続赤字・赤字率改善</td><td>前半</td><td>13</td><td>+11.0％</td><td>53.8％</td><td>46.2％</td><td class="bad">38.5％</td></tr>
+            <tr><td>旧主条件: 2期連続赤字・赤字率改善</td><td>後半</td><td>20</td><td class="bad">-0.2％</td><td class="bad">50.0％</td><td class="bad">45.0％</td><td class="bad">45.0％</td></tr>
+          </tbody>
+        </table>
+        <p>検証Aを買い優先、黒字継続・年商15〜19.9％を監視上位としてランキングへ反映します。会社予想が営業赤字転落・赤字拡大の場合は、過去パターンに合っても除外します。</p>
+      </section>
+      <section class="panel">
+        <h2>v13の買い条件</h2>
         <div class="rules">
-          <div class="rule"><strong class="good">買い優先</strong>2期連続赤字、売上15〜19.9％、実績営業損益改善、会社予想営業損益改善をすべて満たす。</div>
+          <div class="rule"><strong class="good">買い優先</strong>年次2期連続赤字、売上前年同期比15〜19.9％、営業損益の前年同期比改善、会社予想改善をすべて満たす。</div>
           <div class="rule"><strong class="watch">長期監視</strong>売上20〜29.9％は2倍余地を監視するが、短期買いの順位は下げる。</div>
           <div class="rule"><strong class="bad">避ける</strong>営業赤字拡大・赤字転落、会社予想未確認、売上急減、PSR 5倍以上、高値圏は除外。</div>
         </div>
@@ -73,7 +86,7 @@
         <ul>
           <li>84件は月次の重複を含み、ユニーク銘柄は11社です。</li>
           <li>同じ過去データを見て条件を調整しているため、将来成績を保証する結果ではありません。</li>
-          <li>過去DBに営業利益と会社予想が保存されていないため、v12の全条件は過去検証できません。2026年11月から予想値を保存し、前向きに検証します。</li>
+          <li>過去DBに営業利益と会社予想が保存されていないため、v13の全条件は過去検証できません。2026年11月から予想値を保存し、前向きに検証します。</li>
           <li>買い優先でも決算内容、流動性、地合いを確認し、撤退価格を決めてから判断します。</li>
           <li>今後は新しい月を追加し、未使用期間で成績が維持されるか継続監視します。</li>
         </ul>
