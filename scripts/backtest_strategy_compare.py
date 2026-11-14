@@ -150,7 +150,11 @@ def score_current(features):
     if rev_growth is not None:
         growth_points, _ = revenue_growth_score(rev_growth, price_loc, loss_improving)
         score += growth_points
-        if rev_growth >= 30:
+        if 15 <= rev_growth < 20:
+            score += 35
+        elif 20 <= rev_growth < 30:
+            score -= 90
+        elif rev_growth >= 30:
             score -= 120
 
     if loss_margin is not None:

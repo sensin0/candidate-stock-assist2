@@ -70,7 +70,7 @@
       }
       .summary {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 12px;
         margin-bottom: 18px;
       }
@@ -253,6 +253,7 @@
         </div>
         <a class="report-link" href="./revenue-20-performance.html">20%台検証</a>
         <a class="report-link" href="./earnings-entry-backtest.html">決算後検証</a>
+        <a class="report-link" href="./ranking-policy-v11-validation.html">新判定の検証</a>
       </div>
     </header>
     <main class="wrap">
@@ -264,10 +265,10 @@
             <tr>
               <th>順位</th>
               <th>銘柄</th>
-              <th>Score</th>
-              <th>株価位置</th>
+              <th>総合</th>
+              <th>安全</th>
+              <th>2倍期待</th>
               <th>売上</th>
-              <th>+50%</th>
               <th>判定</th>
             </tr>
           </thead>
@@ -282,24 +283,24 @@
       const signed = (value) => (typeof value === "number" ? `${value > 0 ? "+" : ""}${value.toFixed(1)}%` : "-");
       const actionTone = (action = "") => {
         if (action.includes("除外") || action.includes("パス")) return "bad";
-        if (action.includes("監視") || action.includes("押し目")) return "warn";
+        if (action.includes("監視") || action.includes("押し目") || action.includes("確認")) return "warn";
         return "";
       };
       const twoBaggerTag = (item) => {
-        if (Number(item["Revenue Growth"]) < 15) return "";
         const action = item.Action || "";
-        if (
-          action.includes("BUY") ||
-          action.includes("Watch") ||
-          action.includes("Check") ||
-          action.includes("買い候補") ||
-          action.includes("監視") ||
-          action.includes("押し目") ||
-          action.includes("確認")
-        ) {
+        const tier = item["Decision Tier"] || "";
+        const safety = Number(item["Safety Score"] || 0);
+        const potential = Number(item["Two Bagger Score"] || 0);
+        if (isPass(item) || tier === "避ける" || tier === "見送り") {
+          return `<span class="badge bad">対象外</span>`;
+        }
+        if (potential >= 70 && safety >= 70 && isBuy(item)) {
           return `<span class="badge double">2倍候補</span>`;
         }
-        return `<span class="badge warn">売上15%+ 対象外</span>`;
+        if (potential >= 45 || action.includes("長期監視")) {
+          return `<span class="badge warn">2倍監視</span>`;
+        }
+        return "";
       };
       const activeRows = () => {
         if (!state.report) return [];
@@ -314,6 +315,7 @@
         const candidates = candidateRows(rows);
         const references = referenceRows(rows);
         const buys = candidates.filter(isBuy);
+        const priorityWatch = candidates.filter((item) => item["Decision Tier"] === "監視上位");
         document.getElementById("subtitle").textContent = state.report
           ? `更新: ${state.report.generated_at_jst || "-"} / 現行版`
           : "読み込み中";
@@ -322,6 +324,7 @@
           ["表示銘柄", `${rows.length.toLocaleString()}件`],
           ["候補銘柄", `${candidates.length.toLocaleString()}件`],
           ["買い候補", `${buys.length.toLocaleString()}件`],
+          ["監視上位", `${priorityWatch.length.toLocaleString()}件`],
           ["トップ", top.Ticker || "-"],
         ]
           .map(([label, value]) => `<div class="stat"><span>${label}</span><strong>${value}</strong></div>`)
@@ -330,32 +333,33 @@
           .slice(0, 10)
           .map((item) => {
             const tone = actionTone(item.Action);
-            const notes = (item["Current Version Notes"] || item.Notes || []).slice(0, 3).join(" / ") || "-";
+            const notes = (item["Decision Labels"] || item["Current Version Notes"] || item.Notes || []).slice(0, 3).join(" / ") || "-";
+            const dangers = (item["Danger Notes"] || []).slice(0, 2).join(" / ");
             return `<article class="card">
               <div class="card-head">
                 <div>
                   <div><span class="rank">#${item.Rank}</span> <span class="ticker">${item.Ticker}</span></div>
                   <div class="name">${item.Name || "-"}</div>
                 </div>
-                <div class="badges"><span class="badge ${tone}">${item.Action || "-"}</span>${twoBaggerTag(item)}</div>
+                <div class="badges"><span class="badge ${tone}">${item.Action || "-"}</span><span class="badge ${tone}">${item["Decision Tier"] || "-"}</span>${twoBaggerTag(item)}</div>
               </div>
               <div class="metrics">
-                <div class="metric"><span>Score</span><strong>${item.Score ?? "-"}</strong></div>
-                <div class="metric"><span>株価位置</span><strong>${pct(item["Price Location"])}</strong></div>
+                <div class="metric"><span>総合</span><strong>${item["Composite Score"] ?? "-"}</strong></div>
+                <div class="metric"><span>安全</span><strong>${item["Safety Score"] ?? "-"}</strong></div>
+                <div class="metric"><span>2倍期待</span><strong>${item["Two Bagger Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>売上</span><strong>${signed(item["Revenue Growth"])}</strong></div>
                 <div class="metric"><span>現在値</span><strong>${yen(item["Current Price"])}</strong></div>
                 <div class="metric"><span>+50%</span><strong>${yen(item["Target Price 1"])}</strong></div>
                 <div class="metric"><span>+100%</span><strong>${yen(item["Target Price 2"])}</strong></div>
                 <div class="metric"><span>撤退</span><strong>${yen(item["Stop Loss"])}</strong></div>
-                <div class="metric"><span>Exit</span><strong>${item["Exit Score"] ?? "-"}</strong></div>
               </div>
-              <div class="plan">${item["Sell Plan"] || "+50%で一部利確、+100%で主力利確、-25%で撤退確認"}<br>${notes}</div>
+              <div class="plan">${item["Sell Plan"] || "+50%で一部利確、+100%で主力利確、-25%で撤退確認"}<br>${notes}${dangers ? `<br>注意: ${dangers}` : ""}</div>
             </article>`;
           })
           .join("");
         const notice = buys.length
           ? ""
-          : `<div class="notice">現在は買い候補がありません。監視候補と参考銘柄を表示しています。</div>`;
+          : `<div class="notice">現在は安全条件を満たす買い候補がありません。無理に買わず、監視上位と長期監視を表示しています。</div>`;
         document.getElementById("cards").innerHTML =
           notice + (candidates.length ? "" : `<div class="error">監視候補も少ないため、参考銘柄を表示しています。</div>`) + cardRows;
         const tableRows = [
@@ -373,10 +377,10 @@
                 (item) => `<tr>
               <td>#${item.Rank}</td>
               <td><strong>${item.Ticker}</strong><br>${item.Name || "-"}</td>
-              <td>${item.Score ?? "-"}</td>
-              <td>${pct(item["Price Location"])}</td>
+              <td>${item["Composite Score"] ?? "-"}</td>
+              <td>${item["Safety Score"] ?? "-"}</td>
+              <td>${item["Two Bagger Score"] ?? "-"}</td>
               <td>${signed(item["Revenue Growth"])}</td>
-              <td>${yen(item["Target Price 1"])}</td>
               <td>${item.Action || "-"} ${twoBaggerTag(item)}</td>
             </tr>`
               )

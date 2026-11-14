@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ランキング判定 v11 検証</title>
+    <style>
+      :root { color-scheme: light; --ink: #172033; --muted: #64748b; --line: #dbe3ec; --good: #087f5b; --bad: #c2413b; --watch: #a16207; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f5f7fa; color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+      header { background: #172033; color: white; }
+      .wrap { width: min(1040px, calc(100% - 32px)); margin: 0 auto; }
+      header .wrap { padding: 28px 0; }
+      h1 { margin: 0; font-size: clamp(24px, 5vw, 38px); letter-spacing: 0; }
+      header p { margin: 8px 0 0; color: #cbd5e1; }
+      main { padding: 28px 0 44px; }
+      .back { display: inline-block; margin-bottom: 18px; color: #1d4ed8; font-weight: 800; text-decoration: none; }
+      .panel { margin-bottom: 18px; padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+      h2 { margin: 0 0 14px; font-size: 20px; }
+      p { line-height: 1.7; }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th, td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+      th:first-child, td:first-child { text-align: left; }
+      th { color: var(--muted); background: #f8fafc; }
+      .good { color: var(--good); font-weight: 900; }
+      .bad { color: var(--bad); font-weight: 900; }
+      .watch { color: var(--watch); font-weight: 900; }
+      .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+      .rule { padding: 14px; border-left: 4px solid var(--line); background: #f8fafc; }
+      .rule strong { display: block; margin-bottom: 6px; }
+      ul { margin: 0; padding-left: 20px; line-height: 1.8; }
+      .caution { border-left: 4px solid #d97706; background: #fffbeb; }
+      @media (max-width: 720px) { .rules { grid-template-columns: 1fr; } .panel { padding: 14px; } table { font-size: 12px; } th, td { padding: 9px 5px; } }
+    </style>
+  </head>
+  <body>
+    <header><div class="wrap"><h1>ランキング判定 v11 検証</h1><p>短期の勝ちやすさと2倍期待を分けて評価</p></div></header>
+    <main class="wrap">
+      <a class="back" href="./index.html">ランキングへ戻る</a>
+      <section class="panel">
+        <h2>検証結果</h2>
+        <p>2023年6月から2025年6月までの月次上位候補84件を、各月の買値から6か月後まで追跡しました。旧ルールが優先していた売上20％台は、この標本では成績が悪く、短期の買い優先条件として不適切でした。</p>
+        <table>
+          <thead><tr><th>売上成長率</th><th>件数</th><th>6か月平均</th><th>中央値</th><th>勝率</th><th>-20％以下</th></tr></thead>
+          <tbody>
+            <tr><td>15〜19.9％</td><td>25</td><td class="good">+13.9％</td><td class="good">+11.3％</td><td class="good">68.0％</td><td>4.0％</td></tr>
+            <tr><td>20〜29.9％</td><td>13</td><td class="bad">-20.5％</td><td class="bad">-23.4％</td><td class="bad">15.4％</td><td class="bad">61.5％</td></tr>
+            <tr><td>30％以上</td><td>17</td><td class="bad">-10.0％</td><td>-</td><td class="bad">23.5％</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="panel">
+        <h2>v11の判定</h2>
+        <div class="rules">
+          <div class="rule"><strong class="good">買い優先</strong>売上15〜19.9％に加え、安全75点以上・2倍期待65点以上を満たすものだけ。</div>
+          <div class="rule"><strong class="watch">長期監視</strong>売上20〜29.9％は2倍余地を監視するが、短期買いの順位は下げる。</div>
+          <div class="rule"><strong class="bad">避ける</strong>売上30％以上、PSR 5倍以上、高値圏、赤字悪化などは買い候補から除外。</div>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>新ルールの再集計</h2>
+        <table>
+          <thead><tr><th>判定</th><th>件数</th><th>6か月平均</th><th>中央値</th><th>勝率</th><th>-20％以下</th></tr></thead>
+          <tbody>
+            <tr><td class="good">買い優先</td><td>21</td><td class="good">+15.1％</td><td class="good">+11.3％</td><td class="good">66.7％</td><td class="good">0.0％</td></tr>
+            <tr><td class="watch">長期監視</td><td>13</td><td class="bad">-20.5％</td><td class="bad">-23.4％</td><td class="bad">15.4％</td><td class="bad">61.5％</td></tr>
+            <tr><td class="bad">避ける</td><td>17</td><td class="bad">-10.0％</td><td>-</td><td class="bad">23.5％</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="panel caution">
+        <h2>この結果の限界</h2>
+        <ul>
+          <li>84件は月次の重複を含み、ユニーク銘柄は11社です。</li>
+          <li>同じ過去データを見て条件を調整しているため、将来成績を保証する結果ではありません。</li>
+          <li>買い優先でも決算内容、流動性、地合いを確認し、撤退価格を決めてから判断します。</li>
+          <li>今後は新しい月を追加し、未使用期間で成績が維持されるか継続監視します。</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

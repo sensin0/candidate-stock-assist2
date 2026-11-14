@@ -21,7 +21,7 @@ DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 10
+SAFETY_VERSION = 11
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -53,6 +53,9 @@ def danger_blocks(sector, psr, price_location, revenue_growth, net_risk):
     if price_location is not None and price_location > 0.5:
         blocks.append("中高値圏")
         notes.append("株価位置50%超は掴み回避")
+    if revenue_growth is not None and revenue_growth <= -10:
+        blocks.append("売上急減")
+        notes.append("売上成長率-10%以下")
     if revenue_growth is not None and revenue_growth >= 30:
         blocks.append("売上30%超過熱")
         notes.append("売上30%超は一過性・過熱確認")
@@ -66,7 +69,7 @@ def danger_blocks(sector, psr, price_location, revenue_growth, net_risk):
 
 
 def buy_priority_bonus(revenue_growth, price_location, psr, loss_improving, net_risk):
-    if revenue_growth is None or not (20 <= revenue_growth < 30):
+    if revenue_growth is None or not (15 <= revenue_growth < 20):
         return 0, None
     if price_location is not None and price_location > 0.5:
         return 0, None
@@ -76,7 +79,112 @@ def buy_priority_bonus(revenue_growth, price_location, psr, loss_improving, net_
         return 0, None
     if net_risk in {"profit_to_loss", "deeper_loss"}:
         return 0, None
-    return 35, "買い優先条件: 売上20%台+赤字縮小+危険条件なし"
+    return 35, "買い優先条件: 売上15%台+赤字縮小+危険条件なし"
+
+
+def decision_scores(sector, psr, price_location, revenue_growth, loss_improving, net_risk, two_year_loss):
+    danger, danger_notes = danger_blocks(sector, psr, price_location, revenue_growth, net_risk)
+    safety = 50
+    two_bagger = 0
+    labels = []
+
+    if price_location is not None:
+        if price_location < 0.15:
+            safety += 20
+            two_bagger += 25
+            labels.append("底値圏")
+        elif price_location < 0.3:
+            safety += 12
+            two_bagger += 15
+            labels.append("低位置")
+        elif price_location > 0.5:
+            safety -= 35
+            two_bagger -= 35
+
+    if psr is not None:
+        if psr < 0.5:
+            safety += 18
+            two_bagger += 12
+            labels.append("PSR低位")
+        elif psr < 1:
+            safety += 10
+            two_bagger += 8
+        elif psr >= 5:
+            safety -= 40
+            two_bagger -= 40
+
+    if revenue_growth is not None:
+        if 20 <= revenue_growth < 30:
+            safety -= 25
+            two_bagger += 45
+            labels.append("売上20%台")
+        elif 15 <= revenue_growth < 20:
+            safety += 25
+            two_bagger += 40
+            labels.append("売上15%台")
+        elif 10 <= revenue_growth < 15:
+            safety += 0
+            two_bagger += 12
+        elif 0 <= revenue_growth < 10:
+            safety += 10
+        elif revenue_growth >= 30:
+            safety -= 35
+            two_bagger -= 25
+        elif revenue_growth < 0:
+            safety -= 15
+
+    if loss_improving is True:
+        safety += 18
+        two_bagger += 20
+        labels.append("赤字縮小")
+    elif loss_improving is False:
+        safety -= 35
+        two_bagger -= 35
+
+    if net_risk in {"profit_to_loss", "deeper_loss"}:
+        safety -= 45
+        two_bagger -= 35
+    elif net_risk == "profit_decline":
+        safety -= 20
+        two_bagger -= 15
+
+    if two_year_loss:
+        two_bagger += 15
+
+    if danger:
+        safety -= 50
+        two_bagger -= 50
+
+    safety = max(0, min(100, safety))
+    two_bagger = max(0, min(100, two_bagger))
+    if danger:
+        tier = "避ける"
+    elif revenue_growth is not None and revenue_growth >= 20 and two_bagger >= 60:
+        tier = "長期監視"
+    elif (
+        two_year_loss
+        and revenue_growth is not None
+        and 15 <= revenue_growth < 20
+        and safety >= 75
+        and two_bagger >= 65
+    ):
+        tier = "買い優先"
+    elif safety >= 70 and two_bagger >= 40:
+        tier = "監視上位"
+    elif safety >= 60:
+        tier = "安全監視"
+    else:
+        tier = "見送り"
+
+    composite = safety * 0.7 + two_bagger * 0.3
+    return {
+        "Safety Score": round(safety, 1),
+        "Two Bagger Score": round(two_bagger, 1),
+        "Composite Score": round(composite, 1),
+        "Decision Tier": tier,
+        "Decision Labels": labels,
+        "Danger Notes": danger_notes,
+    }
 
 
 def clean_number(value):
@@ -315,20 +423,28 @@ def local_current_version_score(item):
         if revenue_growth is not None and revenue_growth < -10:
             blocks.append("売上悪化")
 
-        danger, danger_notes = danger_blocks(sector, psr, price_location, revenue_growth, risk)
-        blocks.extend(block for block in danger if block not in blocks)
-        notes.extend(note for note in danger_notes if note not in notes)
+        danger = danger_blocks(sector, psr, price_location, revenue_growth, risk)[0]
         if danger:
             score -= 120
+
+        decision = decision_scores(sector, psr, price_location, revenue_growth, loss_margin_improving, risk, two_year_loss)
+        blocks.extend(block for block in danger if block not in blocks)
+        notes.extend(note for note in (decision.get("Danger Notes") or []) if note not in notes)
+        if decision.get("Decision Tier") == "買い優先" and "買い優先" not in notes:
+            notes.append("買い優先")
 
         if blocks:
             action = "監視（除外条件あり: " + "/".join(blocks) + ")"
         elif price_location is not None and price_location > 0.7 and score >= 110:
             action = "押し目待ち"
-        elif score >= 150:
+        elif decision.get("Decision Tier") == "長期監視":
+            action = "長期監視"
+        elif decision.get("Decision Tier") == "買い優先" and score >= 130:
             action = "買い候補 強"
-        elif score >= 110:
+        elif decision.get("Decision Tier") == "買い優先" and score >= 100:
             action = "買い候補"
+        elif decision.get("Decision Tier") == "監視上位":
+            action = "監視上位"
         elif score >= 80:
             action = "監視（黒字化待ち）"
         else:
@@ -349,6 +465,21 @@ def local_current_version_score(item):
         action = "パス"
         notes.append("黒字または赤字反転条件外")
 
+    if not two_year_loss:
+        decision = decision_scores(sector, psr, price_location, revenue_growth, loss_margin_improving, risk, two_year_loss)
+        if action != "パス":
+            danger = danger_blocks(sector, psr, price_location, revenue_growth, risk)[0]
+            blocks.extend(block for block in danger if block not in blocks)
+            notes.extend(note for note in (decision.get("Danger Notes") or []) if note not in notes)
+            if blocks:
+                action = "監視（除外条件あり: " + "/".join(blocks) + ")"
+            elif decision.get("Decision Tier") == "長期監視":
+                action = "長期監視"
+            elif decision.get("Decision Tier") == "監視上位":
+                action = "監視上位"
+            elif decision.get("Decision Tier") == "安全監視":
+                action = "安全監視"
+
     if action == "パス":
         exit_plan = {
             "Target Price 1": None,
@@ -364,7 +495,7 @@ def local_current_version_score(item):
             item.get("Current Price"), price_location, revenue_growth, blocks, risk
         )
         score += exit_plan["Exit Score"]
-    return round(score, 1), action, notes, blocks, status, exit_plan
+    return round(score, 1), action, notes, blocks, status, exit_plan, decision
 
 
 def build_current_rankings(rankings):
@@ -372,7 +503,7 @@ def build_current_rankings(rankings):
     for item in rankings:
         if item.get("Sector") not in CURRENT_TARGET_SECTORS:
             continue
-        score, action, notes, blocks, status, exit_plan = local_current_version_score(item)
+        score, action, notes, blocks, status, exit_plan, decision = local_current_version_score(item)
         row = dict(item)
         row["Score"] = score
         row["Entry Score"] = score
@@ -381,8 +512,16 @@ def build_current_rankings(rankings):
         row["Blocks"] = blocks
         row["Status"] = status
         row.update(exit_plan)
+        row.update(decision)
         current_rankings.append(row)
-    current_rankings.sort(key=lambda row: row.get("Score", 0), reverse=True)
+    current_rankings.sort(
+        key=lambda row: (
+            0 if "パス" in str(row.get("Action") or "") or "Pass" in str(row.get("Action") or "") else 1,
+            row.get("Composite Score", row.get("Score", 0)) or 0,
+            row.get("Score", 0) or 0,
+        ),
+        reverse=True,
+    )
     for index, item in enumerate(current_rankings, start=1):
         item["Rank"] = index
     return current_rankings
@@ -419,6 +558,7 @@ def apply_stored_safety_guard(item):
     latest = history[0] if len(history) > 0 else item.get("Net Income")
     previous = history[1] if len(history) > 1 else None
     risk = net_income_risk(latest, previous)
+    two_year_loss = latest is not None and previous is not None and latest < 0 and previous < 0
     if revenue_growth is not None:
         growth_points, growth_note = revenue_growth_score(
             revenue_growth,
@@ -500,15 +640,20 @@ def apply_stored_safety_guard(item):
 
     exit_plan = exit_plan_values(item.get("Current Price"), price_location, revenue_growth, blocks, risk)
     score += exit_plan["Exit Score"]
+    decision = decision_scores(item.get("Sector"), psr, price_location, revenue_growth, stored_loss_improving, risk, two_year_loss)
 
     if blocks:
         action = "監視（除外条件あり）"
     elif price_location is not None and price_location > 0.7 and score >= 110:
         action = "押し目待ち"
-    elif score >= 150:
+    elif decision.get("Decision Tier") == "長期監視":
+        action = "長期監視"
+    elif decision.get("Decision Tier") == "買い優先" and score >= 130:
         action = "買い候補 強"
-    elif score >= 110:
+    elif decision.get("Decision Tier") == "買い優先" and score >= 100:
         action = "買い候補"
+    elif decision.get("Decision Tier") in {"監視上位", "安全監視"}:
+        action = decision.get("Decision Tier")
     elif score >= 80:
         action = "監視"
     else:
@@ -522,6 +667,7 @@ def apply_stored_safety_guard(item):
     item["Net Income Risk"] = risk
     item["Safety Version"] = SAFETY_VERSION
     item.update(exit_plan)
+    item.update(decision)
     return item
 
 
@@ -736,15 +882,28 @@ def score_stock(row):
 
     exit_plan = exit_plan_values(current_price, price_location, revenue_growth, blocks, net_risk)
     score += exit_plan["Exit Score"]
+    decision = decision_scores(
+        sector,
+        psr,
+        price_location,
+        revenue_growth,
+        first_known(operating_loss_improving, net_loss_improving),
+        net_risk,
+        two_year_net_loss,
+    )
 
     if blocks:
         action = "監視（除外条件あり）"
     elif price_location is not None and price_location > 0.7 and score >= 110:
         action = "押し目待ち"
-    elif score >= 150:
+    elif decision.get("Decision Tier") == "長期監視":
+        action = "長期監視"
+    elif decision.get("Decision Tier") == "買い優先" and score >= 130:
         action = "買い候補 強"
-    elif score >= 110:
+    elif decision.get("Decision Tier") == "買い優先" and score >= 100:
         action = "買い候補"
+    elif decision.get("Decision Tier") in {"監視上位", "安全監視"}:
+        action = decision.get("Decision Tier")
     elif score >= 80:
         action = "監視"
     else:
@@ -793,6 +952,7 @@ def score_stock(row):
         "Blocks": blocks,
         "Safety Version": SAFETY_VERSION,
         **exit_plan,
+        **decision,
     }
 
 
@@ -830,9 +990,15 @@ def build_weekly_message(report, top_n, earnings_window_days):
             notes = " / ".join((item.get("Current Version Notes") or item.get("Notes") or [])[:3]) or "-"
             target = item.get("Target Price 1")
             target_text = "-" if target is None else f"{target:.0f}円"
+            safety = item.get("Safety Score")
+            safety_text = "-" if safety is None else f"{safety:.0f}"
+            two_bagger = item.get("Two Bagger Score")
+            two_bagger_text = "-" if two_bagger is None else f"{two_bagger:.0f}"
+            tier = item.get("Decision Tier") or "-"
             lines.append(
                 f"{item['Rank']}. {item['Ticker']} {item['Name']} | {item['Action']} | "
-                f"Score {item['Score']} | 位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
+                f"{tier} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
+                f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
             )
         lines.append("")
 
@@ -842,9 +1008,13 @@ def build_weekly_message(report, top_n, earnings_window_days):
         lines.extend(["", f"決算チェック優先（上位{top_n}位以内・直近{earnings_window_days}日以内の四半期データ）"])
         for item in earnings_rows:
             period = item.get("Latest Quarter Period") or "-"
+            safety = item.get("Safety Score")
+            safety_text = "-" if safety is None else f"{safety:.0f}"
+            two_bagger = item.get("Two Bagger Score")
+            two_bagger_text = "-" if two_bagger is None else f"{two_bagger:.0f}"
             lines.append(
                 f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-                f"Score {item['Score']} | 最新期 {period}"
+                f"安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | 最新期 {period}"
             )
     append_dashboard_link(lines)
     return "\n".join(lines)
@@ -866,9 +1036,15 @@ def build_earnings_message(report, earnings_rows):
         growth = item.get("Revenue Growth")
         growth_text = "-" if growth is None else f"{growth:+.1f}%"
         notes = " / ".join(item.get("Notes", [])[:3]) or "-"
+        safety = item.get("Safety Score")
+        safety_text = "-" if safety is None else f"{safety:.0f}"
+        two_bagger = item.get("Two Bagger Score")
+        two_bagger_text = "-" if two_bagger is None else f"{two_bagger:.0f}"
+        tier = item.get("Decision Tier") or "-"
         lines.append(
             f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"Score {item['Score']} | 最新期 {period} | 位置 {price_text} | 売上 {growth_text} | {notes}"
+            f"{tier} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
+            f"最新期 {period} | 位置 {price_text} | 売上 {growth_text} | {notes}"
         )
     if report.get("current_rankings"):
         current_top = report["current_rankings"][0]
@@ -937,8 +1113,8 @@ def merge_rankings(existing_report, fetched_rankings, now_utc, now_jst):
     return rankings
 
 
-def detect_top_earnings_updates(rankings, top_n, state):
-    previous = state.get("tickers", {}) if isinstance(state, dict) else {}
+def detect_top_earnings_updates(rankings, top_n, state, state_key="tickers"):
+    previous = state.get(state_key, {}) if isinstance(state, dict) else {}
     if not previous:
         return []
 
@@ -1010,9 +1186,15 @@ def build_top_rank_change_message(report, changes, top_n):
         target = item.get("Target Price 1")
         target_text = "-" if target is None else f"{target:.0f}円"
         notes = " / ".join(item.get("Notes", [])[:3]) or "-"
+        safety = item.get("Safety Score")
+        safety_text = "-" if safety is None else f"{safety:.0f}"
+        two_bagger = item.get("Two Bagger Score")
+        two_bagger_text = "-" if two_bagger is None else f"{two_bagger:.0f}"
+        tier = item.get("Decision Tier") or "-"
         lines.append(
             f"・{previous_text} -> #{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"Score {item['Score']} | 位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
+            f"{tier} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
+            f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
         )
     if exited:
         lines.extend(["", "外れた銘柄"])
@@ -1031,6 +1213,10 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
             item["Ticker"]: {
                 "Rank": item.get("Rank"),
                 "Score": item.get("Score"),
+                "Safety Score": item.get("Safety Score"),
+                "Two Bagger Score": item.get("Two Bagger Score"),
+                "Composite Score": item.get("Composite Score"),
+                "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
             for item in rankings
@@ -1040,6 +1226,10 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
             item["Ticker"]: {
                 "Rank": item.get("Rank"),
                 "Score": item.get("Score"),
+                "Safety Score": item.get("Safety Score"),
+                "Two Bagger Score": item.get("Two Bagger Score"),
+                "Composite Score": item.get("Composite Score"),
+                "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
             for item in (current_rankings or [])
@@ -1149,9 +1339,21 @@ def main():
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
     current_rankings = build_current_rankings(rankings)[:200]
-    earnings_updates = detect_top_earnings_updates(rankings, args.top, state)
+    notification_rankings = [
+        item
+        for item in current_rankings
+        if "パス" not in str(item.get("Action") or "")
+        and "Pass" not in str(item.get("Action") or "")
+        and item.get("Decision Tier") not in {"避ける", "見送り"}
+    ]
+    earnings_updates = detect_top_earnings_updates(
+        notification_rankings,
+        args.top,
+        state,
+        state_key="current_tickers",
+    )
     top_rank_changes = (
-        detect_top_rank_changes(current_rankings, args.notify_new_top, state, state_key="current_tickers")
+        detect_top_rank_changes(notification_rankings, args.notify_new_top, state, state_key="current_tickers")
         if args.notify_new_top > 0
         else {"entered": [], "exited": []}
     )
@@ -1171,7 +1373,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "現行版はシクリカル対象業種に絞り、赤字反転、売上成長、赤字縮小、株価位置、Exit Scoreを保守的に再採点。",
+            "ranking_note": "現行版はシクリカル対象業種に絞り、短期安全スコアと2倍狙いスコアを分けて評価。危険条件は買い候補から除外し、両方が強い銘柄を上位化。",
         },
         "rankings": rankings,
         "current_rankings": current_rankings,
@@ -1196,7 +1398,7 @@ def main():
                 existing_state=state,
                 refresh_cursor=next_cursor,
                 universe_count=len(df),
-                current_rankings=current_rankings,
+                current_rankings=notification_rankings,
             ),
         )
 
