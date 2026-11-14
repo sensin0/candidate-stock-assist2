@@ -4,6 +4,7 @@ import math
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from io import StringIO
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -20,8 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TICKERS = ROOT / "japan_tickers.csv"
 DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
+DEFAULT_HISTORY = ROOT / "data" / "ranking_signal_history.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 11
+SAFETY_VERSION = 12
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -204,6 +206,70 @@ def clean_number(value):
     return number
 
 
+def parse_company_forecast_tables(tables):
+    if not tables:
+        return None
+    table = tables[0]
+    if table.shape[0] < 2 or table.shape[1] < 9:
+        return None
+    forecast = table.iloc[0]
+    previous = table.iloc[1]
+    return {
+        "Forecast Revenue": clean_number(forecast.iloc[1]),
+        "Forecast Operating Income": clean_number(forecast.iloc[4]),
+        "Forecast Pretax Income": clean_number(forecast.iloc[6]),
+        "Forecast Net Income": clean_number(forecast.iloc[8]),
+        "Previous Annual Revenue": clean_number(previous.iloc[1]),
+        "Previous Annual Operating Income": clean_number(previous.iloc[4]),
+        "Previous Annual Pretax Income": clean_number(previous.iloc[6]),
+        "Previous Annual Net Income": clean_number(previous.iloc[8]),
+    }
+
+
+def fetch_company_forecast(ticker, checked_at_jst):
+    url = f"https://finance.yahoo.co.jp/quote/{ticker}/performance"
+    try:
+        response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=20)
+        response.raise_for_status()
+        values = parse_company_forecast_tables(pd.read_html(StringIO(response.text)))
+        if not values or values.get("Forecast Operating Income") is None:
+            raise ValueError("operating income forecast unavailable")
+        return {
+            "Ticker": ticker,
+            "Forecast Status": "ok",
+            "Forecast Source": url,
+            "Forecast Checked At JST": checked_at_jst,
+            **values,
+        }
+    except Exception as error:
+        return {
+            "Ticker": ticker,
+            "Forecast Status": "unavailable",
+            "Forecast Source": url,
+            "Forecast Checked At JST": checked_at_jst,
+            "Forecast Error": str(error),
+        }
+
+
+def enrich_company_forecasts(rankings, candidates, checked_at_jst, workers=6):
+    by_ticker = {item.get("Ticker"): item for item in rankings if item.get("Ticker")}
+    tickers = []
+    for item in candidates:
+        ticker = item.get("Ticker")
+        stored = by_ticker.get(ticker, {})
+        if ticker and not stored.get("Forecast Status"):
+            tickers.append(ticker)
+    if not tickers:
+        return
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
+        futures = [executor.submit(fetch_company_forecast, ticker, checked_at_jst) for ticker in tickers]
+        for future in as_completed(futures):
+            result = future.result()
+            target = by_ticker.get(result.get("Ticker"))
+            if target is not None:
+                target.update(result)
+
+
 def find_statement_value(statement, names):
     if statement is None or statement.empty:
         return []
@@ -322,7 +388,14 @@ def local_current_version_score(item):
     sector = item.get("Sector")
     price_location = item.get("Price Location")
     revenue_growth = item.get("Revenue Growth")
-    loss_margin_improving = item.get("Loss Margin Improving")
+    operating_loss_improving = item.get("Operating Loss Improving")
+    pretax_loss_improving = item.get("Pretax Loss Improving")
+    loss_margin_improving = first_known(
+        operating_loss_improving,
+        pretax_loss_improving,
+        item.get("Loss Margin Improving"),
+        item.get("Net Loss Improving"),
+    )
     loss_margin = item.get("Loss Margin")
     psr_rank = item.get("PSR Rank")
     psr = item.get("PSR")
@@ -346,6 +419,35 @@ def local_current_version_score(item):
     if two_year_loss:
         score += 100
         notes.append("2期連続赤字")
+
+        forecast_status = item.get("Forecast Status")
+        forecast_operating = clean_number(item.get("Forecast Operating Income"))
+        previous_annual_operating = clean_number(item.get("Previous Annual Operating Income"))
+        if forecast_status == "unavailable":
+            blocks.append("会社予想未確認")
+            notes.append("営業利益予想を取得できないため買い保留")
+        elif forecast_status == "ok" and forecast_operating is not None and previous_annual_operating is not None:
+            if previous_annual_operating >= 0 and forecast_operating < 0:
+                blocks.append("営業利益予想が赤字転落")
+                notes.append("会社予想で本業が黒字から赤字へ悪化")
+            elif previous_annual_operating < 0 and forecast_operating < previous_annual_operating:
+                blocks.append("営業赤字予想拡大")
+                notes.append("会社予想で営業赤字が拡大")
+            elif forecast_operating > previous_annual_operating:
+                notes.append("会社予想で営業損益改善")
+
+        if operating_loss_improving is False:
+            score -= 120
+            blocks.append("営業赤字拡大")
+            notes.append("本業の損失悪化を最優先")
+        elif operating_loss_improving is True:
+            notes.append("営業赤字縮小")
+
+        if pretax_loss_improving is False:
+            score -= 40
+            blocks.append("経常・税前赤字拡大")
+        elif pretax_loss_improving is True:
+            notes.append("経常・税前赤字縮小")
 
         if price_location is not None:
             if price_location < 0.1:
@@ -430,6 +532,9 @@ def local_current_version_score(item):
         decision = decision_scores(sector, psr, price_location, revenue_growth, loss_margin_improving, risk, two_year_loss)
         blocks.extend(block for block in danger if block not in blocks)
         notes.extend(note for note in (decision.get("Danger Notes") or []) if note not in notes)
+        if blocks:
+            decision["Decision Tier"] = "避ける"
+            decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
         if decision.get("Decision Tier") == "買い優先" and "買い優先" not in notes:
             notes.append("買い優先")
 
@@ -471,6 +576,9 @@ def local_current_version_score(item):
             danger = danger_blocks(sector, psr, price_location, revenue_growth, risk)[0]
             blocks.extend(block for block in danger if block not in blocks)
             notes.extend(note for note in (decision.get("Danger Notes") or []) if note not in notes)
+            if blocks:
+                decision["Decision Tier"] = "避ける"
+                decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
             if blocks:
                 action = "監視（除外条件あり: " + "/".join(blocks) + ")"
             elif decision.get("Decision Tier") == "長期監視":
@@ -516,7 +624,11 @@ def build_current_rankings(rankings):
         current_rankings.append(row)
     current_rankings.sort(
         key=lambda row: (
-            0 if "パス" in str(row.get("Action") or "") or "Pass" in str(row.get("Action") or "") else 1,
+            0
+            if "パス" in str(row.get("Action") or "")
+            or "Pass" in str(row.get("Action") or "")
+            or row.get("Decision Tier") in {"避ける", "見送り"}
+            else 1,
             row.get("Composite Score", row.get("Score", 0)) or 0,
             row.get("Score", 0) or 0,
         ),
@@ -641,6 +753,9 @@ def apply_stored_safety_guard(item):
     exit_plan = exit_plan_values(item.get("Current Price"), price_location, revenue_growth, blocks, risk)
     score += exit_plan["Exit Score"]
     decision = decision_scores(item.get("Sector"), psr, price_location, revenue_growth, stored_loss_improving, risk, two_year_loss)
+    if blocks:
+        decision["Decision Tier"] = "避ける"
+        decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
 
     if blocks:
         action = "監視（除外条件あり）"
@@ -891,6 +1006,9 @@ def score_stock(row):
         net_risk,
         two_year_net_loss,
     )
+    if blocks:
+        decision["Decision Tier"] = "避ける"
+        decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
 
     if blocks:
         action = "監視（除外条件あり）"
@@ -932,7 +1050,7 @@ def score_stock(row):
         "Price Location": round(price_location, 3) if price_location is not None else None,
         "Revenue Growth": round(revenue_growth, 1) if revenue_growth is not None else None,
         "Revenue Growth Label": growth_label(revenue_growth),
-        "Loss Margin Improving": net_loss_improving,
+        "Loss Margin Improving": first_known(operating_loss_improving, net_loss_improving),
         "Loss Margin": round(loss_margin, 1) if loss_margin is not None else None,
         "Is Aggressive": bool(aggressive_reasons),
         "Aggressive Reason": "/".join(aggressive_reasons),
@@ -1253,6 +1371,55 @@ def save_state(path, state):
     state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def save_signal_snapshot(path, report):
+    history_path = Path(path)
+    history_path.parent.mkdir(parents=True, exist_ok=True)
+    history = []
+    if history_path.exists():
+        try:
+            loaded = json.loads(history_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, list):
+                history = loaded
+        except (OSError, json.JSONDecodeError):
+            history = []
+    generated_at = report.get("generated_at_jst")
+    snapshot = {
+        "generated_at_jst": generated_at,
+        "safety_version": report.get("source", {}).get("safety_version"),
+        "signals": [
+            {
+                key: item.get(key)
+                for key in (
+                    "Rank",
+                    "Ticker",
+                    "Name",
+                    "Sector",
+                    "Action",
+                    "Decision Tier",
+                    "Current Price",
+                    "Revenue Growth",
+                    "Price Location",
+                    "PSR",
+                    "Operating Income",
+                    "Operating Loss Improving",
+                    "Previous Annual Operating Income",
+                    "Forecast Operating Income",
+                    "Forecast Status",
+                    "Safety Score",
+                    "Two Bagger Score",
+                    "Composite Score",
+                    "Blocks",
+                )
+            }
+            for item in report.get("current_rankings", [])[:50]
+        ],
+    }
+    day = str(generated_at or "")[:10]
+    history = [entry for entry in history if str(entry.get("generated_at_jst") or "")[:10] != day]
+    history.append(snapshot)
+    history_path.write_text(json.dumps(history[-1826:], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def send_discord(message, webhook_url):
     max_len = 1900
     chunks = [message[i : i + max_len] for i in range(0, len(message), max_len)]
@@ -1269,6 +1436,7 @@ def main():
     parser.add_argument("--earnings-window-days", type=int, default=120)
     parser.add_argument("--mode", choices=["refresh", "notify", "weekly", "earnings"], default="weekly")
     parser.add_argument("--state-file", default=str(DEFAULT_STATE))
+    parser.add_argument("--history-file", default=str(DEFAULT_HISTORY))
     parser.add_argument("--update-state", action="store_true")
     parser.add_argument("--limit", type=int, default=0, help="Debug: limit number of tickers")
     parser.add_argument("--workers", type=int, default=2, help="Number of parallel ticker fetches")
@@ -1338,12 +1506,23 @@ def main():
         item["Days Since Latest Quarter"] = days
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
-    current_rankings = build_current_rankings(rankings)[:200]
+    preliminary_rankings = build_current_rankings(rankings)
+    for _ in range(2):
+        enrich_company_forecasts(
+            rankings,
+            preliminary_rankings[:50],
+            generated_at_jst,
+            workers=min(6, workers),
+        )
+        preliminary_rankings = build_current_rankings(rankings)
+    current_rankings = preliminary_rankings[:200]
     notification_rankings = [
         item
         for item in current_rankings
         if "パス" not in str(item.get("Action") or "")
         and "Pass" not in str(item.get("Action") or "")
+        and "除外" not in str(item.get("Action") or "")
+        and not item.get("Blocks")
         and item.get("Decision Tier") not in {"避ける", "見送り"}
     ]
     earnings_updates = detect_top_earnings_updates(
@@ -1373,7 +1552,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "現行版はシクリカル対象業種に絞り、短期安全スコアと2倍狙いスコアを分けて評価。危険条件は買い候補から除外し、両方が強い銘柄を上位化。",
+            "ranking_note": "現行版は実績と会社予想の営業利益・経常利益悪化を最優先で除外。売上成長だけでは買い候補にしない。",
         },
         "rankings": rankings,
         "current_rankings": current_rankings,
@@ -1388,6 +1567,7 @@ def main():
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_signal_snapshot(args.history_file, report)
 
     if args.update_state:
         save_state(

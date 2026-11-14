@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ランキング判定 v11 検証</title>
+    <title>ランキング判定 v12 検証</title>
     <style>
       :root { color-scheme: light; --ink: #172033; --muted: #64748b; --line: #dbe3ec; --good: #087f5b; --bad: #c2413b; --watch: #a16207; }
       * { box-sizing: border-box; }
@@ -34,12 +34,12 @@
     </style>
   </head>
   <body>
-    <header><div class="wrap"><h1>ランキング判定 v11 検証</h1><p>短期の勝ちやすさと2倍期待を分けて評価</p></div></header>
+    <header><div class="wrap"><h1>ランキング判定 v12 検証</h1><p>売上より本業の利益改善を優先</p></div></header>
     <main class="wrap">
       <a class="back" href="./index.html">ランキングへ戻る</a>
       <section class="panel">
         <h2>検証結果</h2>
-        <p>2023年6月から2025年6月までの月次上位候補84件を、各月の買値から6か月後まで追跡しました。旧ルールが優先していた売上20％台は、この標本では成績が悪く、短期の買い優先条件として不適切でした。</p>
+        <p>2023年6月から2025年6月までの月次上位候補84件を、各月の買値から6か月後まで追跡しました。84件全体は平均+3.7％でも中央値-3.7％、勝率41.7％でした。一部の上昇銘柄が平均を押し上げており、従来ランキング全体を買い対象にはできません。</p>
         <table>
           <thead><tr><th>売上成長率</th><th>件数</th><th>6か月平均</th><th>中央値</th><th>勝率</th><th>-20％以下</th></tr></thead>
           <tbody>
@@ -50,19 +50,19 @@
         </table>
       </section>
       <section class="panel">
-        <h2>v11の判定</h2>
+        <h2>v12の買い条件</h2>
         <div class="rules">
-          <div class="rule"><strong class="good">買い優先</strong>売上15〜19.9％に加え、安全75点以上・2倍期待65点以上を満たすものだけ。</div>
+          <div class="rule"><strong class="good">買い優先</strong>2期連続赤字、売上15〜19.9％、実績営業損益改善、会社予想営業損益改善をすべて満たす。</div>
           <div class="rule"><strong class="watch">長期監視</strong>売上20〜29.9％は2倍余地を監視するが、短期買いの順位は下げる。</div>
-          <div class="rule"><strong class="bad">避ける</strong>売上30％以上、PSR 5倍以上、高値圏、赤字悪化などは買い候補から除外。</div>
+          <div class="rule"><strong class="bad">避ける</strong>営業赤字拡大・赤字転落、会社予想未確認、売上急減、PSR 5倍以上、高値圏は除外。</div>
         </div>
       </section>
       <section class="panel">
-        <h2>新ルールの再集計</h2>
+        <h2>利益予想を除く暫定再集計</h2>
         <table>
           <thead><tr><th>判定</th><th>件数</th><th>6か月平均</th><th>中央値</th><th>勝率</th><th>-20％以下</th></tr></thead>
           <tbody>
-            <tr><td class="good">買い優先</td><td>21</td><td class="good">+15.1％</td><td class="good">+11.3％</td><td class="good">66.7％</td><td class="good">0.0％</td></tr>
+            <tr><td class="good">v11買い条件相当</td><td>21</td><td class="good">+15.1％</td><td class="good">+11.3％</td><td class="good">66.7％</td><td class="good">0.0％</td></tr>
             <tr><td class="watch">長期監視</td><td>13</td><td class="bad">-20.5％</td><td class="bad">-23.4％</td><td class="bad">15.4％</td><td class="bad">61.5％</td></tr>
             <tr><td class="bad">避ける</td><td>17</td><td class="bad">-10.0％</td><td>-</td><td class="bad">23.5％</td><td>-</td></tr>
           </tbody>
@@ -73,6 +73,7 @@
         <ul>
           <li>84件は月次の重複を含み、ユニーク銘柄は11社です。</li>
           <li>同じ過去データを見て条件を調整しているため、将来成績を保証する結果ではありません。</li>
+          <li>過去DBに営業利益と会社予想が保存されていないため、v12の全条件は過去検証できません。2026年11月から予想値を保存し、前向きに検証します。</li>
           <li>買い優先でも決算内容、流動性、地合いを確認し、撤退価格を決めてから判断します。</li>
           <li>今後は新しい月を追加し、未使用期間で成績が維持されるか継続監視します。</li>
         </ul>

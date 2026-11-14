@@ -279,6 +279,7 @@
     <script>
       const state = { report: null, tab: "current" };
       const yen = (value) => (typeof value === "number" ? `${Math.floor(value).toLocaleString()}円` : "-");
+      const millionYen = (value) => (typeof value === "number" ? `${Math.floor(value).toLocaleString()}百万円` : "未取得");
       const pct = (value, digits = 0) => (typeof value === "number" ? `${(value * 100).toFixed(digits)}%` : "-");
       const signed = (value) => (typeof value === "number" ? `${value > 0 ? "+" : ""}${value.toFixed(1)}%` : "-");
       const actionTone = (action = "") => {
@@ -306,7 +307,11 @@
         if (!state.report) return [];
         return state.report.current_rankings || [];
       };
-      const isPass = (item) => (item.Action || "").includes("パス") || (item.Action || "").includes("Pass");
+      const isPass = (item) =>
+        (item.Action || "").includes("パス") ||
+        (item.Action || "").includes("Pass") ||
+        (item.Action || "").includes("除外") ||
+        item["Decision Tier"] === "避ける";
       const isBuy = (item) => (item.Action || "").includes("買い候補") || (item.Action || "").includes("BUY");
       const candidateRows = (rows) => rows.filter((item) => !isPass(item));
       const referenceRows = (rows) => rows.filter((item) => isPass(item));
@@ -348,6 +353,8 @@
                 <div class="metric"><span>安全</span><strong>${item["Safety Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>2倍期待</span><strong>${item["Two Bagger Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>売上</span><strong>${signed(item["Revenue Growth"])}</strong></div>
+                <div class="metric"><span>前期営業</span><strong>${millionYen(item["Previous Annual Operating Income"])}</strong></div>
+                <div class="metric"><span>会社予想営業</span><strong>${millionYen(item["Forecast Operating Income"])}</strong></div>
                 <div class="metric"><span>現在値</span><strong>${yen(item["Current Price"])}</strong></div>
                 <div class="metric"><span>+50%</span><strong>${yen(item["Target Price 1"])}</strong></div>
                 <div class="metric"><span>+100%</span><strong>${yen(item["Target Price 2"])}</strong></div>
