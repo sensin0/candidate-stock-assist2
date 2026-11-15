@@ -11,4 +11,6 @@ web-dashboard/.next/
 .idea/
 .vscode/
 .local/
+data/adjusted_price_history.parquet
+data/topix_benchmark_adjusted.csv
 web-dashboard/
