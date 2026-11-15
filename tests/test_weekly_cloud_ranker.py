@@ -224,6 +224,22 @@ class DecisionScoreTests(unittest.TestCase):
         rankings = build_strategy_rankings([item])
         self.assertEqual(rankings["operating_v_recovery"][0]["Ticker"], "V.T")
 
+    def test_strategy_requires_quarterly_revenue_comparison(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "MISSING.T",
+            "Sector": "化学",
+            "Annual Operating Income History": [80.0, -100.0, 40.0],
+            "Revenue Growth": None,
+            "Operating Loss Improving": True,
+            "Forecast Status": "ok",
+            "Previous Annual Operating Income": -100.0,
+            "Forecast Operating Income": 90.0,
+        }
+        rankings = build_strategy_rankings([item])
+        self.assertEqual(rankings["operating_v_recovery"], [])
+
     def test_strategy_competition_balances_return_and_drawdown(self):
         competition = build_strategy_competition({key: [] for key in (
             "validated_a",

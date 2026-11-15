@@ -264,6 +264,9 @@ def strategy_candidate(item, strategy_key):
     reasons = []
     matched = False
 
+    if quarterly_growth is None or item.get("Forecast Status") != "ok":
+        return None
+
     if strategy_key == "validated_a":
         matched = str(item.get("Historical Pattern") or "").startswith("検証A")
         score = 90
