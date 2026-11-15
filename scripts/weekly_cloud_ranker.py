@@ -23,7 +23,7 @@ DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_HISTORY = ROOT / "data" / "ranking_signal_history.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 13
+SAFETY_VERSION = 14
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -214,9 +214,48 @@ def forecast_risk(item):
         return ["来期営業利益予想が赤字転落"], ["今期黒字から来期赤字へ悪化"]
     if previous_operating < 0 and forecast_operating < previous_operating:
         return ["来期営業赤字予想拡大"], ["今期より来期の営業赤字が拡大"]
+    if forecast_operating < previous_operating:
+        return ["来期営業減益予想"], ["今期より来期の営業利益予想が減少"]
     if forecast_operating > previous_operating:
         return [], ["今期から来期へ営業損益改善"]
     return [], []
+
+
+def annual_operating_in_forecast_unit(value, current_operating=None):
+    """Convert yfinance annual yen values to the forecast table's JPY millions."""
+    number = clean_number(value)
+    reference = clean_number(current_operating)
+    if number is None:
+        return None
+    if abs(number) >= 1_000_000 and (reference is None or abs(number) > max(abs(reference), 1) * 1_000):
+        return number / 1_000_000
+    return number
+
+
+def operating_profit_outlook(item):
+    current = clean_number(first_known(item.get("Current Fiscal Operating Income"), item.get("Previous Annual Operating Income")))
+    next_value = clean_number(first_known(item.get("Next Fiscal Operating Income"), item.get("Forecast Operating Income")))
+    history = item.get("Annual Operating Income History") or []
+    prior_raw = history[1] if len(history) >= 2 else None
+    prior = annual_operating_in_forecast_unit(prior_raw, current)
+    if item.get("Forecast Status") != "ok" or prior is None or current is None or next_value is None:
+        return {"kind": "unknown", "score": 0, "notes": [], "prior": prior}
+
+    if next_value < current:
+        return {"kind": "next_decline", "score": -120, "notes": ["来期営業減益予想・買い除外"], "prior": prior}
+    if current < prior and next_value > current:
+        score = 140
+        notes = ["最優先: 今期減益から来期営業V字回復"]
+        if next_value >= prior:
+            score += 30
+            notes.append("来期予想が前期営業利益水準を回復")
+        if current < 0 < next_value:
+            score += 20
+            notes.append("来期営業黒字転換")
+        return {"kind": "v_recovery", "score": score, "notes": notes, "prior": prior}
+    if current >= prior and next_value > current:
+        return {"kind": "continuous_growth", "score": -40, "notes": ["営業利益は連続増益・期待織込みリスクを減点"], "prior": prior}
+    return {"kind": "flat", "score": -20, "notes": ["来期営業利益の上振れ余地が小さい"], "prior": prior}
 
 
 STRATEGY_DEFINITIONS = {
@@ -282,16 +321,22 @@ def strategy_candidate(item, strategy_key):
         score = 78
         reasons.append("今期営業赤字から来期黒字へ転換")
     elif strategy_key == "operating_v_recovery":
+        prior_operating = annual_operating_in_forecast_unit(
+            annual_operating[1] if len(annual_operating) >= 2 else None,
+            current_operating,
+        )
         matched = (
-            len(annual_operating) >= 2
-            and annual_operating[1] is not None
+            prior_operating is not None
             and current_operating is not None
             and next_operating is not None
-            and current_operating < annual_operating[1]
+            and current_operating < prior_operating
             and next_operating > current_operating
         )
-        score = 68
+        score = 95
         reasons.append("前期→今期で落ち込み、来期にV字反発")
+        if matched and next_operating >= prior_operating:
+            score += 5
+            reasons.append("来期予想が前期水準以上")
     elif strategy_key == "operating_loss_narrowing":
         matched = current_operating is not None and next_operating is not None and current_operating < next_operating < 0
         score = 62
@@ -332,8 +377,11 @@ def strategy_candidate(item, strategy_key):
         elif quarterly_growth >= 30:
             score -= 8
             reasons.append("四半期売上30%超・過熱注意")
-    if item.get("Operating Loss Improving") is False:
+    if item.get("Operating Loss Improving") is False and strategy_key != "operating_v_recovery":
         return None
+    if item.get("Operating Loss Improving") is False:
+        score -= 15
+        reasons.append("直近四半期の営業損益は悪化")
     reasons.extend(forecast_notes)
     return round(max(0, min(100, score)), 1), list(dict.fromkeys(reasons))
 
@@ -477,11 +525,14 @@ def fetch_company_forecast(ticker, checked_at_jst):
 def enrich_company_forecasts(rankings, candidates, checked_at_jst, workers=6):
     by_ticker = {item.get("Ticker"): item for item in rankings if item.get("Ticker")}
     tickers = []
+    seen = set()
     for item in candidates:
         ticker = item.get("Ticker")
         stored = by_ticker.get(ticker, {})
-        if ticker and (not stored.get("Forecast Status") or stored.get("Next Fiscal Operating Income") is None):
+        needs_refresh = stored.get("Forecast Checked At JST") != checked_at_jst
+        if ticker and ticker not in seen and needs_refresh:
             tickers.append(ticker)
+            seen.add(ticker)
     if not tickers:
         return
     with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
@@ -491,6 +542,24 @@ def enrich_company_forecasts(rankings, candidates, checked_at_jst, workers=6):
             target = by_ticker.get(result.get("Ticker"))
             if target is not None:
                 target.update(result)
+
+
+def operating_dip_candidates(rankings, limit=100):
+    candidates = []
+    for item in rankings:
+        if item.get("Sector") not in CURRENT_TARGET_SECTORS:
+            continue
+        history = item.get("Annual Operating Income History") or []
+        if len(history) < 2:
+            continue
+        current = clean_number(history[0])
+        prior = clean_number(history[1])
+        if current is None or prior is None or current >= prior:
+            continue
+        drop_rate = (prior - current) / max(abs(prior), 1)
+        candidates.append((drop_rate, item))
+    candidates.sort(key=lambda row: row[0], reverse=True)
+    return [item for _, item in candidates[:limit]]
 
 
 def find_statement_value(statement, names):
@@ -639,6 +708,9 @@ def local_current_version_score(item):
     forecast_blocks, forecast_notes = forecast_risk(item)
     blocks.extend(forecast_blocks)
     notes.extend(forecast_notes)
+    operating_outlook = operating_profit_outlook(item)
+    score += operating_outlook["score"]
+    notes.extend(operating_outlook["notes"])
 
     two_year_loss = (
         latest_net_income is not None
@@ -828,6 +900,20 @@ def local_current_version_score(item):
             action = "監視上位（検証C）"
             decision["Decision Tier"] = "監視上位"
             decision["Composite Score"] = max(decision.get("Composite Score", 0), 75)
+
+    if blocks:
+        action = "監視（除外条件あり: " + "/".join(dict.fromkeys(blocks)) + "）"
+        decision["Decision Tier"] = "避ける"
+        decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
+    elif operating_outlook["kind"] == "v_recovery":
+        action = "買い候補 営業V字回復"
+        decision["Decision Tier"] = "買い優先"
+        decision["Safety Score"] = max(decision.get("Safety Score", 0), 85)
+        decision["Composite Score"] = max(decision.get("Composite Score", 0), 98)
+    elif operating_outlook["kind"] == "continuous_growth" and "買い候補" in action:
+        action = "監視（連続増益・期待織込み注意）"
+        decision["Decision Tier"] = "監視上位"
+        decision["Composite Score"] = min(decision.get("Composite Score", 0), 79)
 
     if action == "パス":
         exit_plan = {
@@ -1842,6 +1928,7 @@ def main():
     for _ in range(2):
         preliminary_strategies = build_strategy_rankings(rankings)
         forecast_candidates = list(preliminary_rankings[:50])
+        forecast_candidates.extend(operating_dip_candidates(rankings, limit=100))
         for rows_for_strategy in preliminary_strategies.values():
             forecast_candidates.extend(rows_for_strategy[:10])
         enrich_company_forecasts(
@@ -1890,7 +1977,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "前半・後半で再現した検証Aを買い優先。年商成長と四半期前年同期比を分離し、会社予想の営業赤字転落・拡大は除外。",
+            "ranking_note": "今期に営業利益が落ち込み、来期会社予想でV字回復する銘柄を最優先。連続増益は期待織込みを減点し、来期営業減益予想は除外。",
         },
         "rankings": rankings,
         "current_rankings": current_rankings,

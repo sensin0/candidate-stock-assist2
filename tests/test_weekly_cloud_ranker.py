@@ -18,6 +18,7 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
     financial_comparison_index,
     historical_growth_pattern,
     local_current_version_score,
+    operating_dip_candidates,
     parse_company_forecast_tables,
 )
 
@@ -128,6 +129,23 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertNotIn("買い候補", action)
         self.assertEqual(decision["Decision Tier"], "避ける")
 
+    def test_next_year_operating_profit_decline_is_avoided(self):
+        item = {
+            "Sector": "化学",
+            "Price Location": 0.3,
+            "Revenue Growth": 12.0,
+            "PSR": 0.8,
+            "Net Income History": [100.0, 80.0],
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": 120.0,
+            "Next Fiscal Operating Income": 100.0,
+            "Annual Operating Income History": [120_000_000.0, 90_000_000.0],
+        }
+        _, action, _, blocks, _, _, decision = local_current_version_score(item)
+        self.assertIn("来期営業減益予想", blocks)
+        self.assertNotIn("買い候補", action)
+        self.assertEqual(decision["Decision Tier"], "避ける")
+
     def test_parse_company_forecast_table(self):
         table = pd.DataFrame(
             [
@@ -150,6 +168,15 @@ class DecisionScoreTests(unittest.TestCase):
         report = {"current_rankings": [{"Ticker": "1003.T"}]}
         result = add_priority_refresh_rows(rows[:1], rows, report, limit=50)
         self.assertEqual([row["code"] for row in result], ["1001", "1003"])
+
+    def test_operating_dip_candidates_prioritize_largest_drop(self):
+        rows = [
+            {"Ticker": "A.T", "Sector": "化学", "Annual Operating Income History": [80.0, 100.0]},
+            {"Ticker": "B.T", "Sector": "鉄鋼", "Annual Operating Income History": [20.0, 100.0]},
+            {"Ticker": "C.T", "Sector": "化学", "Annual Operating Income History": [120.0, 100.0]},
+        ]
+        result = operating_dip_candidates(rows, limit=1)
+        self.assertEqual([row["Ticker"] for row in result], ["B.T"])
 
     def test_quarterly_financials_compare_same_quarter_last_year(self):
         self.assertEqual(financial_comparison_index(True, [1, 2, 3, 4, 5]), 4)
@@ -226,6 +253,57 @@ class DecisionScoreTests(unittest.TestCase):
         rankings = build_strategy_rankings([item])
         self.assertEqual(rankings["operating_v_recovery"][0]["Ticker"], "V.T")
 
+    def test_v_recovery_converts_yen_history_to_forecast_millions(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "UNIT.T",
+            "Sector": "化学",
+            "Annual Operating Income History": [80_000_000_000.0, 100_000_000_000.0],
+            "Net Income History": [20.0, 10.0],
+            "Revenue Growth": 5.0,
+            "Operating Loss Improving": True,
+            "PSR": 1.0,
+            "Price Location": 0.4,
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": 80_000.0,
+            "Next Fiscal Operating Income": 130_000.0,
+        }
+        rankings = build_strategy_rankings([item])
+        self.assertEqual(rankings["operating_v_recovery"][0]["Ticker"], "UNIT.T")
+        self.assertEqual(rankings["operating_v_recovery"][0]["Strategy Score"], 100)
+
+    def test_v_recovery_ranks_above_continuous_growth(self):
+        base = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Sector": "化学",
+            "Net Income History": [100.0, 80.0],
+            "Revenue Growth": 12.0,
+            "Operating Loss Improving": True,
+            "PSR": 0.8,
+            "Price Location": 0.4,
+            "Forecast Status": "ok",
+        }
+        v_recovery = {
+            **base,
+            "Ticker": "V.T",
+            "Annual Operating Income History": [80_000_000.0, 100_000_000.0],
+            "Current Fiscal Operating Income": 80.0,
+            "Next Fiscal Operating Income": 130.0,
+        }
+        continuous = {
+            **base,
+            "Ticker": "G.T",
+            "Annual Operating Income History": [120_000_000.0, 90_000_000.0],
+            "Current Fiscal Operating Income": 120.0,
+            "Next Fiscal Operating Income": 140.0,
+        }
+        rankings = build_current_rankings([continuous, v_recovery])
+        self.assertEqual(rankings[0]["Ticker"], "V.T")
+        self.assertEqual(rankings[0]["Action"], "買い候補 営業V字回復")
+        self.assertIn("連続増益", " ".join(rankings[1]["Current Version Notes"]))
+
     def test_strategy_requires_quarterly_revenue_comparison(self):
         item = {
             "Safety Version": SAFETY_VERSION,
@@ -288,7 +366,7 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertNotIn("パス", rankings[0]["Action"])
 
     def test_safety_version_bumped(self):
-        self.assertEqual(SAFETY_VERSION, 13)
+        self.assertEqual(SAFETY_VERSION, 14)
 
 
 if __name__ == "__main__":
