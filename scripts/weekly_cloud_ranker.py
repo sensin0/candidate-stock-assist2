@@ -204,18 +204,18 @@ def historical_growth_pattern(latest_net, previous_net, annual_revenue_growth, p
 
 def forecast_risk(item):
     status = item.get("Forecast Status")
-    forecast_operating = clean_number(item.get("Forecast Operating Income"))
-    previous_operating = clean_number(item.get("Previous Annual Operating Income"))
+    forecast_operating = clean_number(first_known(item.get("Next Fiscal Operating Income"), item.get("Forecast Operating Income")))
+    previous_operating = clean_number(first_known(item.get("Current Fiscal Operating Income"), item.get("Previous Annual Operating Income")))
     if status == "unavailable":
         return ["会社予想未確認"], ["営業利益予想を取得できないため買い保留"]
     if status != "ok" or forecast_operating is None or previous_operating is None:
         return [], []
     if previous_operating >= 0 and forecast_operating < 0:
-        return ["営業利益予想が赤字転落"], ["会社予想で本業が黒字から赤字へ悪化"]
+        return ["来期営業利益予想が赤字転落"], ["今期黒字から来期赤字へ悪化"]
     if previous_operating < 0 and forecast_operating < previous_operating:
-        return ["営業赤字予想拡大"], ["会社予想で営業赤字が拡大"]
+        return ["来期営業赤字予想拡大"], ["今期より来期の営業赤字が拡大"]
     if forecast_operating > previous_operating:
-        return [], ["会社予想で営業損益改善"]
+        return [], ["今期から来期へ営業損益改善"]
     return [], []
 
 
@@ -230,15 +230,15 @@ STRATEGY_DEFINITIONS = {
     },
     "operating_turnaround": {
         "label": "営業黒字転換",
-        "description": "年次営業利益が赤字から黒字へ転換",
+        "description": "今期営業赤字から来期会社予想で黒字転換",
     },
     "operating_v_recovery": {
         "label": "営業V字回復",
-        "description": "年次営業利益が落ち込んだ後に反発",
+        "description": "前期から今期に落ち込み、来期会社予想で反発",
     },
     "operating_loss_narrowing": {
         "label": "営業赤字縮小",
-        "description": "年次営業赤字が前年より縮小",
+        "description": "今期営業赤字が来期会社予想で縮小",
     },
     "quarterly_momentum": {
         "label": "四半期モメンタム",
@@ -256,6 +256,8 @@ def strategy_candidate(item, strategy_key):
         return None
     annual_net = item.get("Net Income History") or []
     annual_operating = item.get("Annual Operating Income History") or []
+    current_operating = clean_number(first_known(item.get("Current Fiscal Operating Income"), item.get("Previous Annual Operating Income")))
+    next_operating = clean_number(first_known(item.get("Next Fiscal Operating Income"), item.get("Forecast Operating Income")))
     annual_growth = clean_number(item.get("Annual Revenue Growth"))
     quarterly_growth = clean_number(item.get("Revenue Growth"))
     price_location = clean_number(item.get("Price Location"))
@@ -276,17 +278,24 @@ def strategy_candidate(item, strategy_key):
         score = 72
         reasons.append("黒字継続・年商15〜19.9%")
     elif strategy_key == "operating_turnaround":
-        matched = len(annual_operating) >= 2 and annual_operating[0] is not None and annual_operating[1] is not None and annual_operating[0] > 0 > annual_operating[1]
+        matched = current_operating is not None and next_operating is not None and next_operating > 0 > current_operating
         score = 78
-        reasons.append("営業利益が赤字から黒字へ転換")
+        reasons.append("今期営業赤字から来期黒字へ転換")
     elif strategy_key == "operating_v_recovery":
-        matched = len(annual_operating) >= 3 and all(value is not None for value in annual_operating[:3]) and annual_operating[1] < annual_operating[2] and annual_operating[0] > annual_operating[1]
+        matched = (
+            len(annual_operating) >= 2
+            and annual_operating[1] is not None
+            and current_operating is not None
+            and next_operating is not None
+            and current_operating < annual_operating[1]
+            and next_operating > current_operating
+        )
         score = 68
-        reasons.append("営業利益がV字回復")
+        reasons.append("前期→今期で落ち込み、来期にV字反発")
     elif strategy_key == "operating_loss_narrowing":
-        matched = len(annual_operating) >= 2 and annual_operating[0] is not None and annual_operating[1] is not None and annual_operating[1] < annual_operating[0] < 0
+        matched = current_operating is not None and next_operating is not None and current_operating < next_operating < 0
         score = 62
-        reasons.append("年次営業赤字が縮小")
+        reasons.append("今期から来期へ営業赤字縮小")
     elif strategy_key == "quarterly_momentum":
         matched = item.get("Operating Loss Improving") is True and quarterly_growth is not None and 0 < quarterly_growth < 30
         score = 65
@@ -425,6 +434,10 @@ def parse_company_forecast_tables(tables):
     forecast = table.iloc[0]
     previous = table.iloc[1]
     return {
+        "Next Fiscal Label": str(forecast.iloc[0]),
+        "Current Fiscal Label": str(previous.iloc[0]),
+        "Next Fiscal Operating Income": clean_number(forecast.iloc[4]),
+        "Current Fiscal Operating Income": clean_number(previous.iloc[4]),
         "Forecast Revenue": clean_number(forecast.iloc[1]),
         "Forecast Operating Income": clean_number(forecast.iloc[4]),
         "Forecast Pretax Income": clean_number(forecast.iloc[6]),
@@ -467,7 +480,7 @@ def enrich_company_forecasts(rankings, candidates, checked_at_jst, workers=6):
     for item in candidates:
         ticker = item.get("Ticker")
         stored = by_ticker.get(ticker, {})
-        if ticker and not stored.get("Forecast Status"):
+        if ticker and (not stored.get("Forecast Status") or stored.get("Next Fiscal Operating Income") is None):
             tickers.append(ticker)
     if not tickers:
         return
@@ -1697,6 +1710,10 @@ def save_signal_snapshot(path, report):
                     "Operating Loss Improving",
                     "Previous Annual Operating Income",
                     "Forecast Operating Income",
+                    "Current Fiscal Label",
+                    "Next Fiscal Label",
+                    "Current Fiscal Operating Income",
+                    "Next Fiscal Operating Income",
                     "Forecast Status",
                     "Safety Score",
                     "Two Bagger Score",

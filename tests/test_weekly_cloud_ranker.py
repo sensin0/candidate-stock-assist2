@@ -124,7 +124,7 @@ class DecisionScoreTests(unittest.TestCase):
             "Previous Annual Operating Income": -309.0,
         }
         _, action, _, blocks, _, _, decision = local_current_version_score(item)
-        self.assertIn("営業赤字予想拡大", blocks)
+        self.assertIn("来期営業赤字予想拡大", blocks)
         self.assertNotIn("買い候補", action)
         self.assertEqual(decision["Decision Tier"], "避ける")
 
@@ -138,6 +138,8 @@ class DecisionScoreTests(unittest.TestCase):
         result = parse_company_forecast_tables([table])
         self.assertEqual(result["Forecast Operating Income"], -900)
         self.assertEqual(result["Previous Annual Operating Income"], -309)
+        self.assertEqual(result["Next Fiscal Operating Income"], -900)
+        self.assertEqual(result["Current Fiscal Operating Income"], -309)
 
     def test_priority_rankings_are_added_to_daily_refresh(self):
         rows = [
@@ -197,8 +199,8 @@ class DecisionScoreTests(unittest.TestCase):
             "PSR": 0.8,
             "Price Location": 0.4,
             "Forecast Status": "ok",
-            "Previous Annual Operating Income": -50.0,
-            "Forecast Operating Income": 120.0,
+            "Current Fiscal Operating Income": -50.0,
+            "Next Fiscal Operating Income": 120.0,
         }
         rankings = build_strategy_rankings([item])
         self.assertEqual(rankings["operating_turnaround"][0]["Ticker"], "A.T")
@@ -210,7 +212,7 @@ class DecisionScoreTests(unittest.TestCase):
             "Ticker": "V.T",
             "Name": "V Recovery",
             "Sector": "鉄鋼",
-            "Annual Operating Income History": [80.0, -100.0, 40.0],
+            "Annual Operating Income History": [-100.0, 40.0, 70.0],
             "Net Income History": [20.0, -30.0],
             "Annual Revenue Growth": 4.0,
             "Revenue Growth": 3.0,
@@ -218,8 +220,8 @@ class DecisionScoreTests(unittest.TestCase):
             "PSR": 1.2,
             "Price Location": 0.6,
             "Forecast Status": "ok",
-            "Previous Annual Operating Income": -100.0,
-            "Forecast Operating Income": 90.0,
+            "Current Fiscal Operating Income": -100.0,
+            "Next Fiscal Operating Income": 90.0,
         }
         rankings = build_strategy_rankings([item])
         self.assertEqual(rankings["operating_v_recovery"][0]["Ticker"], "V.T")

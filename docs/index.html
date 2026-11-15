@@ -441,8 +441,8 @@
                 <div class="metric"><span>2倍期待</span><strong>${item["Two Bagger Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>売上</span><strong>${signed(item["Revenue Growth"])}</strong></div>
                 <div class="metric"><span>年商成長</span><strong>${signed(item["Annual Revenue Growth"])}</strong></div>
-                <div class="metric"><span>前期営業</span><strong>${millionYen(item["Previous Annual Operating Income"])}</strong></div>
-                <div class="metric"><span>会社予想営業</span><strong>${millionYen(item["Forecast Operating Income"])}</strong></div>
+                <div class="metric"><span>今期営業</span><strong>${millionYen(item["Current Fiscal Operating Income"] ?? item["Previous Annual Operating Income"])}</strong></div>
+                <div class="metric"><span>来期営業予想</span><strong>${millionYen(item["Next Fiscal Operating Income"] ?? item["Forecast Operating Income"])}</strong></div>
                 <div class="metric"><span>現在値</span><strong>${yen(item["Current Price"])}</strong></div>
                 <div class="metric"><span>+50%</span><strong>${yen(item["Target Price 1"])}</strong></div>
                 <div class="metric"><span>+100%</span><strong>${yen(item["Target Price 2"])}</strong></div>
