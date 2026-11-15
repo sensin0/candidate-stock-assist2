@@ -23,7 +23,7 @@ DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_HISTORY = ROOT / "data" / "ranking_signal_history.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 14
+SAFETY_VERSION = 15
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -243,18 +243,36 @@ def operating_profit_outlook(item):
 
     if next_value < current:
         return {"kind": "next_decline", "score": -120, "notes": ["来期営業減益予想・買い除外"], "prior": prior}
-    if current < prior and next_value > current:
-        score = 140
-        notes = ["最優先: 今期減益から来期営業V字回復"]
+    if current < 0 < next_value:
+        if prior >= 0:
+            return {
+                "kind": "one_loss_turnaround",
+                "score": 170,
+                "notes": ["最優先: 1期営業赤字から来期黒字転換"],
+                "prior": prior,
+            }
+        return {
+            "kind": "persistent_loss_turnaround",
+            "score": -40,
+            "notes": ["2期以上の営業赤字から黒字予想・過去検証では慎重"],
+            "prior": prior,
+        }
+    if current < 0 and current < next_value < 0:
+        return {
+            "kind": "loss_narrowing",
+            "score": -30,
+            "notes": ["営業赤字縮小は長期成績が弱く監視止まり"],
+            "prior": prior,
+        }
+    if 0 <= current < prior and next_value > current:
+        score = 90
+        notes = ["次点: 黒字内の営業V字回復"]
         if next_value >= prior:
-            score += 30
-            notes.append("来期予想が前期営業利益水準を回復")
-        if current < 0 < next_value:
             score += 20
-            notes.append("来期営業黒字転換")
+            notes.append("来期予想が前期営業利益水準を回復")
         return {"kind": "v_recovery", "score": score, "notes": notes, "prior": prior}
     if current >= prior and next_value > current:
-        return {"kind": "continuous_growth", "score": -40, "notes": ["営業利益は連続増益・期待織込みリスクを減点"], "prior": prior}
+        return {"kind": "continuous_growth", "score": -10, "notes": ["営業利益は連続増益・期待織込みを軽く警戒"], "prior": prior}
     return {"kind": "flat", "score": -20, "notes": ["来期営業利益の上振れ余地が小さい"], "prior": prior}
 
 
@@ -318,8 +336,16 @@ def strategy_candidate(item, strategy_key):
         reasons.append("黒字継続・年商15〜19.9%")
     elif strategy_key == "operating_turnaround":
         matched = current_operating is not None and next_operating is not None and next_operating > 0 > current_operating
-        score = 78
-        reasons.append("今期営業赤字から来期黒字へ転換")
+        prior_operating = annual_operating_in_forecast_unit(
+            annual_operating[1] if len(annual_operating) >= 2 else None,
+            current_operating,
+        )
+        if prior_operating is not None and prior_operating >= 0:
+            score = 95
+            reasons.append("1期営業赤字から来期黒字転換・検証最優先")
+        else:
+            score = 55
+            reasons.append("2期以上の営業赤字から黒字予想・慎重評価")
     elif strategy_key == "operating_v_recovery":
         prior_operating = annual_operating_in_forecast_unit(
             annual_operating[1] if len(annual_operating) >= 2 else None,
@@ -329,11 +355,12 @@ def strategy_candidate(item, strategy_key):
             prior_operating is not None
             and current_operating is not None
             and next_operating is not None
+            and current_operating >= 0
             and current_operating < prior_operating
             and next_operating > current_operating
         )
-        score = 95
-        reasons.append("前期→今期で落ち込み、来期にV字反発")
+        score = 85
+        reasons.append("黒字内で前期→今期減益、来期にV字反発")
         if matched and next_operating >= prior_operating:
             score += 5
             reasons.append("来期予想が前期水準以上")
@@ -905,6 +932,24 @@ def local_current_version_score(item):
         action = "監視（除外条件あり: " + "/".join(dict.fromkeys(blocks)) + "）"
         decision["Decision Tier"] = "避ける"
         decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
+    elif operating_outlook["kind"] == "one_loss_turnaround" and item.get("Operating Loss Improving") is not False:
+        action = "買い候補 1期赤字→営業黒字転換"
+        decision["Decision Tier"] = "買い優先"
+        decision["Safety Score"] = max(decision.get("Safety Score", 0), 85)
+        decision["Composite Score"] = max(decision.get("Composite Score", 0), 99)
+    elif operating_outlook["kind"] == "one_loss_turnaround":
+        score -= 60
+        action = "監視 営業黒字転換予想（直近四半期悪化）"
+        decision["Decision Tier"] = "監視上位"
+        decision["Composite Score"] = 84
+    elif operating_outlook["kind"] == "persistent_loss_turnaround":
+        action = "監視 2期以上赤字から黒字予想"
+        decision["Decision Tier"] = "監視上位"
+        decision["Composite Score"] = 70
+    elif operating_outlook["kind"] == "loss_narrowing":
+        action = "監視 営業赤字縮小"
+        decision["Decision Tier"] = "安全監視"
+        decision["Composite Score"] = 65
     elif operating_outlook["kind"] == "v_recovery" and item.get("Operating Loss Improving") is False:
         score -= 60
         action = "監視 営業V字予想（直近四半期悪化）"
@@ -912,14 +957,14 @@ def local_current_version_score(item):
         decision["Decision Tier"] = "監視上位"
         decision["Composite Score"] = 84
     elif operating_outlook["kind"] == "v_recovery":
-        action = "買い候補 営業V字回復"
+        action = "買い候補 黒字内営業V字回復"
         decision["Decision Tier"] = "買い優先"
         decision["Safety Score"] = max(decision.get("Safety Score", 0), 85)
-        decision["Composite Score"] = max(decision.get("Composite Score", 0), 98)
+        decision["Composite Score"] = max(decision.get("Composite Score", 0), 92)
     elif operating_outlook["kind"] == "continuous_growth" and "買い候補" in action:
         action = "監視（連続増益・期待織込み注意）"
         decision["Decision Tier"] = "監視上位"
-        decision["Composite Score"] = min(decision.get("Composite Score", 0), 79)
+        decision["Composite Score"] = min(decision.get("Composite Score", 0), 82)
 
     if action == "パス":
         exit_plan = {
@@ -1983,7 +2028,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "今期に営業利益が落ち込み、来期会社予想でV字回復する銘柄を最優先。連続増益は期待織込みを減点し、来期営業減益予想は除外。",
+            "ranking_note": "過去検証に基づき、1期営業赤字から来期黒字転換を最優先、黒字内V字回復を次点。2期以上の営業赤字と赤字縮小は監視、来期営業減益予想は除外。",
         },
         "rankings": rankings,
         "current_rankings": current_rankings,

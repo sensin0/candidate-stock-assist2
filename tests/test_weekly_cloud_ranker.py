@@ -239,7 +239,7 @@ class DecisionScoreTests(unittest.TestCase):
             "Ticker": "V.T",
             "Name": "V Recovery",
             "Sector": "鉄鋼",
-            "Annual Operating Income History": [-100.0, 40.0, 70.0],
+            "Annual Operating Income History": [40.0, 70.0, 100.0],
             "Net Income History": [20.0, -30.0],
             "Annual Revenue Growth": 4.0,
             "Revenue Growth": 3.0,
@@ -247,7 +247,7 @@ class DecisionScoreTests(unittest.TestCase):
             "PSR": 1.2,
             "Price Location": 0.6,
             "Forecast Status": "ok",
-            "Current Fiscal Operating Income": -100.0,
+            "Current Fiscal Operating Income": 40.0,
             "Next Fiscal Operating Income": 90.0,
         }
         rankings = build_strategy_rankings([item])
@@ -271,7 +271,7 @@ class DecisionScoreTests(unittest.TestCase):
         }
         rankings = build_strategy_rankings([item])
         self.assertEqual(rankings["operating_v_recovery"][0]["Ticker"], "UNIT.T")
-        self.assertEqual(rankings["operating_v_recovery"][0]["Strategy Score"], 100)
+        self.assertEqual(rankings["operating_v_recovery"][0]["Strategy Score"], 98)
 
     def test_v_recovery_ranks_above_continuous_growth(self):
         base = {
@@ -301,8 +301,68 @@ class DecisionScoreTests(unittest.TestCase):
         }
         rankings = build_current_rankings([continuous, v_recovery])
         self.assertEqual(rankings[0]["Ticker"], "V.T")
-        self.assertEqual(rankings[0]["Action"], "買い候補 営業V字回復")
+        self.assertEqual(rankings[0]["Action"], "買い候補 黒字内営業V字回復")
         self.assertIn("連続増益", " ".join(rankings[1]["Current Version Notes"]))
+
+    def test_one_year_operating_loss_turnaround_is_top_priority(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "TURN.T",
+            "Sector": "化学",
+            "Net Income History": [100.0, 80.0],
+            "Annual Operating Income History": [-20_000_000.0, 100_000_000.0],
+            "Revenue Growth": 8.0,
+            "Operating Loss Improving": True,
+            "PSR": 0.8,
+            "Price Location": 0.4,
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": -20.0,
+            "Next Fiscal Operating Income": 50.0,
+        }
+        ranking = build_current_rankings([item])[0]
+        self.assertEqual(ranking["Action"], "買い候補 1期赤字→営業黒字転換")
+        self.assertEqual(ranking["Composite Score"], 99)
+
+    def test_persistent_operating_losses_are_watch_only_even_with_turnaround_forecast(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "LONGLOSS.T",
+            "Sector": "鉄鋼",
+            "Net Income History": [-20.0, -30.0],
+            "Annual Operating Income History": [-50_000_000.0, -100_000_000.0],
+            "Revenue Growth": 8.0,
+            "Operating Loss Improving": True,
+            "PSR": 0.8,
+            "Price Location": 0.4,
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": -50.0,
+            "Next Fiscal Operating Income": 20.0,
+        }
+        ranking = build_current_rankings([item])[0]
+        self.assertEqual(ranking["Action"], "監視 2期以上赤字から黒字予想")
+        self.assertEqual(ranking["Composite Score"], 70)
+
+    def test_operating_loss_narrowing_is_watch_only(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "NARROW.T",
+            "Sector": "化学",
+            "Net Income History": [-20.0, -30.0],
+            "Annual Operating Income History": [-50_000_000.0, -20_000_000.0],
+            "Revenue Growth": 8.0,
+            "Operating Loss Improving": True,
+            "PSR": 0.8,
+            "Price Location": 0.4,
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": -50.0,
+            "Next Fiscal Operating Income": -10.0,
+        }
+        ranking = build_current_rankings([item])[0]
+        self.assertEqual(ranking["Action"], "監視 営業赤字縮小")
+        self.assertEqual(ranking["Composite Score"], 65)
 
     def test_v_recovery_with_weak_latest_quarter_is_watch_only(self):
         item = {
@@ -387,7 +447,7 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertNotIn("パス", rankings[0]["Action"])
 
     def test_safety_version_bumped(self):
-        self.assertEqual(SAFETY_VERSION, 14)
+        self.assertEqual(SAFETY_VERSION, 15)
 
 
 if __name__ == "__main__":
