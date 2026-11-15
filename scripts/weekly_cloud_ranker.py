@@ -905,6 +905,12 @@ def local_current_version_score(item):
         action = "監視（除外条件あり: " + "/".join(dict.fromkeys(blocks)) + "）"
         decision["Decision Tier"] = "避ける"
         decision["Danger Notes"] = list(dict.fromkeys((decision.get("Danger Notes") or []) + blocks))
+    elif operating_outlook["kind"] == "v_recovery" and item.get("Operating Loss Improving") is False:
+        score -= 60
+        action = "監視 営業V字予想（直近四半期悪化）"
+        notes.append("V字予想と直近実績が逆行・決算確認待ち")
+        decision["Decision Tier"] = "監視上位"
+        decision["Composite Score"] = 84
     elif operating_outlook["kind"] == "v_recovery":
         action = "買い候補 営業V字回復"
         decision["Decision Tier"] = "買い優先"

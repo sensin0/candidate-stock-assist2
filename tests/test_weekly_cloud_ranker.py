@@ -304,6 +304,27 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertEqual(rankings[0]["Action"], "買い候補 営業V字回復")
         self.assertIn("連続増益", " ".join(rankings[1]["Current Version Notes"]))
 
+    def test_v_recovery_with_weak_latest_quarter_is_watch_only(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "WATCH.T",
+            "Sector": "化学",
+            "Net Income History": [100.0, 80.0],
+            "Annual Operating Income History": [80_000_000.0, 100_000_000.0],
+            "Revenue Growth": 12.0,
+            "Operating Loss Improving": False,
+            "PSR": 0.8,
+            "Price Location": 0.4,
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": 80.0,
+            "Next Fiscal Operating Income": 130.0,
+        }
+        ranking = build_current_rankings([item])[0]
+        self.assertEqual(ranking["Action"], "監視 営業V字予想（直近四半期悪化）")
+        self.assertEqual(ranking["Decision Tier"], "監視上位")
+        self.assertEqual(ranking["Composite Score"], 84)
+
     def test_strategy_requires_quarterly_revenue_comparison(self):
         item = {
             "Safety Version": SAFETY_VERSION,
