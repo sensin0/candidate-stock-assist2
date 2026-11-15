@@ -4,6 +4,7 @@ import pandas as pd
 
 from scripts.analyze_operating_profit_rank_performance import (
     infer_split_adjustments,
+    operating_change_values,
     operating_pattern,
     rank_bucket,
 )
@@ -35,6 +36,12 @@ class OperatingProfitBacktestTests(unittest.TestCase):
         adjusted = infer_split_adjustments(frame)
         self.assertAlmostEqual(adjusted.iloc[1]["close"], 102.0)
         self.assertAlmostEqual(adjusted.iloc[2]["close"], 102.0)
+
+    def test_operating_change_separates_amount_rate_and_revenue_share(self):
+        values = operating_change_values(-20, 40, 1_000, 1_200)
+        self.assertEqual(values["operating_change_yen"], 60)
+        self.assertEqual(values["operating_change_rate"], 300)
+        self.assertEqual(values["operating_change_revenue_share"], 5)
 
 
 if __name__ == "__main__":
