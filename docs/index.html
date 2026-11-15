@@ -74,6 +74,30 @@
         gap: 12px;
         margin-bottom: 18px;
       }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 18px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .tab {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: #475569;
+        cursor: pointer;
+        flex: 0 0 auto;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 9px 12px;
+      }
+      .tab.active {
+        border-color: #172033;
+        background: #172033;
+        color: white;
+      }
       .stat,
       .card,
       .table-panel {
@@ -257,11 +281,12 @@
       </div>
     </header>
     <main class="wrap">
+      <nav class="tabs" id="tabs" aria-label="ランキング切替"></nav>
       <section class="summary" id="summary"></section>
       <section class="grid" id="cards"></section>
       <section class="table-panel">
         <table>
-          <thead>
+          <thead id="table-head">
             <tr>
               <th>順位</th>
               <th>銘柄</th>
@@ -278,6 +303,17 @@
     </main>
     <script>
       const state = { report: null, tab: "current" };
+      const tabs = [
+        ["current", "総合"],
+        ["validated_a", "検証A"],
+        ["profitable_growth", "黒字成長"],
+        ["operating_turnaround", "営業黒転"],
+        ["operating_v_recovery", "V字回復"],
+        ["operating_loss_narrowing", "赤字縮小"],
+        ["quarterly_momentum", "四半期モメンタム"],
+        ["value_growth", "低評価成長"],
+        ["competition", "成績比較"],
+      ];
       const yen = (value) => (typeof value === "number" ? `${Math.floor(value).toLocaleString()}円` : "-");
       const millionYen = (value) => (typeof value === "number" ? `${Math.floor(value).toLocaleString()}百万円` : "未取得");
       const pct = (value, digits = 0) => (typeof value === "number" ? `${(value * 100).toFixed(digits)}%` : "-");
@@ -305,7 +341,8 @@
       };
       const activeRows = () => {
         if (!state.report) return [];
-        return state.report.current_rankings || [];
+        if (state.tab === "current") return state.report.current_rankings || [];
+        return state.report.strategy_rankings?.[state.tab] || [];
       };
       const isPass = (item) =>
         (item.Action || "").includes("パス") ||
@@ -317,20 +354,63 @@
       const isBuy = (item) => (item.Action || "").includes("買い候補") || (item.Action || "").includes("BUY");
       const candidateRows = (rows) => rows.filter((item) => !isPass(item));
       const referenceRows = (rows) => rows.filter((item) => isPass(item));
+      function renderTabs() {
+        document.getElementById("tabs").innerHTML = tabs
+          .map(([key, label]) => `<button class="tab ${state.tab === key ? "active" : ""}" data-tab="${key}">${label}</button>`)
+          .join("");
+        document.querySelectorAll("[data-tab]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.tab = button.dataset.tab;
+            render();
+          });
+        });
+      }
+      function renderCompetition() {
+        const rows = state.report?.strategy_competition || [];
+        const tested = rows.filter((item) => item.status === "backtested");
+        const leader = tested.slice().sort((a, b) => (b.league_score || -999) - (a.league_score || -999))[0];
+        document.getElementById("summary").innerHTML = [
+          ["参加部門", `${rows.length}部門`],
+          ["過去検証済み", `${tested.length}部門`],
+          ["現在候補", `${rows.reduce((sum, item) => sum + (item.current_candidates || 0), 0)}件`],
+          ["暫定首位", leader?.label || "-"],
+          ["実運用", "蓄積中"],
+        ].map(([label, value]) => `<div class="stat"><span>${label}</span><strong>${value}</strong></div>`).join("");
+        document.getElementById("cards").innerHTML = rows.map((item) => `<article class="card">
+          <div class="card-head"><div><div class="name">${item.label}</div><div class="rank">${item.description}</div></div><span class="badge ${item.status === "backtested" ? "" : "warn"}">${item.status === "backtested" ? "過去検証済み" : item.status === "proxy" ? "純利益代理" : "前向き検証中"}</span></div>
+          <div class="metrics">
+            <div class="metric"><span>リーグ点</span><strong>${item.league_score ?? "蓄積中"}</strong></div>
+            <div class="metric"><span>現在候補</span><strong>${item.current_candidates || 0}件</strong></div>
+            <div class="metric"><span>1年中央値</span><strong>${typeof item.median_1yr === "number" ? `${item.median_1yr > 0 ? "+" : ""}${item.median_1yr}%` : "蓄積中"}</strong></div>
+            <div class="metric"><span>勝率</span><strong>${typeof item.win_rate === "number" ? `${item.win_rate}%` : "-"}</strong></div>
+            <div class="metric"><span>市場超え</span><strong>${typeof item.market_beat === "number" ? `${item.market_beat}%` : "-"}</strong></div>
+            <div class="metric"><span>-25%到達</span><strong>${typeof item.stop_25 === "number" ? `${item.stop_25}%` : "-"}</strong></div>
+            <div class="metric"><span>母数</span><strong>${item.sample || "-"}</strong></div>
+          </div>
+        </article>`).join("");
+        document.getElementById("table-head").innerHTML = `<tr><th>部門</th><th>検証状態</th><th>リーグ点</th><th>候補</th><th>1年中央値</th><th>勝率</th><th>市場超え</th><th>-25%</th></tr>`;
+        document.getElementById("rows").innerHTML = rows.map((item) => `<tr><td><strong>${item.label}</strong><br>${item.description}</td><td>${item.status === "backtested" ? "過去検証済み" : item.status === "proxy" ? "純利益代理" : "前向き検証中"}</td><td>${item.league_score ?? "-"}</td><td>${item.current_candidates || 0}</td><td>${item.median_1yr ?? "-"}</td><td>${item.win_rate ?? "-"}</td><td>${item.market_beat ?? "-"}</td><td>${item.stop_25 ?? "-"}</td></tr>`).join("");
+      }
       function render() {
+        renderTabs();
+        if (state.tab === "competition") {
+          document.getElementById("subtitle").textContent = `更新: ${state.report?.generated_at_jst || "-"} / 部門別成績比較`;
+          renderCompetition();
+          return;
+        }
         const rows = activeRows();
         const candidates = candidateRows(rows);
         const references = referenceRows(rows);
-        const buys = candidates.filter(isBuy);
+        const buys = state.tab === "current" ? candidates.filter(isBuy) : candidates;
         const priorityWatch = candidates.filter((item) => item["Decision Tier"] === "監視上位");
         document.getElementById("subtitle").textContent = state.report
-          ? `更新: ${state.report.generated_at_jst || "-"} / 現行版`
+          ? `更新: ${state.report.generated_at_jst || "-"} / ${tabs.find(([key]) => key === state.tab)?.[1] || "現行版"}`
           : "読み込み中";
         const top = candidates[0] || rows[0] || {};
         document.getElementById("summary").innerHTML = [
           ["表示銘柄", `${rows.length.toLocaleString()}件`],
           ["候補銘柄", `${candidates.length.toLocaleString()}件`],
-          ["買い候補", `${buys.length.toLocaleString()}件`],
+          [state.tab === "current" ? "買い候補" : "部門候補", `${buys.length.toLocaleString()}件`],
           ["監視上位", `${priorityWatch.length.toLocaleString()}件`],
           ["トップ", top.Ticker || "-"],
         ]
@@ -345,6 +425,8 @@
               ...(item["Current Version Notes"] || item.Notes || []),
             ].slice(0, 4).join(" / ") || "-";
             const dangers = (item["Danger Notes"] || []).slice(0, 2).join(" / ");
+            const strategyReasons = (item["Strategy Reasons"] || []).slice(0, 3).join(" / ");
+            const displayScore = item["Strategy Score"] ?? item["Composite Score"] ?? "-";
             return `<article class="card">
               <div class="card-head">
                 <div>
@@ -354,7 +436,7 @@
                 <div class="badges"><span class="badge ${tone}">${item.Action || "-"}</span><span class="badge ${tone}">${item["Decision Tier"] || "-"}</span>${twoBaggerTag(item)}</div>
               </div>
               <div class="metrics">
-                <div class="metric"><span>総合</span><strong>${item["Composite Score"] ?? "-"}</strong></div>
+                <div class="metric"><span>${state.tab === "current" ? "総合" : "部門"}</span><strong>${displayScore}</strong></div>
                 <div class="metric"><span>安全</span><strong>${item["Safety Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>2倍期待</span><strong>${item["Two Bagger Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>売上</span><strong>${signed(item["Revenue Growth"])}</strong></div>
@@ -366,11 +448,11 @@
                 <div class="metric"><span>+100%</span><strong>${yen(item["Target Price 2"])}</strong></div>
                 <div class="metric"><span>撤退</span><strong>${yen(item["Stop Loss"])}</strong></div>
               </div>
-              <div class="plan">${item["Sell Plan"] || "+50%で一部利確、+100%で主力利確、-25%で撤退確認"}<br>${notes}${dangers ? `<br>注意: ${dangers}` : ""}</div>
+              <div class="plan">${item["Sell Plan"] || "+50%で一部利確、+100%で主力利確、-25%で撤退確認"}<br>${strategyReasons || notes}${dangers ? `<br>注意: ${dangers}` : ""}</div>
             </article>`;
           })
           .join("");
-        const notice = buys.length
+        const notice = buys.length || state.tab !== "current"
           ? ""
           : `<div class="notice">現在は安全条件を満たす買い候補がありません。無理に買わず、監視上位と長期監視を表示しています。</div>`;
         document.getElementById("cards").innerHTML =
@@ -379,6 +461,7 @@
           ...(candidates.length ? [{ section: "候補・監視", rows: candidates.slice(0, 50) }] : []),
           { section: "参考・パス", rows: references.slice(0, Math.max(0, 50 - Math.min(candidates.length, 50))) },
         ];
+        document.getElementById("table-head").innerHTML = `<tr><th>順位</th><th>銘柄</th><th>${state.tab === "current" ? "総合" : "部門"}</th><th>安全</th><th>2倍期待</th><th>売上</th><th>判定</th></tr>`;
         document.getElementById("rows").innerHTML = rows
           ? tableRows
               .filter((group) => group.rows.length)
@@ -390,7 +473,7 @@
                 (item) => `<tr>
               <td>#${item.Rank}</td>
               <td><strong>${item.Ticker}</strong><br>${item.Name || "-"}</td>
-              <td>${item["Composite Score"] ?? "-"}</td>
+              <td>${item["Strategy Score"] ?? item["Composite Score"] ?? "-"}</td>
               <td>${item["Safety Score"] ?? "-"}</td>
               <td>${item["Two Bagger Score"] ?? "-"}</td>
               <td>${signed(item["Revenue Growth"])}</td>

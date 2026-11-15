@@ -219,6 +219,183 @@ def forecast_risk(item):
     return [], []
 
 
+STRATEGY_DEFINITIONS = {
+    "validated_a": {
+        "label": "検証A",
+        "description": "黒字継続・年商10〜14.9%・株価位置30〜49.9%",
+    },
+    "profitable_growth": {
+        "label": "黒字成長",
+        "description": "黒字継続・年商15〜19.9%",
+    },
+    "operating_turnaround": {
+        "label": "営業黒字転換",
+        "description": "年次営業利益が赤字から黒字へ転換",
+    },
+    "operating_v_recovery": {
+        "label": "営業V字回復",
+        "description": "年次営業利益が落ち込んだ後に反発",
+    },
+    "operating_loss_narrowing": {
+        "label": "営業赤字縮小",
+        "description": "年次営業赤字が前年より縮小",
+    },
+    "quarterly_momentum": {
+        "label": "四半期モメンタム",
+        "description": "営業損益が前年同期比改善・売上も増加",
+    },
+    "value_growth": {
+        "label": "低評価成長",
+        "description": "黒字・年商成長5〜19.9%・PSR1倍未満・株価位置50%未満",
+    },
+}
+
+
+def strategy_candidate(item, strategy_key):
+    if item.get("Safety Version") != SAFETY_VERSION or item.get("Quarterly Comparison") != "year_over_year":
+        return None
+    annual_net = item.get("Net Income History") or []
+    annual_operating = item.get("Annual Operating Income History") or []
+    annual_growth = clean_number(item.get("Annual Revenue Growth"))
+    quarterly_growth = clean_number(item.get("Revenue Growth"))
+    price_location = clean_number(item.get("Price Location"))
+    psr = clean_number(item.get("PSR"))
+    score = 40.0
+    reasons = []
+    matched = False
+
+    if strategy_key == "validated_a":
+        matched = str(item.get("Historical Pattern") or "").startswith("検証A")
+        score = 90
+        reasons.append("前半・後半で再現した検証A")
+    elif strategy_key == "profitable_growth":
+        matched = len(annual_net) >= 2 and annual_net[0] is not None and annual_net[1] is not None and annual_net[0] > 0 and annual_net[1] > 0 and annual_growth is not None and 15 <= annual_growth < 20
+        score = 72
+        reasons.append("黒字継続・年商15〜19.9%")
+    elif strategy_key == "operating_turnaround":
+        matched = len(annual_operating) >= 2 and annual_operating[0] is not None and annual_operating[1] is not None and annual_operating[0] > 0 > annual_operating[1]
+        score = 78
+        reasons.append("営業利益が赤字から黒字へ転換")
+    elif strategy_key == "operating_v_recovery":
+        matched = len(annual_operating) >= 3 and all(value is not None for value in annual_operating[:3]) and annual_operating[1] < annual_operating[2] and annual_operating[0] > annual_operating[1]
+        score = 68
+        reasons.append("営業利益がV字回復")
+    elif strategy_key == "operating_loss_narrowing":
+        matched = len(annual_operating) >= 2 and annual_operating[0] is not None and annual_operating[1] is not None and annual_operating[1] < annual_operating[0] < 0
+        score = 62
+        reasons.append("年次営業赤字が縮小")
+    elif strategy_key == "quarterly_momentum":
+        matched = item.get("Operating Loss Improving") is True and quarterly_growth is not None and 0 < quarterly_growth < 30
+        score = 65
+        reasons.append("営業損益と売上が前年同期比改善")
+    elif strategy_key == "value_growth":
+        matched = len(annual_net) >= 1 and annual_net[0] is not None and annual_net[0] > 0 and annual_growth is not None and 5 <= annual_growth < 20 and psr is not None and psr < 1 and price_location is not None and price_location < 0.5
+        score = 75
+        reasons.append("低PSR・黒字・年商成長")
+
+    if not matched:
+        return None
+    forecast_blocks, forecast_notes = forecast_risk(item)
+    if forecast_blocks:
+        return None
+    if psr is not None:
+        if psr >= 5:
+            return None
+        if psr < 1:
+            score += 10
+            reasons.append("PSR1倍未満")
+    if price_location is not None:
+        if price_location < 0.3:
+            score += 6
+            reasons.append("株価位置30%未満")
+        elif price_location > 0.7:
+            score -= 10
+            reasons.append("株価位置70%超")
+    if quarterly_growth is not None:
+        if quarterly_growth <= -10:
+            return None
+        if 5 <= quarterly_growth < 20:
+            score += 8
+            reasons.append("四半期売上も増加")
+        elif quarterly_growth >= 30:
+            score -= 8
+            reasons.append("四半期売上30%超・過熱注意")
+    if item.get("Operating Loss Improving") is False:
+        return None
+    reasons.extend(forecast_notes)
+    return round(max(0, min(100, score)), 1), list(dict.fromkeys(reasons))
+
+
+def build_strategy_rankings(rankings, limit=30):
+    result = {}
+    for strategy_key in STRATEGY_DEFINITIONS:
+        rows = []
+        for item in rankings:
+            if item.get("Sector") not in CURRENT_TARGET_SECTORS:
+                continue
+            candidate = strategy_candidate(item, strategy_key)
+            if candidate is None:
+                continue
+            score, reasons = candidate
+            row = dict(item)
+            row.update(
+                {
+                    "Strategy Key": strategy_key,
+                    "Strategy Score": score,
+                    "Strategy Reasons": reasons,
+                    "Action": "候補",
+                }
+            )
+            rows.append(row)
+        rows.sort(key=lambda row: (row.get("Strategy Score", 0), row.get("Composite Score", 0)), reverse=True)
+        for index, row in enumerate(rows[:limit], start=1):
+            row["Rank"] = index
+        result[strategy_key] = rows[:limit]
+    return result
+
+
+def build_strategy_competition(strategy_rankings):
+    historical = {
+        "validated_a": {"status": "backtested", "median_1yr": 34.2, "win_rate": 91.7, "market_beat": 75.0, "stop_25": 33.3, "sample": 12},
+        "profitable_growth": {"status": "backtested", "median_1yr": 12.9, "win_rate": 65.0, "market_beat": 60.0, "stop_25": 40.0, "sample": 40},
+        "operating_turnaround": {"status": "proxy", "median_1yr": 10.2, "win_rate": 68.8, "market_beat": 71.9, "stop_25": 28.1, "sample": 32},
+    }
+    rows = []
+    for key, definition in STRATEGY_DEFINITIONS.items():
+        metrics = historical.get(key, {"status": "forward_testing"})
+        candidates = strategy_rankings.get(key, [])
+        league_score = None
+        if metrics.get("median_1yr") is not None:
+            league_score = round(
+                metrics["median_1yr"] * 0.35
+                + metrics["win_rate"] * 0.20
+                + metrics["market_beat"] * 0.30
+                - metrics["stop_25"] * 0.25,
+                1,
+            )
+        rows.append(
+            {
+                "key": key,
+                "label": definition["label"],
+                "description": definition["description"],
+                "current_candidates": len(candidates),
+                "current_top": candidates[0].get("Ticker") if candidates else None,
+                "league_score": league_score,
+                **metrics,
+            }
+        )
+    status_order = {"backtested": 0, "proxy": 1, "forward_testing": 2}
+    rows.sort(
+        key=lambda row: (
+            status_order.get(row["status"], 9),
+            -(row["league_score"] if row["league_score"] is not None else -999),
+        )
+    )
+    for index, row in enumerate(rows, start=1):
+        row["league_rank"] = index if row["league_score"] is not None else None
+    return rows
+
+
 def clean_number(value):
     if value is None:
         return None
@@ -910,6 +1087,8 @@ def score_stock(row):
     pretax_incomes = find_statement_value(source_income, ["Pretax Income", "Income Before Tax"])
     annual_revenues = find_statement_value(income, ["Total Revenue", "Operating Revenue"])
     annual_net_incomes = find_statement_value(income, ["Net Income", "Net Income Common Stockholders"])
+    annual_operating_incomes = find_statement_value(income, ["Operating Income", "Operating Income Loss"])
+    annual_pretax_incomes = find_statement_value(income, ["Pretax Income", "Income Before Tax"])
     capex = find_statement_value(cashflow, ["Capital Expenditure", "Capital Expenditures"])
     total_assets = find_statement_value(balance, ["Total Assets"])
 
@@ -1145,7 +1324,9 @@ def score_stock(row):
         "Quarterly Net Income": latest_net_income,
         "RSI": None,
         "Operating Income": latest_operating,
+        "Annual Operating Income History": annual_operating_incomes[:5],
         "Pretax Income": latest_pretax,
+        "Annual Pretax Income History": annual_pretax_incomes[:5],
         "Operating Loss Improving": operating_loss_improving,
         "Pretax Loss Improving": pretax_loss_improving,
         "Net Loss Improving": net_loss_improving,
@@ -1522,6 +1703,20 @@ def save_signal_snapshot(path, report):
             }
             for item in report.get("current_rankings", [])[:50]
         ],
+        "strategy_signals": {
+            key: [
+                {
+                    "Rank": item.get("Rank"),
+                    "Ticker": item.get("Ticker"),
+                    "Name": item.get("Name"),
+                    "Current Price": item.get("Current Price"),
+                    "Strategy Score": item.get("Strategy Score"),
+                    "Strategy Reasons": item.get("Strategy Reasons"),
+                }
+                for item in rows[:10]
+            ]
+            for key, rows in report.get("strategy_rankings", {}).items()
+        },
     }
     day = str(generated_at or "")[:10]
     history = [entry for entry in history if str(entry.get("generated_at_jst") or "")[:10] != day]
@@ -1625,14 +1820,20 @@ def main():
 
     preliminary_rankings = build_current_rankings(rankings)
     for _ in range(2):
+        preliminary_strategies = build_strategy_rankings(rankings)
+        forecast_candidates = list(preliminary_rankings[:50])
+        for rows_for_strategy in preliminary_strategies.values():
+            forecast_candidates.extend(rows_for_strategy[:10])
         enrich_company_forecasts(
             rankings,
-            preliminary_rankings[:50],
+            forecast_candidates,
             generated_at_jst,
             workers=min(6, workers),
         )
         preliminary_rankings = build_current_rankings(rankings)
     current_rankings = preliminary_rankings[:200]
+    strategy_rankings = build_strategy_rankings(rankings)
+    strategy_competition = build_strategy_competition(strategy_rankings)
     notification_rankings = [
         item
         for item in current_rankings
@@ -1673,6 +1874,8 @@ def main():
         },
         "rankings": rankings,
         "current_rankings": current_rankings,
+        "strategy_rankings": strategy_rankings,
+        "strategy_competition": strategy_competition,
         "earnings_updates": earnings_updates,
         "new_top_entries": top_rank_changes.get("entered", []),
         "top_rank_changes": top_rank_changes,

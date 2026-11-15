@@ -12,6 +12,8 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
     SAFETY_VERSION,
     add_priority_refresh_rows,
     build_current_rankings,
+    build_strategy_competition,
+    build_strategy_rankings,
     decision_scores,
     financial_comparison_index,
     historical_growth_pattern,
@@ -179,6 +181,62 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertEqual(blocks, [])
         self.assertEqual(action, "買い候補 検証A")
         self.assertEqual(decision["Decision Tier"], "買い優先")
+
+    def test_operating_turnaround_strategy(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "A.T",
+            "Name": "Turnaround",
+            "Sector": "化学",
+            "Annual Operating Income History": [100.0, -50.0, -20.0],
+            "Net Income History": [80.0, -40.0],
+            "Annual Revenue Growth": 8.0,
+            "Revenue Growth": 6.0,
+            "Operating Loss Improving": True,
+            "PSR": 0.8,
+            "Price Location": 0.4,
+            "Forecast Status": "ok",
+            "Previous Annual Operating Income": -50.0,
+            "Forecast Operating Income": 120.0,
+        }
+        rankings = build_strategy_rankings([item])
+        self.assertEqual(rankings["operating_turnaround"][0]["Ticker"], "A.T")
+
+    def test_operating_v_recovery_strategy(self):
+        item = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Ticker": "V.T",
+            "Name": "V Recovery",
+            "Sector": "鉄鋼",
+            "Annual Operating Income History": [80.0, -100.0, 40.0],
+            "Net Income History": [20.0, -30.0],
+            "Annual Revenue Growth": 4.0,
+            "Revenue Growth": 3.0,
+            "Operating Loss Improving": True,
+            "PSR": 1.2,
+            "Price Location": 0.6,
+            "Forecast Status": "ok",
+            "Previous Annual Operating Income": -100.0,
+            "Forecast Operating Income": 90.0,
+        }
+        rankings = build_strategy_rankings([item])
+        self.assertEqual(rankings["operating_v_recovery"][0]["Ticker"], "V.T")
+
+    def test_strategy_competition_balances_return_and_drawdown(self):
+        competition = build_strategy_competition({key: [] for key in (
+            "validated_a",
+            "profitable_growth",
+            "operating_turnaround",
+            "operating_v_recovery",
+            "operating_loss_narrowing",
+            "quarterly_momentum",
+            "value_growth",
+        )})
+        self.assertEqual(competition[0]["key"], "validated_a")
+        self.assertGreater(competition[0]["league_score"], competition[1]["league_score"])
+        self.assertEqual(competition[-1]["status"], "forward_testing")
 
     def test_active_rows_sort_above_pass_rows(self):
         active = {
