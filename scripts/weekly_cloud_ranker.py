@@ -23,7 +23,7 @@ DEFAULT_OUTPUT = ROOT / "weekly_ranking_report.json"
 DEFAULT_STATE = ROOT / ".github" / "ranking-state.json"
 DEFAULT_HISTORY = ROOT / "data" / "ranking_signal_history.json"
 DEFAULT_REPORT_URL = "https://sensin0.github.io/candidate-stock-assist2/"
-SAFETY_VERSION = 15
+SAFETY_VERSION = 16
 CURRENT_TARGET_SECTORS = {
     "鉄鋼",
     "非鉄金属",
@@ -276,6 +276,84 @@ def operating_profit_outlook(item):
     return {"kind": "flat", "score": -20, "notes": ["来期営業利益の上振れ余地が小さい"], "prior": prior}
 
 
+HISTORICAL_12M_MEDIAN_RETURN = {
+    "one_loss_turnaround": 41.7,
+    "v_recovery": 34.9,
+    "continuous_growth": 33.8,
+    "persistent_loss_turnaround": -6.7,
+    "loss_narrowing": -10.3,
+    "flat": -10.0,
+    "unknown": -15.0,
+    "next_decline": -50.0,
+}
+
+
+def expected_upside_values(item, blocks=None):
+    """Build a relative upside index; it is not a promised future return."""
+    outlook = operating_profit_outlook(item)
+    historical_median = HISTORICAL_12M_MEDIAN_RETURN.get(outlook["kind"], -15.0)
+    score = 50.0 + historical_median
+    notes = [f"同型の過去12か月中央値 {historical_median:+.1f}%"]
+
+    current = clean_number(first_known(item.get("Current Fiscal Operating Income"), item.get("Previous Annual Operating Income")))
+    next_value = clean_number(first_known(item.get("Next Fiscal Operating Income"), item.get("Forecast Operating Income")))
+    prior = clean_number(outlook.get("prior"))
+    recovery_rate = None
+    if current is not None and next_value is not None:
+        denominator = max(abs(current), abs(prior or 0), 1.0)
+        recovery_rate = (next_value - current) / denominator * 100
+        recovery_points = max(-12.0, min(12.0, recovery_rate * 0.08))
+        score += recovery_points
+        notes.append(f"来期営業利益の回復幅 {recovery_rate:+.1f}%")
+
+    revenue_growth = clean_number(item.get("Revenue Growth"))
+    if revenue_growth is not None:
+        if revenue_growth < 0:
+            score += max(-15.0, revenue_growth * 0.75)
+        elif revenue_growth < 5:
+            score += 0
+        elif revenue_growth < 20:
+            score += min(10.0, (revenue_growth - 5) * (2 / 3))
+        elif revenue_growth < 30:
+            score += 6.0
+        else:
+            score -= 10.0
+
+    price_location = clean_number(item.get("Price Location"))
+    if price_location is not None:
+        if price_location < 0.15:
+            score += 10.0
+        elif price_location < 0.30:
+            score += 6.0
+        elif price_location <= 0.50:
+            score += 2.0
+        else:
+            score -= 8.0
+
+    if item.get("Operating Loss Improving") is True:
+        score += 5.0
+    elif item.get("Operating Loss Improving") is False:
+        score -= 18.0
+
+    psr = clean_number(item.get("PSR"))
+    if psr is not None:
+        if psr < 1:
+            score += 4.0
+        elif psr >= 5:
+            score -= 12.0
+
+    if blocks:
+        score -= 40.0
+        notes.append("安全除外条件あり")
+
+    return {
+        "Expected Upside Score": round(max(0.0, score), 1),
+        "Historical 12M Median Return": historical_median,
+        "Operating Recovery Rate": round(recovery_rate, 1) if recovery_rate is not None else None,
+        "Expected Upside Notes": notes,
+    }
+
+
 STRATEGY_DEFINITIONS = {
     "validated_a": {
         "label": "検証A",
@@ -433,8 +511,16 @@ def build_strategy_rankings(rankings, limit=30):
                     "Action": "候補",
                 }
             )
+            row.update(expected_upside_values(row))
             rows.append(row)
-        rows.sort(key=lambda row: (row.get("Strategy Score", 0), row.get("Composite Score", 0)), reverse=True)
+        rows.sort(
+            key=lambda row: (
+                row.get("Expected Upside Score", 0),
+                row.get("Strategy Score", 0),
+                row.get("Composite Score", 0),
+            ),
+            reverse=True,
+        )
         for index, row in enumerate(rows[:limit], start=1):
             row["Rank"] = index
         result[strategy_key] = rows[:limit]
@@ -996,6 +1082,7 @@ def build_current_rankings(rankings):
                     "Action": "データ再取得待ち",
                     "Decision Tier": "見送り",
                     "Composite Score": 0,
+                    "Expected Upside Score": 0,
                     "Safety Score": 0,
                     "Two Bagger Score": 0,
                     "Blocks": ["旧計算データ"],
@@ -1014,6 +1101,7 @@ def build_current_rankings(rankings):
         row["Status"] = status
         row.update(exit_plan)
         row.update(decision)
+        row.update(expected_upside_values(row, blocks))
         current_rankings.append(row)
     current_rankings.sort(
         key=lambda row: (
@@ -1022,6 +1110,7 @@ def build_current_rankings(rankings):
             or "Pass" in str(row.get("Action") or "")
             or row.get("Decision Tier") in {"避ける", "見送り"}
             else 1,
+            row.get("Expected Upside Score", 0) or 0,
             row.get("Composite Score", row.get("Score", 0)) or 0,
             row.get("Score", 0) or 0,
         ),
@@ -1533,10 +1622,12 @@ def build_weekly_message(report, top_n, earnings_window_days):
             safety_text = "-" if safety is None else f"{safety:.0f}"
             two_bagger = item.get("Two Bagger Score")
             two_bagger_text = "-" if two_bagger is None else f"{two_bagger:.0f}"
+            upside = item.get("Expected Upside Score")
+            upside_text = "-" if upside is None else f"{upside:.1f}"
             tier = item.get("Decision Tier") or "-"
             lines.append(
                 f"{item['Rank']}. {item['Ticker']} {item['Name']} | {item['Action']} | "
-                f"{tier} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
+                f"{tier} | 上昇期待 {upside_text} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
                 f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
             )
         lines.append("")
@@ -1748,10 +1839,12 @@ def build_top_rank_change_message(report, changes, top_n):
         safety_text = "-" if safety is None else f"{safety:.0f}"
         two_bagger = item.get("Two Bagger Score")
         two_bagger_text = "-" if two_bagger is None else f"{two_bagger:.0f}"
+        upside = item.get("Expected Upside Score")
+        upside_text = "-" if upside is None else f"{upside:.1f}"
         tier = item.get("Decision Tier") or "-"
         lines.append(
             f"・{previous_text} -> #{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"{tier} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
+            f"{tier} | 上昇期待 {upside_text} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
             f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
         )
     if exited:
@@ -1774,6 +1867,7 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Safety Score": item.get("Safety Score"),
                 "Two Bagger Score": item.get("Two Bagger Score"),
                 "Composite Score": item.get("Composite Score"),
+                "Expected Upside Score": item.get("Expected Upside Score"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -1787,6 +1881,7 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Safety Score": item.get("Safety Score"),
                 "Two Bagger Score": item.get("Two Bagger Score"),
                 "Composite Score": item.get("Composite Score"),
+                "Expected Upside Score": item.get("Expected Upside Score"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -2028,7 +2123,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "過去検証に基づき、1期営業赤字から来期黒字転換を最優先、黒字内V字回復を次点。2期以上の営業赤字と赤字縮小は監視、来期営業減益予想は除外。",
+            "ranking_note": "安全除外を通過した銘柄を、過去12か月成績、来期営業利益の回復幅、売上成長、株価位置から算出した上昇期待指数の高い順に表示。指数は将来リターンの保証値ではない。",
         },
         "rankings": rankings,
         "current_rankings": current_rankings,

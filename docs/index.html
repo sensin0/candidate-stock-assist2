@@ -437,6 +437,7 @@
                 <div class="badges"><span class="badge ${tone}">${item.Action || "-"}</span><span class="badge ${tone}">${item["Decision Tier"] || "-"}</span>${twoBaggerTag(item)}</div>
               </div>
               <div class="metrics">
+                <div class="metric"><span>上昇期待</span><strong>${item["Expected Upside Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>${state.tab === "current" ? "総合" : "部門"}</span><strong>${displayScore}</strong></div>
                 <div class="metric"><span>安全</span><strong>${item["Safety Score"] ?? "-"}</strong></div>
                 <div class="metric"><span>2倍期待</span><strong>${item["Two Bagger Score"] ?? "-"}</strong></div>
@@ -462,18 +463,19 @@
           ...(candidates.length ? [{ section: "候補・監視", rows: candidates.slice(0, 50) }] : []),
           { section: "参考・パス", rows: references.slice(0, Math.max(0, 50 - Math.min(candidates.length, 50))) },
         ];
-        document.getElementById("table-head").innerHTML = `<tr><th>順位</th><th>銘柄</th><th>${state.tab === "current" ? "総合" : "部門"}</th><th>安全</th><th>2倍期待</th><th>売上</th><th>判定</th></tr>`;
+        document.getElementById("table-head").innerHTML = `<tr><th>順位</th><th>銘柄</th><th>上昇期待</th><th>${state.tab === "current" ? "総合" : "部門"}</th><th>安全</th><th>2倍期待</th><th>売上</th><th>判定</th></tr>`;
         document.getElementById("rows").innerHTML = rows
           ? tableRows
               .filter((group) => group.rows.length)
               .map(
                 (group) => `
-            <tr><td colspan="7" class="section-title">${group.section}</td></tr>
+            <tr><td colspan="8" class="section-title">${group.section}</td></tr>
             ${group.rows
               .map(
                 (item) => `<tr>
               <td>#${item.Rank}</td>
               <td><strong>${item.Ticker}</strong><br>${item.Name || "-"}</td>
+              <td><strong>${item["Expected Upside Score"] ?? "-"}</strong></td>
               <td>${item["Strategy Score"] ?? item["Composite Score"] ?? "-"}</td>
               <td>${item["Safety Score"] ?? "-"}</td>
               <td>${item["Two Bagger Score"] ?? "-"}</td>

@@ -446,8 +446,27 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertEqual(rankings[0]["Ticker"], "A.T")
         self.assertNotIn("パス", rankings[0]["Action"])
 
+    def test_higher_expected_upside_ranks_first(self):
+        base = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Sector": "化学",
+            "Net Income History": [100.0, 80.0],
+            "Annual Operating Income History": [60_000_000.0, 100_000_000.0],
+            "Operating Loss Improving": True,
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": 60.0,
+            "PSR": 0.8,
+        }
+        weaker = dict(base, Ticker="WEAK.T", **{"Next Fiscal Operating Income": 80.0, "Revenue Growth": 3.0, "Price Location": 0.45})
+        stronger = dict(base, Ticker="STRONG.T", **{"Next Fiscal Operating Income": 140.0, "Revenue Growth": 16.0, "Price Location": 0.12})
+        rankings = build_current_rankings([weaker, stronger])
+        self.assertEqual(rankings[0]["Ticker"], "STRONG.T")
+        self.assertGreater(rankings[0]["Expected Upside Score"], rankings[1]["Expected Upside Score"])
+        self.assertEqual(rankings[0]["Historical 12M Median Return"], 34.9)
+
     def test_safety_version_bumped(self):
-        self.assertEqual(SAFETY_VERSION, 15)
+        self.assertEqual(SAFETY_VERSION, 16)
 
 
 if __name__ == "__main__":
