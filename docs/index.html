@@ -446,12 +446,14 @@
                 <div class="metric"><span>年商成長</span><strong>${signed(item["Annual Revenue Growth"])}</strong></div>
                 <div class="metric"><span>今期営業</span><strong>${millionYen(item["Current Fiscal Operating Income"] ?? item["Previous Annual Operating Income"])}</strong></div>
                 <div class="metric"><span>来期営業予想</span><strong>${millionYen(item["Next Fiscal Operating Income"] ?? item["Forecast Operating Income"])}</strong></div>
+                <div class="metric"><span>四半期進捗</span><strong>${signed(item["Operating Forecast Progress"])}</strong></div>
+                <div class="metric"><span>時間比ペース</span><strong>${signed(item["Operating Pace Index"])}</strong></div>
                 <div class="metric"><span>現在値</span><strong>${yen(item["Current Price"])}</strong></div>
                 <div class="metric"><span>+50%</span><strong>${yen(item["Target Price 1"])}</strong></div>
                 <div class="metric"><span>+100%</span><strong>${yen(item["Target Price 2"])}</strong></div>
                 <div class="metric"><span>撤退</span><strong>${yen(item["Stop Loss"])}</strong></div>
               </div>
-              <div class="plan">${item["Sell Plan"] || "+50%で一部利確、+100%で主力利確、-25%で撤退確認"}<br>${strategyReasons || notes}${dangers ? `<br>注意: ${dangers}` : ""}</div>
+              <div class="plan">${item["Sell Plan"] || "+50%で一部利確、+100%で主力利確、-25%で撤退確認"}<br>${item["Operating Pace Status"] && item["Operating Pace Status"] !== "判定対象外" ? `進捗: ${item["Operating Pace Status"]}<br>` : ""}${strategyReasons || notes}${dangers ? `<br>注意: ${dangers}` : ""}</div>
             </article>`;
           })
           .join("");

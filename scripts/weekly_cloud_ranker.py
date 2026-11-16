@@ -646,15 +646,18 @@ def enrich_company_forecasts(rankings, candidates, checked_at_jst, workers=6):
         if ticker and ticker not in seen and needs_refresh:
             tickers.append(ticker)
             seen.add(ticker)
-    if not tickers:
-        return
-    with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
-        futures = [executor.submit(fetch_company_forecast, ticker, checked_at_jst) for ticker in tickers]
-        for future in as_completed(futures):
-            result = future.result()
-            target = by_ticker.get(result.get("Ticker"))
-            if target is not None:
-                target.update(result)
+    if tickers:
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
+            futures = [executor.submit(fetch_company_forecast, ticker, checked_at_jst) for ticker in tickers]
+            for future in as_completed(futures):
+                result = future.result()
+                target = by_ticker.get(result.get("Ticker"))
+                if target is not None:
+                    target.update(result)
+    for item in candidates:
+        target = by_ticker.get(item.get("Ticker"))
+        if target is not None:
+            target.update(operating_forecast_progress(target))
 
 
 def operating_dip_candidates(rankings, limit=100):
@@ -689,6 +692,67 @@ def find_statement_value(statement, names):
             if key in normalized_name:
                 return [clean_number(value) for value in statement.loc[original_name].tolist()]
     return []
+
+
+def fiscal_ytd_statement_values(quarterly_statement, annual_statement, names):
+    if quarterly_statement is None or quarterly_statement.empty or annual_statement is None or annual_statement.empty:
+        return {"quarters": 0, "value": None, "periods": []}
+    normalized = {str(index).lower(): index for index in quarterly_statement.index}
+    row_name = None
+    for name in names:
+        key = name.lower()
+        if key in normalized:
+            row_name = normalized[key]
+            break
+        row_name = next((original for normalized_name, original in normalized.items() if key in normalized_name), None)
+        if row_name is not None:
+            break
+    if row_name is None:
+        return {"quarters": 0, "value": None, "periods": []}
+    annual_periods = [pd.Timestamp(column) for column in annual_statement.columns if not pd.isna(pd.Timestamp(column))]
+    if not annual_periods:
+        return {"quarters": 0, "value": None, "periods": []}
+    latest_annual = max(annual_periods)
+    values = []
+    for column in quarterly_statement.columns:
+        period = pd.Timestamp(column)
+        value = clean_number(quarterly_statement.loc[row_name].get(column))
+        if latest_annual < period <= latest_annual + pd.DateOffset(years=1) and value is not None:
+            values.append((period, value))
+    values.sort(key=lambda pair: pair[0])
+    return {
+        "quarters": len(values),
+        "value": sum(value for _, value in values) if values else None,
+        "periods": [period.date().isoformat() for period, _ in values],
+    }
+
+
+def operating_forecast_progress(item):
+    quarters = int(item.get("Fiscal Quarters Reported") or 0)
+    ytd = annual_operating_in_forecast_unit(item.get("Fiscal YTD Operating Income"), item.get("Next Fiscal Operating Income"))
+    forecast = clean_number(first_known(item.get("Next Fiscal Operating Income"), item.get("Forecast Operating Income")))
+    if not 1 <= quarters <= 3 or ytd is None or forecast is None or forecast <= 0:
+        return {
+            "Operating Forecast Progress": None,
+            "Operating Pace Index": None,
+            "Operating Pace Status": "判定対象外",
+        }
+    progress = ytd / forecast * 100
+    expected = quarters * 25
+    pace_index = progress / expected * 100
+    if pace_index >= 130:
+        status = "会社予想より速い"
+    elif pace_index >= 100:
+        status = "会社予想ペース以上"
+    elif pace_index >= 75:
+        status = "おおむね会社予想ペース"
+    else:
+        status = "会社予想より遅い"
+    return {
+        "Operating Forecast Progress": round(progress, 1),
+        "Operating Pace Index": round(pace_index, 1),
+        "Operating Pace Status": status,
+    }
 
 
 def pct_change(latest, previous):
@@ -1331,6 +1395,11 @@ def score_stock(row):
     annual_net_incomes = find_statement_value(income, ["Net Income", "Net Income Common Stockholders"])
     annual_operating_incomes = find_statement_value(income, ["Operating Income", "Operating Income Loss"])
     annual_pretax_incomes = find_statement_value(income, ["Pretax Income", "Income Before Tax"])
+    fiscal_ytd_operating = fiscal_ytd_statement_values(
+        quarterly_income,
+        income,
+        ["Operating Income", "Operating Income Loss"],
+    )
     capex = find_statement_value(cashflow, ["Capital Expenditure", "Capital Expenditures"])
     total_assets = find_statement_value(balance, ["Total Assets"])
 
@@ -1566,6 +1635,9 @@ def score_stock(row):
         "Quarterly Net Income": latest_net_income,
         "RSI": None,
         "Operating Income": latest_operating,
+        "Fiscal YTD Operating Income": fiscal_ytd_operating["value"],
+        "Fiscal Quarters Reported": fiscal_ytd_operating["quarters"],
+        "Fiscal YTD Periods": fiscal_ytd_operating["periods"],
         "Annual Operating Income History": annual_operating_incomes[:5],
         "Pretax Income": latest_pretax,
         "Annual Pretax Income History": annual_pretax_incomes[:5],
@@ -1939,6 +2011,12 @@ def save_signal_snapshot(path, report):
                     "Price Location",
                     "PSR",
                     "Operating Income",
+                    "Fiscal YTD Operating Income",
+                    "Fiscal Quarters Reported",
+                    "Fiscal YTD Periods",
+                    "Operating Forecast Progress",
+                    "Operating Pace Index",
+                    "Operating Pace Status",
                     "Operating Loss Improving",
                     "Previous Annual Operating Income",
                     "Forecast Operating Income",

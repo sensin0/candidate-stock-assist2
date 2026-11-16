@@ -19,7 +19,9 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
     historical_growth_pattern,
     local_current_version_score,
     operating_dip_candidates,
+    operating_forecast_progress,
     parse_company_forecast_tables,
+    fiscal_ytd_statement_values,
 )
 
 
@@ -464,6 +466,31 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertEqual(rankings[0]["Ticker"], "STRONG.T")
         self.assertGreater(rankings[0]["Expected Upside Score"], rankings[1]["Expected Upside Score"])
         self.assertEqual(rankings[0]["Historical 12M Median Return"], 34.9)
+
+    def test_fiscal_ytd_uses_only_quarters_after_latest_annual_period(self):
+        quarterly = pd.DataFrame(
+            [[30.0, 20.0, 10.0, 40.0]],
+            index=["Operating Income"],
+            columns=pd.to_datetime(["2026-09-30", "2026-06-30", "2026-03-31", "2025-12-31"]),
+        )
+        annual = pd.DataFrame(
+            [[80.0, 60.0]],
+            index=["Operating Income"],
+            columns=pd.to_datetime(["2026-03-31", "2025-03-31"]),
+        )
+        result = fiscal_ytd_statement_values(quarterly, annual, ["Operating Income"])
+        self.assertEqual(result["quarters"], 2)
+        self.assertEqual(result["value"], 50.0)
+
+    def test_operating_forecast_progress_compares_with_elapsed_quarters(self):
+        result = operating_forecast_progress({
+            "Fiscal Quarters Reported": 2,
+            "Fiscal YTD Operating Income": 70_000_000,
+            "Next Fiscal Operating Income": 100,
+        })
+        self.assertEqual(result["Operating Forecast Progress"], 70.0)
+        self.assertEqual(result["Operating Pace Index"], 140.0)
+        self.assertEqual(result["Operating Pace Status"], "会社予想より速い")
 
     def test_safety_version_bumped(self):
         self.assertEqual(SAFETY_VERSION, 16)
