@@ -1,0 +1,37 @@
+name: Private J-Quants Progress Backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Number of current candidates (0 = all 200)"
+        required: true
+        default: "50"
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements-cloud.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-cloud.txt
+
+      - name: Run aggregate-only private backtest
+        env:
+          J_QUANTS: ${{ secrets.J_QUANTS }}
+        run: python scripts/jquants_private_progress_backtest.py --limit "${{ inputs.limit }}"
+
+      # Intentionally no upload-artifact, git commit, Pages publish, or Discord step.

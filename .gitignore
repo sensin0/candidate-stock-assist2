@@ -11,6 +11,10 @@ web-dashboard/.next/
 .idea/
 .vscode/
 .local/
+data/jquants/
+data/jquants-*
+docs/jquants-*
+*jquants-raw*
 data/adjusted_price_history.parquet
 data/topix_benchmark_adjusted.csv
 web-dashboard/
