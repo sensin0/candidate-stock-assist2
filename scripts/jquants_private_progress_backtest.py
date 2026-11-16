@@ -360,13 +360,8 @@ def condition_summaries(rows):
 
 
 def current_signal_counts(events, as_of):
-    latest_by_code = {}
-    for event in events:
-        code = event.get("code")
-        if code and (code not in latest_by_code or str(event.get("disclosure_date")) > str(latest_by_code[code].get("disclosure_date"))):
-            latest_by_code[code] = event
-    cutoff = pd.Timestamp(as_of) - timedelta(days=210)
-    recent = [event for event in latest_by_code.values() if pd.Timestamp(event["disclosure_date"]) >= cutoff]
+    latest_by_code = latest_recent_events(events, as_of)
+    recent = list(latest_by_code.values())
     return {
         "as_of": as_of,
         "recent_latest_quarterly_companies": len(recent),
@@ -374,6 +369,89 @@ def current_signal_counts(events, as_of):
             {"condition": label, "companies": sum(1 for event in recent if predicate(event))}
             for label, predicate in condition_definitions()
         ],
+    }
+
+
+def latest_recent_events(events, as_of):
+    latest_by_code = {}
+    for event in events:
+        code = event.get("code")
+        if code and (code not in latest_by_code or str(event.get("disclosure_date")) > str(latest_by_code[code].get("disclosure_date"))):
+            latest_by_code[code] = event
+    cutoff = pd.Timestamp(as_of) - timedelta(days=210)
+    return {
+        code: event
+        for code, event in latest_by_code.items()
+        if pd.Timestamp(event["disclosure_date"]) >= cutoff
+    }
+
+
+def jump_signal(event):
+    fast = (event.get("seasonal_pace") or 0) >= 1.5
+    revised_up = (event.get("forecast_revision_pct") or 0) > 0
+    quarter = event.get("quarter")
+    if fast and revised_up and quarter in (1, 2):
+        return {"tier": "大化け優先", "priority": 100}
+    if fast and revised_up:
+        return {"tier": "大化け監視", "priority": 80}
+    if fast and quarter == 1:
+        return {"tier": "安全寄り2倍候補", "priority": 70}
+    return None
+
+
+def run_current_signals(api_key, limit, universe_mode, output_path):
+    client = JQuantsClient(api_key)
+    universe = load_universe(limit, universe_mode)
+    events = []
+    failures = 0
+    latest = None
+    for index, item in enumerate(universe, start=1):
+        try:
+            records = client.get_all("fins/summary", {"code": item["code"]})
+            events.extend(build_progress_events(records))
+            dates = [row.get("DiscDate") for row in records if row.get("DiscDate")]
+            if dates:
+                latest = max([latest] + dates) if latest else max(dates)
+        except Exception:
+            failures += 1
+        if index % 100 == 0:
+            print(f"Evaluated {index}/{len(universe)} companies; source records are not stored")
+    if not latest:
+        raise RuntimeError("No J-Quants disclosures were available")
+    recent = latest_recent_events(events, latest)
+    signals = {}
+    tier_counts = defaultdict(int)
+    for code, event in recent.items():
+        signal = jump_signal(event)
+        if signal:
+            ticker = f"{code}.T"
+            signals[ticker] = signal
+            tier_counts[signal["tier"]] += 1
+
+    output = Path(output_path).resolve()
+    private_root = (ROOT / ".local").resolve()
+    if private_root not in output.parents:
+        raise ValueError("Derived signal output must stay under .local")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        json.dumps(
+            {
+                "generated_at": latest,
+                "methodology": "private-jquants-jump-v1",
+                "signals": signals,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    return {
+        "privacy": "derived tags only; no source values persisted or printed",
+        "universe_companies": len(universe),
+        "failed_companies": failures,
+        "recent_quarterly_companies": len(recent),
+        "signal_companies": len(signals),
+        "tier_counts": dict(tier_counts),
     }
 
 
@@ -454,13 +532,19 @@ def run(api_key, limit, universe_mode):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=("backtest", "current-signals"), default="backtest")
     parser.add_argument("--limit", type=int, default=50, help="Top current candidates to test; 0 means all current candidates")
     parser.add_argument("--universe", choices=("current", "target"), default="current")
+    parser.add_argument("--signals-output", default=str(ROOT / ".local" / "jquants" / "jump_signals.json"))
     args = parser.parse_args()
     api_key = os.environ.get("J_QUANTS", "").strip()
     if not api_key:
         raise SystemExit("J_QUANTS is required")
-    print(json.dumps(run(api_key, args.limit, args.universe), ensure_ascii=False, indent=2))
+    if args.mode == "current-signals":
+        result = run_current_signals(api_key, args.limit, args.universe, args.signals_output)
+    else:
+        result = run(api_key, args.limit, args.universe)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

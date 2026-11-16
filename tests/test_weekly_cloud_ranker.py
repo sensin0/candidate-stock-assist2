@@ -467,6 +467,31 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertGreater(rankings[0]["Expected Upside Score"], rankings[1]["Expected Upside Score"])
         self.assertEqual(rankings[0]["Historical 12M Median Return"], 34.9)
 
+    def test_safe_private_jump_signal_moves_buy_candidate_first(self):
+        base = {
+            "Safety Version": SAFETY_VERSION,
+            "Quarterly Comparison": "year_over_year",
+            "Sector": "化学",
+            "Net Income History": [100.0, 80.0],
+            "Annual Operating Income History": [80_000_000.0, 100_000_000.0],
+            "Operating Loss Improving": True,
+            "Forecast Status": "ok",
+            "Current Fiscal Operating Income": 80.0,
+            "Revenue Growth": 12.0,
+            "PSR": 0.8,
+            "Price Location": 0.4,
+            "Current Price": 100.0,
+        }
+        normal = dict(base, Ticker="NORMAL.T", Name="Normal", **{"Next Fiscal Operating Income": 140.0, "Revenue Growth": 16.0, "Price Location": 0.12})
+        jump = dict(base, Ticker="JUMP.T", Name="Jump", **{"Next Fiscal Operating Income": 130.0})
+        rankings = build_current_rankings(
+            [normal, jump],
+            {"JUMP.T": {"tier": "大化け優先", "priority": 100}},
+        )
+        self.assertEqual(rankings[0]["Ticker"], "JUMP.T")
+        self.assertEqual(rankings[0]["Two Bagger Candidate"], "大化け優先")
+        self.assertEqual(rankings[0]["Action"], "買い候補 大化け優先")
+
     def test_fiscal_ytd_uses_only_quarters_after_latest_annual_period(self):
         quarterly = pd.DataFrame(
             [[30.0, 20.0, 10.0, 40.0]],

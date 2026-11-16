@@ -1134,7 +1134,32 @@ def local_current_version_score(item):
     return round(score, 1), action, notes, blocks, status, exit_plan, decision
 
 
-def build_current_rankings(rankings):
+def load_private_jump_signals(path):
+    if not path:
+        return {}
+    signal_path = Path(path)
+    if not signal_path.exists():
+        return {}
+    try:
+        payload = json.loads(signal_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if payload.get("methodology") != "private-jquants-jump-v1":
+        return {}
+    allowed_tiers = {"大化け優先", "大化け監視", "安全寄り2倍候補"}
+    signals = {}
+    for ticker, signal in (payload.get("signals") or {}).items():
+        if not isinstance(signal, dict) or signal.get("tier") not in allowed_tiers:
+            continue
+        signals[str(ticker)] = {
+            "tier": signal["tier"],
+            "priority": max(0, min(100, int(signal.get("priority") or 0))),
+        }
+    return signals
+
+
+def build_current_rankings(rankings, jump_signals=None):
+    jump_signals = jump_signals or {}
     current_rankings = []
     for item in rankings:
         if item.get("Sector") not in CURRENT_TARGET_SECTORS:
@@ -1166,6 +1191,18 @@ def build_current_rankings(rankings):
         row.update(exit_plan)
         row.update(decision)
         row.update(expected_upside_values(row, blocks))
+        jump_signal = jump_signals.get(str(row.get("Ticker") or ""))
+        jump_eligible = (
+            bool(jump_signal)
+            and not blocks
+            and row.get("Decision Tier") == "買い優先"
+            and "パス" not in str(action or "")
+            and "Pass" not in str(action or "")
+        )
+        row["Two Bagger Candidate"] = jump_signal.get("tier") if jump_eligible else None
+        row["Jump Ranking Priority"] = jump_signal.get("priority", 0) if jump_eligible else 0
+        if jump_eligible and jump_signal.get("tier") == "大化け優先":
+            row["Action"] = "買い候補 大化け優先"
         current_rankings.append(row)
     current_rankings.sort(
         key=lambda row: (
@@ -1174,6 +1211,7 @@ def build_current_rankings(rankings):
             or "Pass" in str(row.get("Action") or "")
             or row.get("Decision Tier") in {"避ける", "見送り"}
             else 1,
+            row.get("Jump Ranking Priority", 0) or 0,
             row.get("Expected Upside Score", 0) or 0,
             row.get("Composite Score", row.get("Score", 0)) or 0,
             row.get("Score", 0) or 0,
@@ -2027,6 +2065,8 @@ def save_signal_snapshot(path, report):
                     "Forecast Status",
                     "Safety Score",
                     "Two Bagger Score",
+                    "Two Bagger Candidate",
+                    "Jump Ranking Priority",
                     "Composite Score",
                     "Blocks",
                 )
@@ -2077,6 +2117,7 @@ def main():
     parser.add_argument("--chunk-size", type=int, default=450, help="Tickers to refresh per run. Use 0 for full refresh")
     parser.add_argument("--priority-only", action="store_true", help="Refresh only the saved current-version top 50")
     parser.add_argument("--notify-new-top", type=int, default=0, help="Notify if the current-version top N membership changes after refresh")
+    parser.add_argument("--private-jump-signals", default="", help="Ephemeral derived jump-signal file under .local")
     args = parser.parse_args()
 
     now_utc = datetime.now(timezone.utc)
@@ -2143,12 +2184,13 @@ def main():
                 print(f"Fetched {index}/{len(rows_to_fetch)} tickers in this run...")
 
     rankings = merge_rankings(existing_report, fetched_rankings, now_utc, now_jst)
+    jump_signals = load_private_jump_signals(args.private_jump_signals)
     for item in rankings:
         days = days_since(item.get("Latest Quarter Period"), now_jst)
         item["Days Since Latest Quarter"] = days
         item["Recent Earnings Data"] = days is not None and 0 <= days <= args.earnings_window_days
 
-    preliminary_rankings = build_current_rankings(rankings)
+    preliminary_rankings = build_current_rankings(rankings, jump_signals)
     for _ in range(2):
         preliminary_strategies = build_strategy_rankings(rankings)
         forecast_candidates = list(preliminary_rankings[:50])
@@ -2161,7 +2203,7 @@ def main():
             generated_at_jst,
             workers=min(6, workers),
         )
-        preliminary_rankings = build_current_rankings(rankings)
+        preliminary_rankings = build_current_rankings(rankings, jump_signals)
     current_rankings = preliminary_rankings[:200]
     strategy_rankings = build_strategy_rankings(rankings)
     strategy_competition = build_strategy_competition(strategy_rankings)
@@ -2202,6 +2244,7 @@ def main():
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
             "ranking_note": "安全除外を通過した銘柄を、過去12か月成績、来期営業利益の回復幅、売上成長、株価位置から算出した上昇期待指数の高い順に表示。指数は将来リターンの保証値ではない。",
+            "private_jump_signals_loaded": len(jump_signals),
         },
         "rankings": rankings,
         "current_rankings": current_rankings,

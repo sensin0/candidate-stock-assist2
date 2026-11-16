@@ -326,12 +326,16 @@
         return "";
       };
       const twoBaggerTag = (item) => {
+        const validated = item["Two Bagger Candidate"];
         const action = item.Action || "";
         const tier = item["Decision Tier"] || "";
         const safety = Number(item["Safety Score"] || 0);
         const potential = Number(item["Two Bagger Score"] || 0);
         if (isPass(item) || tier === "避ける" || tier === "見送り") {
           return `<span class="badge bad">対象外</span>`;
+        }
+        if (validated) {
+          return `<span class="badge double">${validated}</span>`;
         }
         if (potential >= 70 && safety >= 70 && isBuy(item)) {
           return `<span class="badge double">2倍候補</span>`;
@@ -405,6 +409,7 @@
         const references = referenceRows(rows);
         const buys = state.tab === "current" ? candidates.filter(isBuy) : candidates;
         const priorityWatch = candidates.filter((item) => item["Decision Tier"] === "監視上位");
+        const jumpCandidates = candidates.filter((item) => item["Two Bagger Candidate"] === "大化け優先");
         document.getElementById("subtitle").textContent = state.report
           ? `更新: ${state.report.generated_at_jst || "-"} / ${tabs.find(([key]) => key === state.tab)?.[1] || "現行版"}`
           : "読み込み中";
@@ -413,6 +418,7 @@
           ["表示銘柄", `${rows.length.toLocaleString()}件`],
           ["候補銘柄", `${candidates.length.toLocaleString()}件`],
           [state.tab === "current" ? "買い候補" : "部門候補", `${buys.length.toLocaleString()}件`],
+          ["大化け優先", `${jumpCandidates.length.toLocaleString()}件`],
           ["監視上位", `${priorityWatch.length.toLocaleString()}件`],
           ["トップ", top.Ticker || "-"],
         ]
