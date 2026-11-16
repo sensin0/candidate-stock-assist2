@@ -1,0 +1,160 @@
+{
+  "generated_at": "2026-11-16 20:26:23 JST",
+  "event_source": "Annual earnings dates matched 20-100 days after fiscal period end; operating-profit events use actual results.",
+  "requested_events": 283,
+  "matched_events": 49,
+  "date_cache": {
+    "generated_at": "2026-11-15 20:26:52 JST",
+    "requested": 283,
+    "successful": 153
+  },
+  "all": {
+    "summary": [
+      {
+        "key": "next_day",
+        "label": "翌営業日",
+        "n": 49,
+        "median_return": 31.2,
+        "average_return": 113.9,
+        "win_rate": 79.6,
+        "median_alpha": -13.1,
+        "beat_market": 46.9,
+        "median_max": 76.0,
+        "median_drawdown": -6.1
+      },
+      {
+        "key": "one_week",
+        "label": "1週間後",
+        "n": 49,
+        "median_return": 32.3,
+        "average_return": 113.5,
+        "win_rate": 79.6,
+        "median_alpha": -13.5,
+        "beat_market": 49.0,
+        "median_max": 75.6,
+        "median_drawdown": -5.2
+      },
+      {
+        "key": "two_weeks",
+        "label": "2週間後",
+        "n": 49,
+        "median_return": 34.9,
+        "average_return": 107.1,
+        "win_rate": 79.6,
+        "median_alpha": -8.9,
+        "beat_market": 46.9,
+        "median_max": 71.5,
+        "median_drawdown": -6.8
+      },
+      {
+        "key": "one_month",
+        "label": "1か月後",
+        "n": 49,
+        "median_return": 37.2,
+        "average_return": 102.9,
+        "win_rate": 79.6,
+        "median_alpha": -4.9,
+        "beat_market": 49.0,
+        "median_max": 75.4,
+        "median_drawdown": -5.4
+      },
+      {
+        "key": "pullback_5",
+        "label": "5%押し目",
+        "n": 14,
+        "median_return": 34.7,
+        "average_return": 154.5,
+        "win_rate": 78.6,
+        "median_alpha": -10.4,
+        "beat_market": 42.9,
+        "median_max": 63.1,
+        "median_drawdown": -6.9
+      }
+    ]
+  },
+  "large_change": {
+    "threshold_yen": 21680999999.99999,
+    "events": 20,
+    "summary": [
+      {
+        "key": "next_day",
+        "label": "翌営業日",
+        "n": 20,
+        "median_return": 30.7,
+        "average_return": 152.5,
+        "win_rate": 85.0,
+        "median_alpha": -13.6,
+        "beat_market": 45.0,
+        "median_max": 78.2,
+        "median_drawdown": -5.4
+      },
+      {
+        "key": "one_week",
+        "label": "1週間後",
+        "n": 20,
+        "median_return": 26.7,
+        "average_return": 149.5,
+        "win_rate": 75.0,
+        "median_alpha": -17.0,
+        "beat_market": 45.0,
+        "median_max": 79.4,
+        "median_drawdown": -5.0
+      },
+      {
+        "key": "two_weeks",
+        "label": "2週間後",
+        "n": 20,
+        "median_return": 20.2,
+        "average_return": 132.3,
+        "win_rate": 75.0,
+        "median_alpha": -19.9,
+        "beat_market": 45.0,
+        "median_max": 79.2,
+        "median_drawdown": -7.6
+      },
+      {
+        "key": "one_month",
+        "label": "1か月後",
+        "n": 20,
+        "median_return": 21.8,
+        "average_return": 129.5,
+        "win_rate": 80.0,
+        "median_alpha": -15.1,
+        "beat_market": 45.0,
+        "median_max": 75.3,
+        "median_drawdown": -6.3
+      },
+      {
+        "key": "pullback_5",
+        "label": "5%押し目",
+        "n": 2,
+        "median_return": 497.5,
+        "average_return": 497.5,
+        "win_rate": 100.0,
+        "median_alpha": 452.0,
+        "beat_market": 50.0,
+        "median_max": 525.3,
+        "median_drawdown": -3.9
+      }
+    ]
+  },
+  "adaptive": {
+    "key": "adaptive",
+    "label": "金額差大は翌日・他は1か月後",
+    "n": 49,
+    "median_return": 37.2,
+    "average_return": 112.3,
+    "win_rate": 81.6,
+    "median_alpha": -4.9,
+    "beat_market": 49.0,
+    "median_max": 76.4,
+    "median_drawdown": -4.8
+  },
+  "pullback_hit_rate": 28.6,
+  "verdict": "全体では中央値が最も高いのは「1か月後」の+37.2%、翌営業日は+31.2%でした。ただし営業利益増加額の上位40%は翌営業日が最良です。金額差で買い日を変えるルールは+37.2%でした。5%押し目は全体の28.6%しか来ません。",
+  "limitations": [
+    "Historical company forecast values are unavailable; this tests entry timing after annual earnings, not forecast surprise accuracy.",
+    "Yahoo earnings dates are used as the announcement-date source and may include timestamp estimation errors.",
+    "Entries use daily closing prices and exclude transaction costs."
+  ]
+}
