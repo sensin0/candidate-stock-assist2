@@ -4,9 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       limit:
-        description: "Number of current candidates (0 = all 200)"
+        description: "Number of candidates (0 = all selected)"
         required: true
         default: "50"
+      universe:
+        description: "current = current top 200, target = all target-sector stocks"
+        required: true
+        default: "current"
+        type: choice
+        options:
+          - current
+          - target
 
 permissions:
   contents: read
@@ -32,6 +40,6 @@ jobs:
       - name: Run aggregate-only private backtest
         env:
           J_QUANTS: ${{ secrets.J_QUANTS }}
-        run: python scripts/jquants_private_progress_backtest.py --limit "${{ inputs.limit }}"
+        run: python scripts/jquants_private_progress_backtest.py --limit "${{ inputs.limit }}" --universe "${{ inputs.universe }}"
 
       # Intentionally no upload-artifact, git commit, Pages publish, or Discord step.

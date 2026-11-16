@@ -20,6 +20,11 @@ import pandas as pd
 import requests
 import yfinance as yf
 
+try:
+    from scripts.weekly_cloud_ranker import CURRENT_TARGET_SECTORS
+except ModuleNotFoundError:
+    from weekly_cloud_ranker import CURRENT_TARGET_SECTORS
+
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = ROOT / "weekly_ranking_report.json"
@@ -44,13 +49,19 @@ def build_progress_events(records, min_seasonal_history=2):
     """Build point-in-time progress events without leaking future forecasts."""
     ordered = sorted(records, key=lambda row: (row.get("DiscDate", ""), row.get("DiscTime", ""), row.get("DiscNo", "")))
     forecasts = {}
+    sales_forecasts = {}
     prior_progress = defaultdict(list)
+    prior_sales_progress = defaultdict(list)
+    prior_quarter_operating = defaultdict(list)
+    latest_annual_operating = {}
     events = []
 
     for row in ordered:
         current_key = fiscal_key(row.get("CurFYSt"), row.get("CurFYEn"))
         next_key = fiscal_key(row.get("NxtFYSt"), row.get("NxtFYEn"))
 
+        code = row.get("Code", "")
+        prior_forecast = forecasts.get(current_key)
         current_forecast = number(row.get("FOP"))
         if current_forecast is not None and all(current_key):
             forecasts[current_key] = current_forecast
@@ -58,8 +69,18 @@ def build_progress_events(records, min_seasonal_history=2):
         if next_forecast is not None and all(next_key):
             forecasts[next_key] = next_forecast
 
+        prior_sales_forecast = sales_forecasts.get(current_key)
+        current_sales_forecast = number(row.get("FSales"))
+        if current_sales_forecast is not None and all(current_key):
+            sales_forecasts[current_key] = current_sales_forecast
+        next_sales_forecast = number(row.get("NxFSales"))
+        if next_sales_forecast is not None and all(next_key):
+            sales_forecasts[next_key] = next_sales_forecast
+
         quarter = QUARTERS.get(row.get("CurPerType"))
         operating = number(row.get("OP"))
+        if row.get("CurPerType") == "FY" and operating is not None:
+            latest_annual_operating[code] = operating
         forecast = forecasts.get(current_key)
         if not quarter or operating is None or forecast is None or forecast <= 0:
             continue
@@ -67,22 +88,55 @@ def build_progress_events(records, min_seasonal_history=2):
         progress = operating / forecast
         expected = quarter / 4
         raw_pace = progress / expected
-        history_key = (row.get("Code", ""), quarter)
+        history_key = (code, quarter)
         history = prior_progress[history_key]
         seasonal_baseline = float(pd.Series(history).median()) if len(history) >= min_seasonal_history else None
         seasonal_pace = progress / seasonal_baseline if seasonal_baseline and seasonal_baseline > 0 else None
+        revision_pct = None
+        if prior_forecast not in (None, 0) and current_forecast is not None:
+            revision_pct = current_forecast / prior_forecast - 1
+        prior_annual = latest_annual_operating.get(code)
+        forecast_growth = None if prior_annual in (None, 0) else forecast / abs(prior_annual) - (1 if prior_annual > 0 else 0)
+        quarter_history = prior_quarter_operating[history_key]
+        yoy_operating_growth = None
+        if quarter_history and quarter_history[-1] not in (None, 0):
+            yoy_operating_growth = operating / abs(quarter_history[-1]) - (1 if quarter_history[-1] > 0 else 0)
+
+        sales = number(row.get("Sales"))
+        sales_forecast = sales_forecasts.get(current_key)
+        sales_progress = None if sales is None or not sales_forecast or sales_forecast <= 0 else sales / sales_forecast
+        sales_history = prior_sales_progress[history_key]
+        sales_seasonal_baseline = float(pd.Series(sales_history).median()) if len(sales_history) >= min_seasonal_history else None
+        sales_seasonal_pace = (
+            sales_progress / sales_seasonal_baseline
+            if sales_progress is not None and sales_seasonal_baseline and sales_seasonal_baseline > 0
+            else None
+        )
+        sales_revision_pct = None
+        if prior_sales_forecast not in (None, 0) and current_sales_forecast is not None:
+            sales_revision_pct = current_sales_forecast / prior_sales_forecast - 1
         events.append(
             {
-                "code": row.get("Code", "")[:4],
+                "code": code[:4],
                 "disclosure_date": row.get("DiscDate"),
                 "quarter": quarter,
                 "progress": progress,
                 "raw_pace": raw_pace,
                 "seasonal_pace": seasonal_pace,
                 "seasonal_history": len(history),
+                "forecast_revision_pct": revision_pct,
+                "forecast_growth": forecast_growth,
+                "forecast_turnaround": prior_annual is not None and prior_annual <= 0 < forecast,
+                "yoy_operating_growth": yoy_operating_growth,
+                "sales_progress": sales_progress,
+                "sales_seasonal_pace": sales_seasonal_pace,
+                "sales_revision_pct": sales_revision_pct,
             }
         )
         history.append(progress)
+        quarter_history.append(operating)
+        if sales_progress is not None:
+            sales_history.append(sales_progress)
     return events
 
 
@@ -124,10 +178,13 @@ class JQuantsClient:
         raise RuntimeError("J-Quants pagination exceeded safety limit")
 
 
-def load_universe(limit):
+def load_universe(limit, universe_mode):
     report = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
-    current = report.get("current_rankings", [])
-    rows = current[:limit] if limit else current
+    if universe_mode == "target":
+        selected = [row for row in report.get("rankings", []) if row.get("Sector") in CURRENT_TARGET_SECTORS]
+    else:
+        selected = report.get("current_rankings", [])
+    rows = selected[:limit] if limit else selected
     seen = set()
     universe = []
     for row in rows:
@@ -169,16 +226,24 @@ def price_on_or_before(frame, date, days=10):
     return None if window.empty else float(window.iloc[-1]["close"])
 
 
-def attach_returns(events, prices, benchmark):
+def trading_entry(frame, disclosure_date, session_offset):
+    eligible = frame[frame.index > pd.Timestamp(disclosure_date)]
+    if len(eligible) <= session_offset:
+        return None, None
+    return eligible.index[session_offset], float(eligible.iloc[session_offset]["close"])
+
+
+def attach_returns(events, prices, benchmark, session_offset=0, timing_key=None):
     completed = []
     for event in events:
         disclosure = pd.Timestamp(event["disclosure_date"])
-        entry_date = disclosure + timedelta(days=1)
-        buy = price_on_or_after(prices, entry_date)
-        benchmark_buy = price_on_or_after(benchmark, entry_date)
-        if buy is None:
+        entry_date, buy = trading_entry(prices, disclosure, session_offset)
+        if entry_date is None:
             continue
+        benchmark_buy = price_on_or_after(benchmark, entry_date)
         row = dict(event)
+        if timing_key:
+            row["timing_key"] = timing_key
         for months in HORIZONS:
             target = entry_date + pd.DateOffset(months=months)
             close = price_on_or_before(prices, target)
@@ -194,6 +259,41 @@ def attach_returns(events, prices, benchmark):
             row[f"max_{months}m"] = None if not complete or window.empty else (float(window["high"].max()) / buy - 1) * 100
         completed.append(row)
     return completed
+
+
+def attach_pullback_returns(events, prices, benchmark, threshold=0.95, sessions=20):
+    completed = []
+    eligible_events = 0
+    for event in events:
+        disclosure = pd.Timestamp(event["disclosure_date"])
+        eligible = prices[prices.index > disclosure]
+        if eligible.empty:
+            continue
+        eligible_events += 1
+        initial = float(eligible.iloc[0]["close"])
+        search = eligible.iloc[1:sessions + 1]
+        hits = search[search["close"] <= initial * threshold]
+        if hits.empty:
+            continue
+        entry_date = hits.index[0]
+        buy = float(hits.iloc[0]["close"])
+        benchmark_buy = price_on_or_after(benchmark, entry_date)
+        row = {**event, "timing_key": "pullback_5"}
+        for months in HORIZONS:
+            target = entry_date + pd.DateOffset(months=months)
+            close = price_on_or_before(prices, target)
+            benchmark_close = price_on_or_before(benchmark, target)
+            stock_return = None if close is None else (close / buy - 1) * 100
+            benchmark_return = None if benchmark_buy is None or benchmark_close is None else (benchmark_close / benchmark_buy - 1) * 100
+            row[f"return_{months}m"] = stock_return
+            row[f"alpha_{months}m"] = None if stock_return is None or benchmark_return is None else stock_return - benchmark_return
+        for months in (6, 12):
+            target = entry_date + pd.DateOffset(months=months)
+            complete = prices.index.max() >= target - timedelta(days=10)
+            window = prices[(prices.index >= entry_date) & (prices.index <= target)]
+            row[f"max_{months}m"] = None if not complete or window.empty else (float(window["high"].max()) / buy - 1) * 100
+        completed.append(row)
+    return completed, eligible_events
 
 
 def summarize(rows):
@@ -214,13 +314,50 @@ def summarize(rows):
     return summary
 
 
-def run(api_key, limit):
+def condition_summaries(rows):
+    conditions = (
+        ("進捗150%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5),
+        ("進捗150%以上＋上方修正", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_revision_pct") or 0) > 0),
+        ("進捗150%以上＋営業利益予想20%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_growth") or -99) >= 0.2),
+        ("進捗150%以上＋前年同期営業利益20%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("yoy_operating_growth") or -99) >= 0.2),
+        ("進捗150%以上＋売上進捗120%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("sales_seasonal_pace") or 0) >= 1.2),
+        ("進捗150%以上＋1Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("quarter") == 1),
+        ("進捗150%以上＋2Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("quarter") == 2),
+        ("進捗150%以上＋3Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("quarter") == 3),
+    )
+    return [{"condition": label, **summarize([row for row in rows if predicate(row)])} for label, predicate in conditions]
+
+
+def timing_summaries(rows, pullback_eligible):
+    labels = {
+        "next_day": "翌営業日",
+        "one_week": "1週間後",
+        "two_weeks": "2週間後",
+        "one_month": "1か月後",
+        "pullback_5": "20営業日以内の5%押し目",
+    }
+    output = []
+    for key, label in labels.items():
+        selected = [row for row in rows if row.get("timing_key") == key]
+        result = {"timing": label, **summarize(selected)}
+        if key == "pullback_5":
+            result["entry_hit_rate"] = round(len(selected) / pullback_eligible * 100, 1) if pullback_eligible else None
+        output.append(result)
+    return output
+
+
+def run(api_key, limit, universe_mode):
     client = JQuantsClient(api_key)
-    universe = load_universe(limit)
+    universe = load_universe(limit, universe_mode)
     all_events = []
+    timing_rows = []
+    pullback_eligible = 0
     failures = 0
     earliest = None
     latest = None
+    benchmark = fetch_price_frame("1306.T", "2021-01-01", (pd.Timestamp.now() + timedelta(days=2)).strftime("%Y-%m-%d"))
+    if benchmark is None:
+        raise RuntimeError("benchmark price history unavailable")
     for index, item in enumerate(universe, start=1):
         try:
             records = client.get_all("fins/summary", {"code": item["code"]})
@@ -234,9 +371,14 @@ def run(api_key, limit):
                 start = (pd.Timestamp(min(row["disclosure_date"] for row in events)) - timedelta(days=10)).strftime("%Y-%m-%d")
                 end = (pd.Timestamp(max(row["disclosure_date"] for row in events)) + pd.DateOffset(months=12) + timedelta(days=15)).strftime("%Y-%m-%d")
                 prices = fetch_price_frame(item["ticker"], start, end)
-                benchmark = fetch_price_frame("1306.T", start, end)
-                if prices is not None and benchmark is not None:
+                if prices is not None:
                     all_events.extend(attach_returns(events, prices, benchmark))
+                    fast_events = [event for event in events if (event.get("seasonal_pace") or 0) >= 1.5]
+                    for key, offset in (("next_day", 0), ("one_week", 4), ("two_weeks", 9), ("one_month", 19)):
+                        timing_rows.extend(attach_returns(fast_events, prices, benchmark, offset, key))
+                    pullback_rows, eligible_count = attach_pullback_returns(fast_events, prices, benchmark)
+                    timing_rows.extend(pullback_rows)
+                    pullback_eligible += eligible_count
         except Exception:
             failures += 1
         if index % 25 == 0:
@@ -253,17 +395,20 @@ def run(api_key, limit):
         "failed_companies": failures,
         "source_coverage": {"earliest_disclosure": earliest, "latest_disclosure": latest},
         "groups": groups,
+        "conditions": condition_summaries(all_events),
+        "entry_timing_for_150pct_progress": timing_summaries(timing_rows, pullback_eligible),
     }
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=50, help="Top current candidates to test; 0 means all current candidates")
+    parser.add_argument("--universe", choices=("current", "target"), default="current")
     args = parser.parse_args()
     api_key = os.environ.get("J_QUANTS", "").strip()
     if not api_key:
         raise SystemExit("J_QUANTS is required")
-    print(json.dumps(run(api_key, args.limit), ensure_ascii=False, indent=2))
+    print(json.dumps(run(api_key, args.limit, args.universe), ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

@@ -35,6 +35,23 @@ class JQuantsProgressBacktestTests(unittest.TestCase):
         self.assertAlmostEqual(events[2]["seasonal_pace"], 2.0)
         self.assertEqual(pace_bucket(events[2]), "過去同四半期比150%以上")
 
+    def test_forecast_revision_uses_only_forecast_known_before_disclosure(self):
+        rows = [
+            {
+                "DiscDate": "2022-05-10", "DiscTime": "15:00", "DiscNo": "1", "Code": "12340",
+                "CurPerType": "FY", "CurFYSt": "2021-04-01", "CurFYEn": "2022-03-31",
+                "NxtFYSt": "2022-04-01", "NxtFYEn": "2023-03-31", "NxFOP": "1000", "OP": "800",
+            },
+            {
+                "DiscDate": "2022-08-10", "DiscTime": "15:00", "DiscNo": "2", "Code": "12340",
+                "CurPerType": "1Q", "CurFYSt": "2022-04-01", "CurFYEn": "2023-03-31",
+                "FOP": "1200", "OP": "400",
+            },
+        ]
+        event = build_progress_events(rows)[0]
+        self.assertAlmostEqual(event["forecast_revision_pct"], 0.2)
+        self.assertAlmostEqual(event["forecast_growth"], 0.5)
+
     def test_summary_reports_double_rate_from_completed_windows(self):
         rows = []
         for value in (120.0, 80.0, -10.0, None):
