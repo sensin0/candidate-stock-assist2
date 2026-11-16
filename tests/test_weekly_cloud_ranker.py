@@ -22,6 +22,7 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
     operating_forecast_progress,
     parse_company_forecast_tables,
     fiscal_ytd_statement_values,
+    two_bagger_confirmation_values,
 )
 
 
@@ -491,6 +492,69 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertEqual(rankings[0]["Ticker"], "JUMP.T")
         self.assertEqual(rankings[0]["Two Bagger Candidate"], "大化け優先")
         self.assertEqual(rankings[0]["Action"], "買い候補 大化け優先")
+
+    def test_two_bagger_confirmation_prefers_reported_progress_over_forecast_only(self):
+        candidates = [
+            {
+                "Ticker": "JMACS.T",
+                "Fiscal Quarters Reported": 2,
+                "Operating Forecast Progress": 71.8,
+                "Operating Pace Index": 143.7,
+                "Revenue Growth": 21.9,
+                "Market Cap": 4_500_000_000,
+                "Price Location": 0.24,
+                "Two Bagger Score": 88,
+            },
+            {
+                "Ticker": "TOYO.T",
+                "Fiscal Quarters Reported": 2,
+                "Operating Forecast Progress": 59.4,
+                "Operating Pace Index": 118.9,
+                "Revenue Growth": 24.8,
+                "Market Cap": 56_000_000_000,
+                "Price Location": 0.2,
+                "Two Bagger Score": 65,
+            },
+            {
+                "Ticker": "AWA.T",
+                "Fiscal Quarters Reported": 1,
+                "Operating Forecast Progress": 27.6,
+                "Operating Pace Index": 110.4,
+                "Revenue Growth": 20.4,
+                "Market Cap": 4_100_000_000,
+                "Price Location": 0.44,
+                "Two Bagger Score": 77,
+            },
+            {
+                "Ticker": "SHIKIBO.T",
+                "Fiscal Quarters Reported": 1,
+                "Operating Forecast Progress": 27.2,
+                "Operating Pace Index": 108.8,
+                "Revenue Growth": 28.6,
+                "Market Cap": 13_000_000_000,
+                "Price Location": 0.44,
+                "Two Bagger Score": 77,
+            },
+            {
+                "Ticker": "KAWAKAMI.T",
+                "Fiscal Quarters Reported": 3,
+                "Operating Forecast Progress": 94.8,
+                "Operating Pace Index": 126.4,
+                "Revenue Growth": 20.1,
+                "Market Cap": 4_300_000_000,
+                "Price Location": 0.94,
+                "Two Bagger Candidate": "大化け監視",
+                "Danger Notes": ["株価位置50%超は掴み回避"],
+            },
+        ]
+        evaluated = [dict(item, **two_bagger_confirmation_values(item)) for item in candidates]
+        evaluated.sort(key=lambda item: item["Two Bagger Confirmation Score"], reverse=True)
+        self.assertEqual(
+            [item["Ticker"] for item in evaluated],
+            ["JMACS.T", "TOYO.T", "AWA.T", "SHIKIBO.T", "KAWAKAMI.T"],
+        )
+        self.assertIn("2Q進捗71.8%", evaluated[0]["Two Bagger Evaluation"])
+        self.assertIn("上方修正", evaluated[0]["Next Confirmation"])
 
     def test_fiscal_ytd_uses_only_quarters_after_latest_annual_period(self):
         quarterly = pd.DataFrame(

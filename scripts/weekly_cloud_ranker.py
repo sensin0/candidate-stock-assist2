@@ -1158,6 +1158,132 @@ def load_private_jump_signals(path):
     return signals
 
 
+def two_bagger_confirmation_values(row):
+    """Score how much of the two-bagger thesis is confirmed by reported results."""
+    quarters = int(clean_number(row.get("Fiscal Quarters Reported")) or 0)
+    progress = clean_number(row.get("Operating Forecast Progress"))
+    pace = clean_number(row.get("Operating Pace Index"))
+    revenue_growth = clean_number(row.get("Revenue Growth"))
+    market_cap = clean_number(row.get("Market Cap"))
+    price_location = clean_number(row.get("Price Location"))
+    recovery_rate = clean_number(row.get("Operating Recovery Rate"))
+    two_bagger_score = clean_number(row.get("Two Bagger Score")) or 0
+    jump_tier = row.get("Two Bagger Candidate")
+    notes = [str(note) for note in row.get("Current Version Notes", [])]
+    dangers = [str(note) for note in row.get("Danger Notes", [])]
+
+    score = 22 if quarters == 2 else 10 if quarters == 1 else 8 if quarters >= 3 else -12
+    if pace is None:
+        score -= 8
+    elif pace >= 150:
+        score += 32
+    elif pace >= 130:
+        score += 24
+    elif pace >= 110:
+        score += 16
+    elif pace >= 100:
+        score += 8
+    elif pace < 80:
+        score -= 32
+
+    if revenue_growth is None or revenue_growth < 10:
+        score += -15 if revenue_growth is not None and revenue_growth < 0 else -5
+    elif revenue_growth >= 20:
+        score += 22
+    elif revenue_growth >= 15:
+        score += 12
+    else:
+        score += 5
+
+    if market_cap is not None:
+        if market_cap <= 5_000_000_000:
+            score += 18
+        elif market_cap <= 20_000_000_000:
+            score += 12
+        elif market_cap <= 100_000_000_000:
+            score += 5
+        else:
+            score -= 25
+
+    if price_location is not None:
+        if price_location <= 0.3:
+            score += 12
+        elif price_location <= 0.5:
+            score += 6
+        elif price_location >= 0.8:
+            score -= 30
+
+    score += {"大化け優先": 40, "大化け監視": 12, "安全寄り2倍候補": 8}.get(jump_tier, 0)
+    score += min(18, two_bagger_score * 0.2)
+    score -= min(16, len(dangers) * 8)
+    if any("2期連続赤字" in note for note in notes):
+        score -= 20
+    if any("連続増益" in note for note in notes):
+        score -= 10
+    if recovery_rate is not None and recovery_rate < 20:
+        score -= 8
+
+    score = round(score, 1)
+    excluded = (
+        bool(row.get("Blocks"))
+        or "パス" in str(row.get("Action") or "")
+        or "Pass" in str(row.get("Action") or "")
+        or row.get("Decision Tier") in {"避ける", "見送り"}
+    )
+    if excluded:
+        grade = "対象外"
+    elif score >= 85 and ((pace is not None and pace >= 130) or jump_tier == "大化け優先"):
+        grade = "S"
+    elif score >= 65:
+        grade = "A"
+    elif score >= 45:
+        grade = "B"
+    elif score >= 25:
+        grade = "C"
+    else:
+        grade = "D"
+
+    stage = f"{quarters}Q確認済み" if quarters else "会社予想段階"
+    facts = []
+    if progress is not None and quarters:
+        facts.append(f"{quarters}Q進捗{progress:.1f}%")
+    if pace is not None:
+        facts.append(f"時間比{pace:.1f}%")
+    if revenue_growth is not None:
+        facts.append(f"売上{revenue_growth:+.1f}%")
+    if market_cap is not None and market_cap <= 5_000_000_000:
+        facts.append("小型")
+    if jump_tier:
+        facts.append(jump_tier)
+    if price_location is not None and price_location >= 0.8:
+        facts.append("高値圏")
+    if not facts:
+        facts.append("確認材料不足")
+
+    if excluded:
+        next_check = "危険条件が解消するまで買い対象外"
+    elif price_location is not None and price_location >= 0.8:
+        next_check = "高値追いを避け、押し目か次回上方修正を待つ"
+    elif pace is not None and pace < 100:
+        next_check = "次回決算で時間比100%以上へ回復するか確認"
+    elif quarters == 0:
+        next_check = "第1四半期で進捗25%以上と前年同期比の改善を確認"
+    elif jump_tier == "大化け優先":
+        next_check = "上方修正の継続と進捗失速がないか確認"
+    elif pace is not None and pace >= 130:
+        next_check = "上方修正が出れば大化け優先へ昇格"
+    else:
+        next_check = "次回決算で進捗加速と上方修正を確認"
+
+    return {
+        "Two Bagger Confirmation Score": score,
+        "Two Bagger Grade": grade,
+        "Confirmation Stage": stage,
+        "Two Bagger Evaluation": f"注目度{grade}。" + "、".join(facts) + "。",
+        "Next Confirmation": next_check,
+    }
+
+
 def build_current_rankings(rankings, jump_signals=None):
     jump_signals = jump_signals or {}
     current_rankings = []
@@ -1203,6 +1329,7 @@ def build_current_rankings(rankings, jump_signals=None):
         row["Jump Ranking Priority"] = jump_signal.get("priority", 0) if jump_eligible else 0
         if jump_eligible and jump_signal.get("tier") == "大化け優先":
             row["Action"] = "買い候補 大化け優先"
+        row.update(two_bagger_confirmation_values(row))
         current_rankings.append(row)
     current_rankings.sort(
         key=lambda row: (
@@ -1211,6 +1338,7 @@ def build_current_rankings(rankings, jump_signals=None):
             or "Pass" in str(row.get("Action") or "")
             or row.get("Decision Tier") in {"避ける", "見送り"}
             else 1,
+            row.get("Two Bagger Confirmation Score", -999) or 0,
             row.get("Jump Ranking Priority", 0) or 0,
             row.get("Expected Upside Score", 0) or 0,
             row.get("Composite Score", row.get("Score", 0)) or 0,
@@ -1735,10 +1863,14 @@ def build_weekly_message(report, top_n, earnings_window_days):
             upside = item.get("Expected Upside Score")
             upside_text = "-" if upside is None else f"{upside:.1f}"
             tier = item.get("Decision Tier") or "-"
+            confirmation = item.get("Two Bagger Confirmation Score")
+            confirmation_text = "-" if confirmation is None else f"{confirmation:.1f}"
+            grade = item.get("Two Bagger Grade") or "-"
+            evaluation = item.get("Two Bagger Evaluation") or "-"
             lines.append(
                 f"{item['Rank']}. {item['Ticker']} {item['Name']} | {item['Action']} | "
-                f"{tier} | 上昇期待 {upside_text} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
-                f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
+                f"{tier} | 2倍注目 {grade}({confirmation_text}) | 上昇期待 {upside_text} | 安全 {safety_text} | "
+                f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {evaluation} {notes}"
             )
         lines.append("")
 
@@ -1781,10 +1913,12 @@ def build_earnings_message(report, earnings_rows):
         two_bagger = item.get("Two Bagger Score")
         two_bagger_text = "-" if two_bagger is None else f"{two_bagger:.0f}"
         tier = item.get("Decision Tier") or "-"
+        grade = item.get("Two Bagger Grade") or "-"
+        evaluation = item.get("Two Bagger Evaluation") or "-"
         lines.append(
             f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"{tier} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
-            f"最新期 {period} | 位置 {price_text} | 売上 {growth_text} | {notes}"
+            f"{tier} | 2倍注目 {grade} | 安全 {safety_text} | 最新期 {period} | "
+            f"位置 {price_text} | 売上 {growth_text} | {evaluation} {notes}"
         )
     if report.get("current_rankings"):
         current_top = report["current_rankings"][0]
@@ -1952,10 +2086,12 @@ def build_top_rank_change_message(report, changes, top_n):
         upside = item.get("Expected Upside Score")
         upside_text = "-" if upside is None else f"{upside:.1f}"
         tier = item.get("Decision Tier") or "-"
+        grade = item.get("Two Bagger Grade") or "-"
+        evaluation = item.get("Two Bagger Evaluation") or "-"
         lines.append(
             f"・{previous_text} -> #{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"{tier} | 上昇期待 {upside_text} | 安全 {safety_text} | 2倍 {two_bagger_text} | Score {item['Score']} | "
-            f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {notes}"
+            f"{tier} | 2倍注目 {grade} | 上昇期待 {upside_text} | 安全 {safety_text} | "
+            f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {evaluation} {notes}"
         )
     if exited:
         lines.extend(["", "外れた銘柄"])
@@ -1978,6 +2114,8 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Two Bagger Score": item.get("Two Bagger Score"),
                 "Composite Score": item.get("Composite Score"),
                 "Expected Upside Score": item.get("Expected Upside Score"),
+                "Two Bagger Confirmation Score": item.get("Two Bagger Confirmation Score"),
+                "Two Bagger Grade": item.get("Two Bagger Grade"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -1992,6 +2130,8 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Two Bagger Score": item.get("Two Bagger Score"),
                 "Composite Score": item.get("Composite Score"),
                 "Expected Upside Score": item.get("Expected Upside Score"),
+                "Two Bagger Confirmation Score": item.get("Two Bagger Confirmation Score"),
+                "Two Bagger Grade": item.get("Two Bagger Grade"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -2067,6 +2207,11 @@ def save_signal_snapshot(path, report):
                     "Two Bagger Score",
                     "Two Bagger Candidate",
                     "Jump Ranking Priority",
+                    "Two Bagger Confirmation Score",
+                    "Two Bagger Grade",
+                    "Confirmation Stage",
+                    "Two Bagger Evaluation",
+                    "Next Confirmation",
                     "Composite Score",
                     "Blocks",
                 )
@@ -2243,7 +2388,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "安全除外を通過した銘柄を、過去12か月成績、来期営業利益の回復幅、売上成長、株価位置から算出した上昇期待指数の高い順に表示。指数は将来リターンの保証値ではない。",
+            "ranking_note": "安全除外を通過した銘柄を、四半期の確認段階、営業利益進捗、売上成長、時価総額、株価位置、上方修正から算出した2倍確認点の高い順に表示。確認点は将来リターンの保証値ではない。",
             "private_jump_signals_loaded": len(jump_signals),
         },
         "rankings": rankings,
