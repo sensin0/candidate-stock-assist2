@@ -5,7 +5,10 @@ non-reconstructable statistics and never writes source records to disk.
 """
 
 import argparse
+import contextlib
+import io
 import json
+import logging
 import math
 import os
 import time
@@ -137,7 +140,16 @@ def load_universe(limit):
 
 
 def fetch_price_frame(ticker, start, end):
-    frame = yf.download(ticker, start=start, end=end, auto_adjust=True, progress=False, threads=False)
+    # yfinance can print ticker-specific warnings directly to stderr. Suppress
+    # them so public Actions logs remain aggregate-only as well.
+    logger = logging.getLogger("yfinance")
+    previous_disabled = logger.disabled
+    logger.disabled = True
+    try:
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            frame = yf.download(ticker, start=start, end=end, auto_adjust=True, progress=False, threads=False)
+    finally:
+        logger.disabled = previous_disabled
     if frame.empty:
         return None
     if isinstance(frame.columns, pd.MultiIndex):
