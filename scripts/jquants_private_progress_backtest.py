@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = ROOT / "weekly_ranking_report.json"
 API_BASE = "https://api.jquants.com/v2"
 QUARTERS = {"1Q": 1, "2Q": 2, "3Q": 3}
-HORIZONS = (1, 3, 6)
+HORIZONS = (1, 3, 6, 12)
 
 
 def number(value):
@@ -154,7 +154,7 @@ def fetch_price_frame(ticker, start, end):
         return None
     if isinstance(frame.columns, pd.MultiIndex):
         frame.columns = frame.columns.get_level_values(0)
-    return frame[["Close"]].dropna().rename(columns={"Close": "close"})
+    return frame[["Close", "High"]].dropna(subset=["Close"]).rename(columns={"Close": "close", "High": "high"})
 
 
 def price_on_or_after(frame, date, days=10):
@@ -187,6 +187,11 @@ def attach_returns(events, prices, benchmark):
             benchmark_return = None if benchmark_buy is None or benchmark_close is None else (benchmark_close / benchmark_buy - 1) * 100
             row[f"return_{months}m"] = stock_return
             row[f"alpha_{months}m"] = None if stock_return is None or benchmark_return is None else stock_return - benchmark_return
+        for months in (6, 12):
+            target = entry_date + pd.DateOffset(months=months)
+            complete = prices.index.max() >= target - timedelta(days=10)
+            window = prices[(prices.index >= entry_date) & (prices.index <= target)]
+            row[f"max_{months}m"] = None if not complete or window.empty else (float(window["high"].max()) / buy - 1) * 100
         completed.append(row)
     return completed
 
@@ -201,6 +206,11 @@ def summarize(rows):
         summary[f"win_{months}m"] = round(sum(value > 0 for value in values) / len(values) * 100, 1) if values else None
         summary[f"median_alpha_{months}m"] = round(float(pd.Series(alphas).median()), 1) if alphas else None
         summary[f"beat_market_{months}m"] = round(sum(value > 0 for value in alphas) / len(alphas) * 100, 1) if alphas else None
+    for months in (6, 12):
+        maxima = [row[f"max_{months}m"] for row in rows if row.get(f"max_{months}m") is not None]
+        summary[f"n_max_{months}m"] = len(maxima)
+        summary[f"median_max_{months}m"] = round(float(pd.Series(maxima).median()), 1) if maxima else None
+        summary[f"double_rate_{months}m"] = round(sum(value >= 100 for value in maxima) / len(maxima) * 100, 1) if maxima else None
     return summary
 
 
@@ -222,7 +232,7 @@ def run(api_key, limit):
                     latest = max([latest] + dates) if latest else max(dates)
             if events:
                 start = (pd.Timestamp(min(row["disclosure_date"] for row in events)) - timedelta(days=10)).strftime("%Y-%m-%d")
-                end = (pd.Timestamp(max(row["disclosure_date"] for row in events)) + pd.DateOffset(months=6) + timedelta(days=15)).strftime("%Y-%m-%d")
+                end = (pd.Timestamp(max(row["disclosure_date"] for row in events)) + pd.DateOffset(months=12) + timedelta(days=15)).strftime("%Y-%m-%d")
                 prices = fetch_price_frame(item["ticker"], start, end)
                 benchmark = fetch_price_frame("1306.T", start, end)
                 if prices is not None and benchmark is not None:

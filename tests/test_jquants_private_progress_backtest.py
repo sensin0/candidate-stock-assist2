@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.jquants_private_progress_backtest import build_progress_events, pace_bucket
+from scripts.jquants_private_progress_backtest import build_progress_events, pace_bucket, summarize
 
 
 class JQuantsProgressBacktestTests(unittest.TestCase):
@@ -34,6 +34,18 @@ class JQuantsProgressBacktestTests(unittest.TestCase):
         self.assertIsNone(events[1]["seasonal_pace"])
         self.assertAlmostEqual(events[2]["seasonal_pace"], 2.0)
         self.assertEqual(pace_bucket(events[2]), "過去同四半期比150%以上")
+
+    def test_summary_reports_double_rate_from_completed_windows(self):
+        rows = []
+        for value in (120.0, 80.0, -10.0, None):
+            row = {"code": "1234", "max_6m": value, "max_12m": value}
+            for months in (1, 3, 6, 12):
+                row[f"return_{months}m"] = 1.0
+                row[f"alpha_{months}m"] = 0.5
+            rows.append(row)
+        result = summarize(rows)
+        self.assertEqual(result["n_max_12m"], 3)
+        self.assertEqual(result["double_rate_12m"], 33.3)
 
 
 if __name__ == "__main__":
