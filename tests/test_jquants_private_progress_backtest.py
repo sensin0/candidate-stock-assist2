@@ -52,6 +52,25 @@ class JQuantsProgressBacktestTests(unittest.TestCase):
         self.assertAlmostEqual(event["forecast_revision_pct"], 0.2)
         self.assertAlmostEqual(event["forecast_growth"], 0.5)
 
+    def test_v_recovery_uses_two_disclosed_annual_results_and_current_forecast(self):
+        rows = [
+            {
+                "DiscDate": "2021-05-10", "DiscTime": "15:00", "DiscNo": "1", "Code": "12340",
+                "CurPerType": "FY", "CurFYSt": "2020-04-01", "CurFYEn": "2021-03-31", "OP": "1200",
+            },
+            {
+                "DiscDate": "2022-05-10", "DiscTime": "15:00", "DiscNo": "2", "Code": "12340",
+                "CurPerType": "FY", "CurFYSt": "2021-04-01", "CurFYEn": "2022-03-31",
+                "NxtFYSt": "2022-04-01", "NxtFYEn": "2023-03-31", "NxFOP": "1100", "OP": "800",
+            },
+            {
+                "DiscDate": "2022-08-10", "DiscTime": "15:00", "DiscNo": "3", "Code": "12340",
+                "CurPerType": "1Q", "CurFYSt": "2022-04-01", "CurFYEn": "2023-03-31", "OP": "400",
+            },
+        ]
+        event = build_progress_events(rows)[0]
+        self.assertTrue(event["forecast_v_recovery"])
+
     def test_summary_reports_double_rate_from_completed_windows(self):
         rows = []
         for value in (120.0, 80.0, -10.0, None):

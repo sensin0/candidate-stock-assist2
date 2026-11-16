@@ -54,6 +54,7 @@ def build_progress_events(records, min_seasonal_history=2):
     prior_sales_progress = defaultdict(list)
     prior_quarter_operating = defaultdict(list)
     latest_annual_operating = {}
+    annual_operating_history = defaultdict(list)
     events = []
 
     for row in ordered:
@@ -81,6 +82,7 @@ def build_progress_events(records, min_seasonal_history=2):
         operating = number(row.get("OP"))
         if row.get("CurPerType") == "FY" and operating is not None:
             latest_annual_operating[code] = operating
+            annual_operating_history[code].append(operating)
         forecast = forecasts.get(current_key)
         if not quarter or operating is None or forecast is None or forecast <= 0:
             continue
@@ -96,6 +98,7 @@ def build_progress_events(records, min_seasonal_history=2):
         if prior_forecast not in (None, 0) and current_forecast is not None:
             revision_pct = current_forecast / prior_forecast - 1
         prior_annual = latest_annual_operating.get(code)
+        annual_history = annual_operating_history[code]
         forecast_growth = None if prior_annual in (None, 0) else forecast / abs(prior_annual) - (1 if prior_annual > 0 else 0)
         quarter_history = prior_quarter_operating[history_key]
         yoy_operating_growth = None
@@ -127,6 +130,7 @@ def build_progress_events(records, min_seasonal_history=2):
                 "forecast_revision_pct": revision_pct,
                 "forecast_growth": forecast_growth,
                 "forecast_turnaround": prior_annual is not None and prior_annual <= 0 < forecast,
+                "forecast_v_recovery": len(annual_history) >= 2 and annual_history[-2] > annual_history[-1] and forecast > annual_history[-1],
                 "yoy_operating_growth": yoy_operating_growth,
                 "sales_progress": sales_progress,
                 "sales_seasonal_pace": sales_seasonal_pace,
@@ -211,7 +215,7 @@ def fetch_price_frame(ticker, start, end):
         return None
     if isinstance(frame.columns, pd.MultiIndex):
         frame.columns = frame.columns.get_level_values(0)
-    return frame[["Close", "High"]].dropna(subset=["Close"]).rename(columns={"Close": "close", "High": "high"})
+    return frame[["Close", "High", "Low"]].dropna(subset=["Close"]).rename(columns={"Close": "close", "High": "high", "Low": "low"})
 
 
 def price_on_or_after(frame, date, days=10):
@@ -257,6 +261,7 @@ def attach_returns(events, prices, benchmark, session_offset=0, timing_key=None)
             complete = prices.index.max() >= target - timedelta(days=10)
             window = prices[(prices.index >= entry_date) & (prices.index <= target)]
             row[f"max_{months}m"] = None if not complete or window.empty else (float(window["high"].max()) / buy - 1) * 100
+            row[f"drawdown_{months}m"] = None if not complete or window.empty else (float(window["low"].min()) / buy - 1) * 100
         completed.append(row)
     return completed
 
@@ -292,6 +297,7 @@ def attach_pullback_returns(events, prices, benchmark, threshold=0.95, sessions=
             complete = prices.index.max() >= target - timedelta(days=10)
             window = prices[(prices.index >= entry_date) & (prices.index <= target)]
             row[f"max_{months}m"] = None if not complete or window.empty else (float(window["high"].max()) / buy - 1) * 100
+            row[f"drawdown_{months}m"] = None if not complete or window.empty else (float(window["low"].min()) / buy - 1) * 100
         completed.append(row)
     return completed, eligible_events
 
@@ -311,6 +317,8 @@ def summarize(rows):
         summary[f"n_max_{months}m"] = len(maxima)
         summary[f"median_max_{months}m"] = round(float(pd.Series(maxima).median()), 1) if maxima else None
         summary[f"double_rate_{months}m"] = round(sum(value >= 100 for value in maxima) / len(maxima) * 100, 1) if maxima else None
+        drawdowns = [row[f"drawdown_{months}m"] for row in rows if row.get(f"drawdown_{months}m") is not None]
+        summary[f"median_drawdown_{months}m"] = round(float(pd.Series(drawdowns).median()), 1) if drawdowns else None
     return summary
 
 
@@ -318,7 +326,10 @@ def condition_summaries(rows):
     conditions = (
         ("進捗150%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5),
         ("進捗150%以上＋上方修正", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_revision_pct") or 0) > 0),
+        ("進捗150%以上＋上方修正＋営業利益予想20%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_revision_pct") or 0) > 0 and (row.get("forecast_growth") or -99) >= 0.2),
         ("進捗150%以上＋営業利益予想20%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_growth") or -99) >= 0.2),
+        ("進捗150%以上＋営業利益V字回復", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("forecast_v_recovery")),
+        ("進捗150%以上＋赤字から黒字予想", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("forecast_turnaround")),
         ("進捗150%以上＋前年同期営業利益20%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("yoy_operating_growth") or -99) >= 0.2),
         ("進捗150%以上＋売上進捗120%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("sales_seasonal_pace") or 0) >= 1.2),
         ("進捗150%以上＋1Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("quarter") == 1),
