@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.jquants_private_progress_backtest import build_progress_events, pace_bucket, summarize
+from scripts.jquants_private_progress_backtest import build_progress_events, current_signal_counts, pace_bucket, summarize
 
 
 class JQuantsProgressBacktestTests(unittest.TestCase):
@@ -82,6 +82,17 @@ class JQuantsProgressBacktestTests(unittest.TestCase):
         result = summarize(rows)
         self.assertEqual(result["n_max_12m"], 3)
         self.assertEqual(result["double_rate_12m"], 33.3)
+
+    def test_current_counts_use_only_latest_recent_event_per_company(self):
+        events = [
+            {"code": "1234", "disclosure_date": "2026-05-01", "seasonal_pace": 2.0, "forecast_revision_pct": 0.2, "quarter": 1},
+            {"code": "1234", "disclosure_date": "2026-11-01", "seasonal_pace": 1.6, "forecast_revision_pct": 0.1, "quarter": 2},
+            {"code": "5678", "disclosure_date": "2025-12-01", "seasonal_pace": 2.0, "forecast_revision_pct": 0.2, "quarter": 1},
+        ]
+        result = current_signal_counts(events, "2026-11-16")
+        self.assertEqual(result["recent_latest_quarterly_companies"], 1)
+        counts = {row["condition"]: row["companies"] for row in result["counts"]}
+        self.assertEqual(counts["進捗150%以上＋上方修正＋1Q/2Q"], 1)
 
 
 if __name__ == "__main__":

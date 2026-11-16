@@ -322,11 +322,13 @@ def summarize(rows):
     return summary
 
 
-def condition_summaries(rows):
-    conditions = (
+def condition_definitions():
+    return (
         ("進捗150%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5),
         ("進捗150%以上＋上方修正", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_revision_pct") or 0) > 0),
+        ("進捗150%以上＋上方修正＋1Q/2Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_revision_pct") or 0) > 0 and row.get("quarter") in (1, 2)),
         ("進捗150%以上＋上方修正＋営業利益予想20%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_revision_pct") or 0) > 0 and (row.get("forecast_growth") or -99) >= 0.2),
+        ("進捗150%以上＋上方修正＋営業利益予想20%以上＋1Q/2Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_revision_pct") or 0) > 0 and (row.get("forecast_growth") or -99) >= 0.2 and row.get("quarter") in (1, 2)),
         ("進捗150%以上＋営業利益予想20%以上", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and (row.get("forecast_growth") or -99) >= 0.2),
         ("進捗150%以上＋営業利益V字回復", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("forecast_v_recovery")),
         ("進捗150%以上＋赤字から黒字予想", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("forecast_turnaround")),
@@ -336,7 +338,43 @@ def condition_summaries(rows):
         ("進捗150%以上＋2Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("quarter") == 2),
         ("進捗150%以上＋3Q", lambda row: (row.get("seasonal_pace") or 0) >= 1.5 and row.get("quarter") == 3),
     )
-    return [{"condition": label, **summarize([row for row in rows if predicate(row)])} for label, predicate in conditions]
+
+
+def condition_summaries(rows):
+    output = []
+    for label, predicate in condition_definitions():
+        selected = [row for row in rows if predicate(row)]
+        years = defaultdict(int)
+        for row in selected:
+            if row.get("disclosure_date"):
+                years[str(row["disclosure_date"])[:4]] += 1
+        output.append(
+            {
+                "condition": label,
+                **summarize(selected),
+                "signals_per_year": dict(sorted(years.items())),
+                "average_signals_per_year": round(sum(years.values()) / len(years), 1) if years else 0,
+            }
+        )
+    return output
+
+
+def current_signal_counts(events, as_of):
+    latest_by_code = {}
+    for event in events:
+        code = event.get("code")
+        if code and (code not in latest_by_code or str(event.get("disclosure_date")) > str(latest_by_code[code].get("disclosure_date"))):
+            latest_by_code[code] = event
+    cutoff = pd.Timestamp(as_of) - timedelta(days=210)
+    recent = [event for event in latest_by_code.values() if pd.Timestamp(event["disclosure_date"]) >= cutoff]
+    return {
+        "as_of": as_of,
+        "recent_latest_quarterly_companies": len(recent),
+        "counts": [
+            {"condition": label, "companies": sum(1 for event in recent if predicate(event))}
+            for label, predicate in condition_definitions()
+        ],
+    }
 
 
 def timing_summaries(rows, pullback_eligible):
@@ -361,6 +399,7 @@ def run(api_key, limit, universe_mode):
     client = JQuantsClient(api_key)
     universe = load_universe(limit, universe_mode)
     all_events = []
+    all_progress_events = []
     timing_rows = []
     pullback_eligible = 0
     failures = 0
@@ -373,6 +412,7 @@ def run(api_key, limit, universe_mode):
         try:
             records = client.get_all("fins/summary", {"code": item["code"]})
             events = build_progress_events(records)
+            all_progress_events.extend(events)
             if records:
                 dates = [row.get("DiscDate") for row in records if row.get("DiscDate")]
                 if dates:
@@ -407,6 +447,7 @@ def run(api_key, limit, universe_mode):
         "source_coverage": {"earliest_disclosure": earliest, "latest_disclosure": latest},
         "groups": groups,
         "conditions": condition_summaries(all_events),
+        "current_signal_counts": current_signal_counts(all_progress_events, latest) if latest else None,
         "entry_timing_for_150pct_progress": timing_summaries(timing_rows, pullback_eligible),
     }
 
