@@ -354,6 +354,7 @@ def run(api_key, limit, universe_mode):
     candidate_events = 0
     pullback_eligible = 0
     failures = 0
+    failure_reasons = defaultdict(int)
     earliest = None
     latest = None
     for index, item in enumerate(universe, start=1):
@@ -383,8 +384,18 @@ def run(api_key, limit, universe_mode):
                     row = attach_performance(scored, prices, benchmark, "pullback_5")
                     if row:
                         all_rows.append(row)
-        except Exception:
+        except Exception as error:
             failures += 1
+            message = str(error).lower()
+            if "price history unavailable" in message:
+                reason = "price_history_unavailable"
+            elif "429" in message:
+                reason = "rate_limited_after_retries"
+            elif "timed out" in message or "timeout" in message:
+                reason = "network_timeout"
+            else:
+                reason = type(error).__name__
+            failure_reasons[reason] += 1
         if index % 25 == 0:
             print(f"Validated {index}/{len(universe)} companies; source records are not stored")
 
@@ -408,6 +419,7 @@ def run(api_key, limit, universe_mode):
         "methodology": "point-in-time current-ranking-v1",
         "universe_companies": len(universe),
         "failed_companies": failures,
+        "failure_reasons": dict(failure_reasons),
         "candidate_events": candidate_events,
         "source_coverage": {"earliest_disclosure": earliest, "latest_disclosure": latest},
         "entry_timing": timing,
