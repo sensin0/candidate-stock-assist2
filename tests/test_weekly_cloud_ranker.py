@@ -52,6 +52,9 @@ class DecisionScoreTests(unittest.TestCase):
             "Revenue Growth": 15.0,
             "Two Bagger Candidate": "大化け監視",
             "Price Cycle Status": "上昇前",
+            "Safety Score": 85,
+            "Market Cap": 4_000_000_000,
+            "Max Gain From Prior Low": 20.0,
         })
         confirmed = buy_timing_values({
             "Fiscal Quarters Reported": 1,

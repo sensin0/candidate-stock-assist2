@@ -1343,6 +1343,35 @@ def buy_timing_values(row):
     jump_tier = row.get("Two Bagger Candidate")
     current_operating = clean_number(row.get("Current Fiscal Operating Income"))
     next_operating = clean_number(row.get("Next Fiscal Operating Income"))
+    market_cap = clean_number(row.get("Market Cap"))
+    max_gain = clean_number(row.get("Max Gain From Prior Low"))
+    price_location = clean_number(row.get("Price Location"))
+    safety = clean_number(row.get("Safety Score")) or 0
+    net_risk = row.get("Net Income Risk")
+
+    def timing_result(status, priority, score, evaluation):
+        if status == "上昇一巡":
+            grade = "一巡"
+        elif status == "対象外":
+            grade = "対象外"
+        elif score >= 80:
+            grade = "S"
+        elif score >= 65:
+            grade = "A"
+        elif score >= 50:
+            grade = "B"
+        elif score >= 35:
+            grade = "C"
+        else:
+            grade = "D"
+        return {
+            "Buy Timing Status": status,
+            "Buy Timing Priority": priority,
+            "Buy Timing Score": round(score, 1),
+            "Buy Timing Grade": grade,
+            "Buy Timing Evaluation": evaluation,
+        }
+
     excluded = (
         bool(row.get("Blocks"))
         or "パス" in str(row.get("Action") or "")
@@ -1350,18 +1379,10 @@ def buy_timing_values(row):
         or row.get("Decision Tier") in {"避ける", "見送り"}
     )
     if excluded:
-        return {
-            "Buy Timing Status": "対象外",
-            "Buy Timing Priority": 0,
-            "Buy Timing Evaluation": "危険条件が解消するまで買い対象外",
-        }
+        return timing_result("対象外", 0, -100, "危険条件が解消するまで買い対象外")
     if cycle in {"2倍到達済み", "2倍後の往復済み"}:
         wording = "一度2倍へ到達後に下落。再上昇の決算材料が出るまで新規買い待ち" if cycle == "2倍後の往復済み" else "すでに2倍へ到達。新規買いより利確・押し目確認"
-        return {
-            "Buy Timing Status": "上昇一巡",
-            "Buy Timing Priority": 5,
-            "Buy Timing Evaluation": wording,
-        }
+        return timing_result("上昇一巡", 5, 0, wording)
 
     forecast_recovery = None
     if current_operating is not None and next_operating is not None:
@@ -1370,34 +1391,74 @@ def buy_timing_values(row):
         elif current_operating > 0:
             forecast_recovery = (next_operating / current_operating - 1) * 100
 
+    early_score = 10 if safety >= 80 else 2 if safety >= 60 else -15
+    if market_cap is not None:
+        if market_cap <= 5_000_000_000:
+            early_score += 20
+        elif market_cap <= 20_000_000_000:
+            early_score += 15
+        elif market_cap <= 100_000_000_000:
+            early_score += 5
+        elif market_cap <= 300_000_000_000:
+            early_score -= 10
+        else:
+            early_score -= 20
+    if max_gain is None:
+        early_score -= 5
+    elif max_gain <= 30:
+        early_score += 20
+    elif max_gain <= 50:
+        early_score += 10
+    elif max_gain >= 90:
+        early_score -= 25
+    elif max_gain >= 60:
+        early_score -= 10
+    if price_location is not None:
+        if price_location < 0.4:
+            early_score += 5
+        elif price_location > 0.8:
+            early_score -= 15
+        elif price_location > 0.65:
+            early_score -= 5
+    if revenue_growth is not None:
+        if revenue_growth >= 15:
+            early_score += 10
+        elif revenue_growth < 0:
+            early_score -= 10
+    if net_risk in {"profit_to_loss", "deeper_loss"}:
+        early_score -= 25
+    elif net_risk == "profit_decline":
+        early_score -= 15
+
     if quarters >= 3 and (
         jump_tier == "大化け監視"
         or ((pace or 0) >= 120 and (revenue_growth or 0) >= 10)
     ):
-        priority = 100 if cycle == "上昇前" else 75
-        return {
-            "Buy Timing Status": "3Q先回り",
-            "Buy Timing Priority": priority,
-            "Buy Timing Evaluation": "3Q急進捗・上方修正を先回り。次の本決算まで予想維持を確認",
-        }
+        early_score += 30 if (pace or 0) >= 150 else 22 if (pace or 0) >= 130 else 15
+        if jump_tier == "大化け監視":
+            early_score += 20
+        if early_score >= 50:
+            priority = 100 if cycle == "上昇前" else 75
+            return timing_result("3Q先回り", priority, early_score, "3Q急進捗・上方修正を先回り。次の本決算まで予想維持を確認")
+        return timing_result("先回り監視", 45, early_score, "3Q材料はあるが、小型性・株価位置・安全性が不足")
     if quarters == 0 and forecast_recovery is not None and forecast_recovery >= 20:
-        priority = 95 if cycle == "上昇前" else 70
-        return {
-            "Buy Timing Status": "会社予想先回り",
-            "Buy Timing Priority": priority,
-            "Buy Timing Evaluation": f"来期営業利益{forecast_recovery:+.1f}%予想を先回り。1Qまで小さく追跡",
-        }
+        if current_operating is not None and current_operating <= 0 < (next_operating or 0):
+            early_score += 40
+        elif forecast_recovery >= 200:
+            early_score += 35
+        elif forecast_recovery >= 100:
+            early_score += 30
+        elif forecast_recovery >= 50:
+            early_score += 20
+        else:
+            early_score += 10
+        if early_score >= 50:
+            priority = 95 if cycle == "上昇前" else 70
+            return timing_result("会社予想先回り", priority, early_score, f"来期営業利益{forecast_recovery:+.1f}%予想を先回り。1Qまで小さく追跡")
+        return timing_result("先回り監視", 45, early_score, "来期回復予想はあるが、小型性・株価位置・安全性が不足")
     if quarters in (1, 2) and confirmation >= 65:
-        return {
-            "Buy Timing Status": "業績確認済み",
-            "Buy Timing Priority": 60,
-            "Buy Timing Evaluation": "1Q・2Qで業績を確認済み。初動後なら追いかけず押し目を確認",
-        }
-    return {
-        "Buy Timing Status": "監視",
-        "Buy Timing Priority": 35,
-        "Buy Timing Evaluation": "先回り条件が不足。次の上方修正か進捗加速を待つ",
-    }
+        return timing_result("業績確認済み", 60, confirmation, "1Q・2Qで業績を確認済み。初動後なら追いかけず押し目を確認")
+    return timing_result("監視", 35, confirmation, "先回り条件が不足。次の上方修正か進捗加速を待つ")
 
 
 def build_current_rankings(rankings, jump_signals=None):
@@ -1456,8 +1517,9 @@ def build_current_rankings(rankings, jump_signals=None):
             or row.get("Decision Tier") in {"避ける", "見送り"}
             else 1,
             row.get("Buy Timing Priority", 0) or 0,
-            row.get("Two Bagger Confirmation Score", -999) or 0,
             row.get("Jump Ranking Priority", 0) or 0,
+            row.get("Buy Timing Score", -999) or 0,
+            row.get("Two Bagger Confirmation Score", -999) or 0,
             row.get("Expected Upside Score", 0) or 0,
             row.get("Composite Score", row.get("Score", 0)) or 0,
             row.get("Score", 0) or 0,
@@ -2242,6 +2304,8 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Two Bagger Grade": item.get("Two Bagger Grade"),
                 "Buy Timing Status": item.get("Buy Timing Status"),
                 "Buy Timing Priority": item.get("Buy Timing Priority"),
+                "Buy Timing Score": item.get("Buy Timing Score"),
+                "Buy Timing Grade": item.get("Buy Timing Grade"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -2260,6 +2324,8 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Two Bagger Grade": item.get("Two Bagger Grade"),
                 "Buy Timing Status": item.get("Buy Timing Status"),
                 "Buy Timing Priority": item.get("Buy Timing Priority"),
+                "Buy Timing Score": item.get("Buy Timing Score"),
+                "Buy Timing Grade": item.get("Buy Timing Grade"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -2342,6 +2408,8 @@ def save_signal_snapshot(path, report):
                     "Next Confirmation",
                     "Buy Timing Status",
                     "Buy Timing Priority",
+                    "Buy Timing Score",
+                    "Buy Timing Grade",
                     "Buy Timing Evaluation",
                     "Max Gain From Prior Low",
                     "Drawdown From 1Y High",
