@@ -18,7 +18,6 @@ try:
         HORIZONS,
         JQuantsClient,
         build_progress_events,
-        fetch_price_frame,
         jump_signal,
         load_universe,
         number,
@@ -32,7 +31,6 @@ except ModuleNotFoundError:
         HORIZONS,
         JQuantsClient,
         build_progress_events,
-        fetch_price_frame,
         jump_signal,
         load_universe,
         number,
@@ -45,6 +43,29 @@ except ModuleNotFoundError:
 
 ELIGIBLE_STATUSES = {"会社予想先回り", "3Q先回り", "業績確認済み"}
 TIMINGS = (("next_day", 0), ("one_week", 4), ("two_weeks", 9), ("one_month", 19))
+
+
+def fetch_jquants_price_frame(client, code):
+    """Load adjusted daily bars in memory without persisting licensed rows."""
+    records = client.get_all("equities/bars/daily", {"code": code})
+    rows = []
+    for record in records:
+        close = number(record.get("AdjC"))
+        high = number(record.get("AdjH"))
+        low = number(record.get("AdjL"))
+        date = record.get("Date")
+        if date and close is not None:
+            rows.append(
+                {
+                    "date": pd.Timestamp(date),
+                    "close": close,
+                    "high": high if high is not None else close,
+                    "low": low if low is not None else close,
+                }
+            )
+    if not rows:
+        return None
+    return pd.DataFrame(rows).drop_duplicates("date", keep="last").set_index("date").sort_index()
 
 
 def build_point_in_time_events(records):
@@ -326,7 +347,7 @@ def monthly_rank_bands(rows):
 def run(api_key, limit, universe_mode):
     client = JQuantsClient(api_key)
     universe = load_universe(limit, universe_mode)
-    benchmark = fetch_price_frame("1306.T", "2018-01-01", (pd.Timestamp.now() + timedelta(days=2)).strftime("%Y-%m-%d"))
+    benchmark = fetch_jquants_price_frame(client, "1306")
     if benchmark is None:
         raise RuntimeError("benchmark price history unavailable")
     all_rows = []
@@ -343,9 +364,7 @@ def run(api_key, limit, universe_mode):
             if dates:
                 earliest = min([earliest] + dates) if earliest else min(dates)
                 latest = max([latest] + dates) if latest else max(dates)
-                start = (pd.Timestamp(min(dates)) - pd.DateOffset(years=2) - timedelta(days=20)).strftime("%Y-%m-%d")
-                end = (pd.Timestamp(max(dates)) + pd.DateOffset(months=12) + timedelta(days=15)).strftime("%Y-%m-%d")
-                prices = fetch_price_frame(item["ticker"], start, end)
+                prices = fetch_jquants_price_frame(client, item["code"])
                 if prices is None:
                     raise RuntimeError("price history unavailable")
                 for event in events:

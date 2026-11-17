@@ -2,10 +2,21 @@ import unittest
 
 import pandas as pd
 
-from scripts.backtest_current_ranking_timing import price_features, score_event
+from scripts.backtest_current_ranking_timing import fetch_jquants_price_frame, price_features, score_event
 
 
 class CurrentRankingTimingBacktestTests(unittest.TestCase):
+    def test_jquants_prices_use_adjusted_daily_values(self):
+        class Client:
+            def get_all(self, path, params):
+                self.path = path
+                return [{"Date": "2024-01-05", "AdjC": "101", "AdjH": "103", "AdjL": "99"}]
+
+        client = Client()
+        result = fetch_jquants_price_frame(client, "1234")
+        self.assertEqual(client.path, "equities/bars/daily")
+        self.assertEqual(float(result.iloc[0]["close"]), 101.0)
+
     def test_annual_turnaround_is_eligible_before_large_move(self):
         event = {
             "code": "1234",
