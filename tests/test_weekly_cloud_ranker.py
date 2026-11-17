@@ -18,6 +18,7 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
     financial_comparison_index,
     historical_growth_pattern,
     local_current_version_score,
+    loss_improving,
     operating_dip_candidates,
     operating_forecast_progress,
     parse_company_forecast_tables,
@@ -27,6 +28,13 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
 
 
 class DecisionScoreTests(unittest.TestCase):
+    def test_profitable_margin_decline_is_not_loss_expansion(self):
+        self.assertIsNone(loss_improving(2.1, 51.5, 3107.8, 2871.8))
+
+    def test_profit_to_loss_and_loss_to_profit_keep_direction(self):
+        self.assertFalse(loss_improving(-10.0, 5.0, 100.0, 100.0))
+        self.assertTrue(loss_improving(5.0, -10.0, 100.0, 100.0))
+
     def test_fifteen_percent_growth_can_be_buy_priority(self):
         result = decision_scores("化学", 0.4, 0.1, 17.0, True, None, True)
         self.assertEqual(result["Decision Tier"], "買い優先")

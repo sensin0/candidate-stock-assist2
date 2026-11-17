@@ -784,6 +784,15 @@ def loss_improving(latest_loss, previous_loss, latest_revenue, previous_revenue)
         return None
     if latest_revenue in (None, 0) or previous_revenue in (None, 0):
         return None
+    # This flag describes loss direction, not ordinary profit growth. A
+    # profitable quarter must never become "operating loss expansion" merely
+    # because its margin declined year over year.
+    if latest_loss >= 0 and previous_loss >= 0:
+        return None
+    if previous_loss < 0 <= latest_loss:
+        return True
+    if latest_loss < 0 <= previous_loss:
+        return False
     latest_margin = latest_loss / abs(latest_revenue)
     previous_margin = previous_loss / abs(previous_revenue)
     return latest_margin > previous_margin
