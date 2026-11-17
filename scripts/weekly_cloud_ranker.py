@@ -798,6 +798,46 @@ def loss_improving(latest_loss, previous_loss, latest_revenue, previous_revenue)
     return latest_margin > previous_margin
 
 
+def price_cycle_values(prices, sessions=252):
+    """Describe whether a stock has already completed its large move."""
+    if prices is None or prices.empty or "Close" not in prices:
+        return {
+            "Max Gain From Prior Low": None,
+            "Drawdown From 1Y High": None,
+            "Price Cycle Status": "判定不能",
+        }
+    window = prices.tail(sessions).copy()
+    close = pd.to_numeric(window["Close"], errors="coerce").dropna()
+    if close.empty:
+        return {
+            "Max Gain From Prior Low": None,
+            "Drawdown From 1Y High": None,
+            "Price Cycle Status": "判定不能",
+        }
+    high_source = pd.to_numeric(window.get("High", window["Close"]), errors="coerce").reindex(close.index)
+    running_low = close.cummin()
+    gains = (high_source / running_low - 1) * 100
+    max_gain = clean_number(gains.max())
+    trailing_high = clean_number(high_source.max())
+    current = clean_number(close.iloc[-1])
+    drawdown = None if trailing_high in (None, 0) or current is None else (current / trailing_high - 1) * 100
+    if max_gain is None:
+        status = "判定不能"
+    elif max_gain >= 100 and drawdown is not None and drawdown <= -35:
+        status = "2倍後の往復済み"
+    elif max_gain >= 100:
+        status = "2倍到達済み"
+    elif max_gain >= 60:
+        status = "上昇進行中"
+    else:
+        status = "上昇前"
+    return {
+        "Max Gain From Prior Low": round(max_gain, 1) if max_gain is not None else None,
+        "Drawdown From 1Y High": round(drawdown, 1) if drawdown is not None else None,
+        "Price Cycle Status": status,
+    }
+
+
 def net_income_risk(latest_net_income, previous_net_income):
     if latest_net_income is None or previous_net_income is None:
         return None
@@ -1293,6 +1333,73 @@ def two_bagger_confirmation_values(row):
     }
 
 
+def buy_timing_values(row):
+    """Separate an actionable early signal from confirmation and a completed move."""
+    cycle = str(row.get("Price Cycle Status") or "判定不能")
+    quarters = int(clean_number(row.get("Fiscal Quarters Reported")) or 0)
+    pace = clean_number(row.get("Operating Pace Index"))
+    revenue_growth = clean_number(row.get("Revenue Growth"))
+    confirmation = clean_number(row.get("Two Bagger Confirmation Score")) or 0
+    jump_tier = row.get("Two Bagger Candidate")
+    current_operating = clean_number(row.get("Current Fiscal Operating Income"))
+    next_operating = clean_number(row.get("Next Fiscal Operating Income"))
+    excluded = (
+        bool(row.get("Blocks"))
+        or "パス" in str(row.get("Action") or "")
+        or "Pass" in str(row.get("Action") or "")
+        or row.get("Decision Tier") in {"避ける", "見送り"}
+    )
+    if excluded:
+        return {
+            "Buy Timing Status": "対象外",
+            "Buy Timing Priority": 0,
+            "Buy Timing Evaluation": "危険条件が解消するまで買い対象外",
+        }
+    if cycle in {"2倍到達済み", "2倍後の往復済み"}:
+        wording = "一度2倍へ到達後に下落。再上昇の決算材料が出るまで新規買い待ち" if cycle == "2倍後の往復済み" else "すでに2倍へ到達。新規買いより利確・押し目確認"
+        return {
+            "Buy Timing Status": "上昇一巡",
+            "Buy Timing Priority": 5,
+            "Buy Timing Evaluation": wording,
+        }
+
+    forecast_recovery = None
+    if current_operating is not None and next_operating is not None:
+        if current_operating <= 0 < next_operating:
+            forecast_recovery = 999.0
+        elif current_operating > 0:
+            forecast_recovery = (next_operating / current_operating - 1) * 100
+
+    if quarters >= 3 and (
+        jump_tier == "大化け監視"
+        or ((pace or 0) >= 120 and (revenue_growth or 0) >= 10)
+    ):
+        priority = 100 if cycle == "上昇前" else 75
+        return {
+            "Buy Timing Status": "3Q先回り",
+            "Buy Timing Priority": priority,
+            "Buy Timing Evaluation": "3Q急進捗・上方修正を先回り。次の本決算まで予想維持を確認",
+        }
+    if quarters == 0 and forecast_recovery is not None and forecast_recovery >= 20:
+        priority = 95 if cycle == "上昇前" else 70
+        return {
+            "Buy Timing Status": "会社予想先回り",
+            "Buy Timing Priority": priority,
+            "Buy Timing Evaluation": f"来期営業利益{forecast_recovery:+.1f}%予想を先回り。1Qまで小さく追跡",
+        }
+    if quarters in (1, 2) and confirmation >= 65:
+        return {
+            "Buy Timing Status": "業績確認済み",
+            "Buy Timing Priority": 60,
+            "Buy Timing Evaluation": "1Q・2Qで業績を確認済み。初動後なら追いかけず押し目を確認",
+        }
+    return {
+        "Buy Timing Status": "監視",
+        "Buy Timing Priority": 35,
+        "Buy Timing Evaluation": "先回り条件が不足。次の上方修正か進捗加速を待つ",
+    }
+
+
 def build_current_rankings(rankings, jump_signals=None):
     jump_signals = jump_signals or {}
     current_rankings = []
@@ -1339,6 +1446,7 @@ def build_current_rankings(rankings, jump_signals=None):
         if jump_eligible and jump_signal.get("tier") == "大化け優先":
             row["Action"] = "買い候補 大化け優先"
         row.update(two_bagger_confirmation_values(row))
+        row.update(buy_timing_values(row))
         current_rankings.append(row)
     current_rankings.sort(
         key=lambda row: (
@@ -1347,6 +1455,7 @@ def build_current_rankings(rankings, jump_signals=None):
             or "Pass" in str(row.get("Action") or "")
             or row.get("Decision Tier") in {"避ける", "見送り"}
             else 1,
+            row.get("Buy Timing Priority", 0) or 0,
             row.get("Two Bagger Confirmation Score", -999) or 0,
             row.get("Jump Ranking Priority", 0) or 0,
             row.get("Expected Upside Score", 0) or 0,
@@ -1598,6 +1707,7 @@ def score_stock(row):
     price_location = None
     if current_price is not None and min_price is not None and max_price not in (None, min_price):
         price_location = (current_price - min_price) / (max_price - min_price)
+    price_cycle = price_cycle_values(prices)
 
     market_cap = None
     try:
@@ -1794,6 +1904,7 @@ def score_stock(row):
         "Status": status,
         "Sector Status": "-",
         "Price Location": round(price_location, 3) if price_location is not None else None,
+        **price_cycle,
         "Revenue Growth": round(revenue_growth, 1) if revenue_growth is not None else None,
         "Revenue Growth Label": growth_label(revenue_growth),
         "Annual Revenue Growth": round(annual_revenue_growth, 1) if annual_revenue_growth is not None else None,
@@ -1876,10 +1987,12 @@ def build_weekly_message(report, top_n, earnings_window_days):
             confirmation_text = "-" if confirmation is None else f"{confirmation:.1f}"
             grade = item.get("Two Bagger Grade") or "-"
             evaluation = item.get("Two Bagger Evaluation") or "-"
+            timing = item.get("Buy Timing Status") or "-"
+            timing_evaluation = item.get("Buy Timing Evaluation") or "-"
             lines.append(
                 f"{item['Rank']}. {item['Ticker']} {item['Name']} | {item['Action']} | "
-                f"{tier} | 2倍注目 {grade}({confirmation_text}) | 上昇期待 {upside_text} | 安全 {safety_text} | "
-                f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {evaluation} {notes}"
+                f"{tier} | {timing} | 2倍注目 {grade}({confirmation_text}) | 上昇期待 {upside_text} | 安全 {safety_text} | "
+                f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {timing_evaluation} {evaluation} {notes}"
             )
         lines.append("")
 
@@ -1924,9 +2037,10 @@ def build_earnings_message(report, earnings_rows):
         tier = item.get("Decision Tier") or "-"
         grade = item.get("Two Bagger Grade") or "-"
         evaluation = item.get("Two Bagger Evaluation") or "-"
+        timing = item.get("Buy Timing Status") or "-"
         lines.append(
             f"・#{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"{tier} | 2倍注目 {grade} | 安全 {safety_text} | 最新期 {period} | "
+            f"{tier} | {timing} | 2倍注目 {grade} | 安全 {safety_text} | 最新期 {period} | "
             f"位置 {price_text} | 売上 {growth_text} | {evaluation} {notes}"
         )
     if report.get("current_rankings"):
@@ -2097,9 +2211,10 @@ def build_top_rank_change_message(report, changes, top_n):
         tier = item.get("Decision Tier") or "-"
         grade = item.get("Two Bagger Grade") or "-"
         evaluation = item.get("Two Bagger Evaluation") or "-"
+        timing = item.get("Buy Timing Status") or "-"
         lines.append(
             f"・{previous_text} -> #{item['Rank']} {item['Ticker']} {item['Name']} | {item['Action']} | "
-            f"{tier} | 2倍注目 {grade} | 上昇期待 {upside_text} | 安全 {safety_text} | "
+            f"{tier} | {timing} | 2倍注目 {grade} | 上昇期待 {upside_text} | 安全 {safety_text} | "
             f"位置 {price_text} | 売上 {growth_text} | +50% {target_text} | {evaluation} {notes}"
         )
     if exited:
@@ -2125,6 +2240,8 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Expected Upside Score": item.get("Expected Upside Score"),
                 "Two Bagger Confirmation Score": item.get("Two Bagger Confirmation Score"),
                 "Two Bagger Grade": item.get("Two Bagger Grade"),
+                "Buy Timing Status": item.get("Buy Timing Status"),
+                "Buy Timing Priority": item.get("Buy Timing Priority"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -2141,6 +2258,8 @@ def build_state(rankings, now_utc, existing_state=None, refresh_cursor=None, uni
                 "Expected Upside Score": item.get("Expected Upside Score"),
                 "Two Bagger Confirmation Score": item.get("Two Bagger Confirmation Score"),
                 "Two Bagger Grade": item.get("Two Bagger Grade"),
+                "Buy Timing Status": item.get("Buy Timing Status"),
+                "Buy Timing Priority": item.get("Buy Timing Priority"),
                 "Decision Tier": item.get("Decision Tier"),
                 "Latest Quarter Period": item.get("Latest Quarter Period"),
             }
@@ -2221,6 +2340,12 @@ def save_signal_snapshot(path, report):
                     "Confirmation Stage",
                     "Two Bagger Evaluation",
                     "Next Confirmation",
+                    "Buy Timing Status",
+                    "Buy Timing Priority",
+                    "Buy Timing Evaluation",
+                    "Max Gain From Prior Low",
+                    "Drawdown From 1Y High",
+                    "Price Cycle Status",
                     "Composite Score",
                     "Blocks",
                 )
@@ -2397,7 +2522,7 @@ def main():
             "failed_tickers": len(errors),
             "provider": "yfinance",
             "safety_version": SAFETY_VERSION,
-            "ranking_note": "安全除外を通過した銘柄を、四半期の確認段階、営業利益進捗、売上成長、時価総額、株価位置、上方修正から算出した2倍確認点の高い順に表示。確認点は将来リターンの保証値ではない。",
+            "ranking_note": "3Q上方修正と本決算の来期回復予想を仕込み候補、1Q・2Q好進捗を確認済み、一度2倍へ到達した銘柄を上昇一巡に分離。買い時期優先の後に2倍確認点で表示する。将来リターンの保証値ではない。",
             "private_jump_signals_loaded": len(jump_signals),
         },
         "rankings": rankings,

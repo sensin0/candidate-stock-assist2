@@ -12,6 +12,7 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
     SAFETY_VERSION,
     add_priority_refresh_rows,
     build_current_rankings,
+    buy_timing_values,
     build_strategy_competition,
     build_strategy_rankings,
     decision_scores,
@@ -22,6 +23,7 @@ from scripts.weekly_cloud_ranker import (  # noqa: E402
     operating_dip_candidates,
     operating_forecast_progress,
     parse_company_forecast_tables,
+    price_cycle_values,
     fiscal_ytd_statement_values,
     two_bagger_confirmation_values,
 )
@@ -34,6 +36,36 @@ class DecisionScoreTests(unittest.TestCase):
     def test_profit_to_loss_and_loss_to_profit_keep_direction(self):
         self.assertFalse(loss_improving(-10.0, 5.0, 100.0, 100.0))
         self.assertTrue(loss_improving(5.0, -10.0, 100.0, 100.0))
+
+    def test_price_cycle_detects_completed_two_bagger_round_trip(self):
+        prices = pd.DataFrame(
+            {"Close": [100.0, 150.0, 210.0, 130.0], "High": [105.0, 160.0, 220.0, 135.0]}
+        )
+        result = price_cycle_values(prices)
+        self.assertEqual(result["Price Cycle Status"], "2倍後の往復済み")
+        self.assertEqual(result["Max Gain From Prior Low"], 120.0)
+
+    def test_buy_timing_separates_early_confirmation_and_completed_move(self):
+        early = buy_timing_values({
+            "Fiscal Quarters Reported": 3,
+            "Operating Pace Index": 130.0,
+            "Revenue Growth": 15.0,
+            "Two Bagger Candidate": "大化け監視",
+            "Price Cycle Status": "上昇前",
+        })
+        confirmed = buy_timing_values({
+            "Fiscal Quarters Reported": 1,
+            "Two Bagger Confirmation Score": 80.0,
+            "Price Cycle Status": "上昇前",
+        })
+        completed = buy_timing_values({
+            "Fiscal Quarters Reported": 1,
+            "Two Bagger Confirmation Score": 90.0,
+            "Price Cycle Status": "2倍後の往復済み",
+        })
+        self.assertEqual(early["Buy Timing Status"], "3Q先回り")
+        self.assertEqual(confirmed["Buy Timing Status"], "業績確認済み")
+        self.assertEqual(completed["Buy Timing Status"], "上昇一巡")
 
     def test_fifteen_percent_growth_can_be_buy_priority(self):
         result = decision_scores("化学", 0.4, 0.1, 17.0, True, None, True)
