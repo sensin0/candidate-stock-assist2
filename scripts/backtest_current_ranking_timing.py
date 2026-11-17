@@ -440,6 +440,20 @@ def run(api_key, limit, universe_mode, workers=3):
             item["entry_hit_rate"] = None if not pullback_eligible else round(len(selected) / pullback_eligible * 100, 1)
         timing.append(item)
     next_day = [row for row in all_rows if row["timing_key"] == "next_day"]
+    stage_entry_timing = []
+    for stage in ("会社予想先回り", "業績確認済み", "3Q先回り"):
+        for timing_key, label in timing_labels.items():
+            selected = [
+                row for row in all_rows
+                if row["timing_status"] == stage and row["timing_key"] == timing_key
+            ]
+            item = {
+                "timing_status": stage,
+                "timing_key": timing_key,
+                "timing": label,
+                **summarize(selected),
+            }
+            stage_entry_timing.append(item)
     return {
         "privacy": "aggregate-only; raw J-Quants records and company-level events are not persisted or printed",
         "methodology": "point-in-time current-ranking-v1",
@@ -449,6 +463,7 @@ def run(api_key, limit, universe_mode, workers=3):
         "candidate_events": candidate_events,
         "source_coverage": {"earliest_disclosure": earliest, "latest_disclosure": latest},
         "entry_timing": timing,
+        "stage_entry_timing": stage_entry_timing,
         "by_stage": grouped(next_day, "timing_status", ["会社予想先回り", "業績確認済み", "3Q先回り"]),
         "by_grade": grouped(next_day, "timing_grade", ["S", "A", "B"]),
         "monthly_top5_rank_bands": monthly_rank_bands(next_day),
