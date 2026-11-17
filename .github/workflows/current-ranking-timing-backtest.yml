@@ -40,6 +40,6 @@ jobs:
       - name: Run aggregate-only point-in-time validation
         env:
           J_QUANTS: ${{ secrets.J_QUANTS }}
-        run: python scripts/backtest_current_ranking_timing.py --limit "${{ inputs.limit }}" --universe "${{ inputs.universe }}"
+        run: python scripts/backtest_current_ranking_timing.py --limit "${{ inputs.limit }}" --universe "${{ inputs.universe }}" --workers 3
 
       # Raw licensed records and company-level events are intentionally not uploaded.

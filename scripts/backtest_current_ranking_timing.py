@@ -9,6 +9,7 @@ import json
 import math
 import os
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import timedelta
 
 import pandas as pd
@@ -344,7 +345,44 @@ def monthly_rank_bands(rows):
     return grouped(selected, "rank_band", ["1", "2-3", "4-5"])
 
 
-def run(api_key, limit, universe_mode):
+def evaluate_company(api_key, item, benchmark):
+    client = JQuantsClient(api_key)
+    records = client.get_all("fins/summary", {"code": item["code"]})
+    events = build_point_in_time_events(records)
+    dates = [event["disclosure_date"] for event in events if event.get("disclosure_date")]
+    if not dates:
+        return {"rows": [], "candidate_events": 0, "pullback_eligible": 0, "dates": []}
+    prices = fetch_jquants_price_frame(client, item["code"])
+    if prices is None:
+        raise RuntimeError("price history unavailable")
+    rows = []
+    candidate_events = 0
+    pullback_eligible = 0
+    for event in events:
+        features = price_features(prices, event["disclosure_date"], event.get("shares"))
+        if features is None:
+            continue
+        scored = score_event(event, features)
+        if scored["timing_status"] not in ELIGIBLE_STATUSES:
+            continue
+        candidate_events += 1
+        for timing_key, _ in TIMINGS:
+            row = attach_performance(scored, prices, benchmark, timing_key)
+            if row:
+                rows.append(row)
+        pullback_eligible += 1
+        row = attach_performance(scored, prices, benchmark, "pullback_5")
+        if row:
+            rows.append(row)
+    return {
+        "rows": rows,
+        "candidate_events": candidate_events,
+        "pullback_eligible": pullback_eligible,
+        "dates": dates,
+    }
+
+
+def run(api_key, limit, universe_mode, workers=3):
     client = JQuantsClient(api_key)
     universe = load_universe(limit, universe_mode)
     benchmark = fetch_jquants_price_frame(client, "1306")
@@ -357,47 +395,35 @@ def run(api_key, limit, universe_mode):
     failure_reasons = defaultdict(int)
     earliest = None
     latest = None
-    for index, item in enumerate(universe, start=1):
-        try:
-            records = client.get_all("fins/summary", {"code": item["code"]})
-            events = build_point_in_time_events(records)
-            dates = [event["disclosure_date"] for event in events if event.get("disclosure_date")]
-            if dates:
-                earliest = min([earliest] + dates) if earliest else min(dates)
-                latest = max([latest] + dates) if latest else max(dates)
-                prices = fetch_jquants_price_frame(client, item["code"])
-                if prices is None:
-                    raise RuntimeError("price history unavailable")
-                for event in events:
-                    features = price_features(prices, event["disclosure_date"], event.get("shares"))
-                    if features is None:
-                        continue
-                    scored = score_event(event, features)
-                    if scored["timing_status"] not in ELIGIBLE_STATUSES:
-                        continue
-                    candidate_events += 1
-                    for timing_key, _ in TIMINGS:
-                        row = attach_performance(scored, prices, benchmark, timing_key)
-                        if row:
-                            all_rows.append(row)
-                    pullback_eligible += 1
-                    row = attach_performance(scored, prices, benchmark, "pullback_5")
-                    if row:
-                        all_rows.append(row)
-        except Exception as error:
-            failures += 1
-            message = str(error).lower()
-            if "price history unavailable" in message:
-                reason = "price_history_unavailable"
-            elif "429" in message:
-                reason = "rate_limited_after_retries"
-            elif "timed out" in message or "timeout" in message:
-                reason = "network_timeout"
-            else:
-                reason = type(error).__name__
-            failure_reasons[reason] += 1
-        if index % 25 == 0:
-            print(f"Validated {index}/{len(universe)} companies; source records are not stored")
+    worker_count = max(1, workers)
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        futures = {executor.submit(evaluate_company, api_key, item, benchmark): item for item in universe}
+        completed = 0
+        for future in as_completed(futures):
+            completed += 1
+            try:
+                result = future.result()
+                all_rows.extend(result["rows"])
+                candidate_events += result["candidate_events"]
+                pullback_eligible += result["pullback_eligible"]
+                dates = result["dates"]
+                if dates:
+                    earliest = min([earliest] + dates) if earliest else min(dates)
+                    latest = max([latest] + dates) if latest else max(dates)
+            except Exception as error:
+                failures += 1
+                message = str(error).lower()
+                if "price history unavailable" in message:
+                    reason = "price_history_unavailable"
+                elif "429" in message:
+                    reason = "rate_limited_after_retries"
+                elif "timed out" in message or "timeout" in message:
+                    reason = "network_timeout"
+                else:
+                    reason = type(error).__name__
+                failure_reasons[reason] += 1
+            if completed % 25 == 0:
+                print(f"Validated {completed}/{len(universe)} companies; source records are not stored")
 
     timing_labels = {
         "next_day": "翌営業日",
@@ -439,11 +465,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--universe", choices=("current", "target"), default="target")
+    parser.add_argument("--workers", type=int, default=3)
     args = parser.parse_args()
     api_key = os.environ.get("J_QUANTS", "").strip()
     if not api_key:
         raise SystemExit("J_QUANTS is required")
-    print(json.dumps(run(api_key, args.limit, args.universe), ensure_ascii=False, indent=2))
+    print(json.dumps(run(api_key, args.limit, args.universe, args.workers), ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
