@@ -1,0 +1,45 @@
+name: Private Current Ranking Timing Backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Number of companies (0 = all selected)"
+        required: true
+        default: "0"
+      universe:
+        description: "target = all current target-sector stocks"
+        required: true
+        default: "target"
+        type: choice
+        options:
+          - target
+          - current
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements-cloud.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-cloud.txt
+
+      - name: Run aggregate-only point-in-time validation
+        env:
+          J_QUANTS: ${{ secrets.J_QUANTS }}
+        run: python scripts/backtest_current_ranking_timing.py --limit "${{ inputs.limit }}" --universe "${{ inputs.universe }}"
+
+      # Raw licensed records and company-level events are intentionally not uploaded.
