@@ -118,6 +118,7 @@ def build_point_in_time_events(records):
                         "current_operating": operating,
                         "next_operating": next_operating,
                         "forecast_recovery": recovery,
+                        "forecast_growth": None if operating <= 0 else next_operating / operating - 1,
                         "forecast_v_recovery": prior_operating is not None and prior_operating > operating and next_operating > operating,
                         "revenue_growth": None if sales in (None, 0) or next_sales is None else (next_sales / sales - 1) * 100,
                         "net_income": net_income,
@@ -240,7 +241,11 @@ def score_event(event, features):
         "timing_grade": row["Buy Timing Grade"],
         "timing_score": row["Buy Timing Score"],
         "confirmation_score": row["Two Bagger Confirmation Score"],
+        "market_cap": features.get("market_cap"),
         "market_cap_bucket": "small" if features.get("market_cap") is not None and features["market_cap"] <= 20_000_000_000 else "large_or_unknown",
+        "price_location": features.get("price_location"),
+        "max_gain_before_signal": features.get("max_gain"),
+        "price_cycle": features.get("cycle"),
     }
 
 
@@ -345,17 +350,67 @@ def monthly_rank_bands(rows):
     return grouped(selected, "rank_band", ["1", "2-3", "4-5"])
 
 
+def pattern_definitions():
+    small = lambda row: row.get("market_cap") is not None and row["market_cap"] <= 20_000_000_000
+    unmoved = lambda row: row.get("price_cycle") == "上昇前" and (row.get("max_gain_before_signal") or 999) <= 50
+    revised = lambda row: (row.get("forecast_revision_pct") or 0) > 0
+    fast = lambda row: (row.get("raw_pace") or 0) >= 1.3
+    sales15 = lambda row: (row.get("revenue_growth") or -999) >= 15
+    return (
+        ("現行ランキング候補", lambda row: row.get("timing_status") in ELIGIBLE_STATUSES),
+        ("3Q急進捗", lambda row: row.get("quarter") == 3 and fast(row)),
+        ("3Q急進捗＋上方修正", lambda row: row.get("quarter") == 3 and fast(row) and revised(row)),
+        ("1Q/2Q急進捗＋上方修正", lambda row: row.get("quarter") in (1, 2) and fast(row) and revised(row)),
+        ("小型＋未上昇＋上方修正", lambda row: small(row) and unmoved(row) and revised(row)),
+        ("小型＋未上昇＋売上15%＋急進捗", lambda row: small(row) and unmoved(row) and sales15(row) and (row.get("raw_pace") or 0) >= 1.2),
+        ("赤字黒字予想＋小型＋未上昇", lambda row: bool(row.get("forecast_turnaround")) and small(row) and unmoved(row)),
+        ("V字予想＋小型＋未上昇", lambda row: bool(row.get("forecast_v_recovery")) and small(row) and unmoved(row)),
+        ("営業予想20%＋小型＋未上昇", lambda row: (row.get("forecast_growth") or -999) >= 0.2 and small(row) and unmoved(row)),
+        ("売上20%＋小型＋未上昇", lambda row: (row.get("revenue_growth") or -999) >= 20 and small(row) and unmoved(row)),
+    )
+
+
+def validate_patterns(rows, split_date="2024-01-01"):
+    output = []
+    for label, predicate in pattern_definitions():
+        selected = [row for row in rows if predicate(row)]
+        train = [row for row in selected if str(row.get("disclosure_date")) < split_date]
+        test = [row for row in selected if str(row.get("disclosure_date")) >= split_date]
+        train_summary = summarize(train)
+        test_summary = summarize(test)
+        output.append(
+            {
+                "pattern": label,
+                "train_period": f"before {split_date}",
+                "test_period": f"from {split_date}",
+                "train": train_summary,
+                "test": test_summary,
+                "enough_samples": train_summary["n_complete_12m"] >= 15 and test_summary["n_complete_12m"] >= 10,
+            }
+        )
+    output.sort(
+        key=lambda item: (
+            item["enough_samples"],
+            item["train"].get("double_before_stop_rate") or -1,
+            item["test"].get("double_before_stop_rate") or -1,
+        ),
+        reverse=True,
+    )
+    return output
+
+
 def evaluate_company(api_key, item, benchmark):
     client = JQuantsClient(api_key)
     records = client.get_all("fins/summary", {"code": item["code"]})
     events = build_point_in_time_events(records)
     dates = [event["disclosure_date"] for event in events if event.get("disclosure_date")]
     if not dates:
-        return {"rows": [], "candidate_events": 0, "pullback_eligible": 0, "dates": []}
+        return {"rows": [], "research_rows": [], "candidate_events": 0, "pullback_eligible": 0, "dates": []}
     prices = fetch_jquants_price_frame(client, item["code"])
     if prices is None:
         raise RuntimeError("price history unavailable")
     rows = []
+    research_rows = []
     candidate_events = 0
     pullback_eligible = 0
     for event in events:
@@ -363,6 +418,10 @@ def evaluate_company(api_key, item, benchmark):
         if features is None:
             continue
         scored = score_event(event, features)
+        if scored["timing_status"] not in {"対象外", "上昇一巡", "データ確認待ち"}:
+            research_row = attach_performance(scored, prices, benchmark, "next_day")
+            if research_row:
+                research_rows.append(research_row)
         if scored["timing_status"] not in ELIGIBLE_STATUSES:
             continue
         candidate_events += 1
@@ -376,6 +435,7 @@ def evaluate_company(api_key, item, benchmark):
             rows.append(row)
     return {
         "rows": rows,
+        "research_rows": research_rows,
         "candidate_events": candidate_events,
         "pullback_eligible": pullback_eligible,
         "dates": dates,
@@ -389,6 +449,7 @@ def run(api_key, limit, universe_mode, workers=3):
     if benchmark is None:
         raise RuntimeError("benchmark price history unavailable")
     all_rows = []
+    research_rows = []
     candidate_events = 0
     pullback_eligible = 0
     failures = 0
@@ -404,6 +465,7 @@ def run(api_key, limit, universe_mode, workers=3):
             try:
                 result = future.result()
                 all_rows.extend(result["rows"])
+                research_rows.extend(result["research_rows"])
                 candidate_events += result["candidate_events"]
                 pullback_eligible += result["pullback_eligible"]
                 dates = result["dates"]
@@ -467,6 +529,7 @@ def run(api_key, limit, universe_mode, workers=3):
         "by_stage": grouped(next_day, "timing_status", ["会社予想先回り", "業績確認済み", "3Q先回り"]),
         "by_grade": grouped(next_day, "timing_grade", ["S", "A", "B"]),
         "monthly_top5_rank_bands": monthly_rank_bands(next_day),
+        "alternative_pattern_validation": validate_patterns(research_rows),
         "limitations": [
             "Current listed target-sector universe creates survivorship bias.",
             "Historical market cap uses disclosed year-end shares times pre-disclosure adjusted close.",

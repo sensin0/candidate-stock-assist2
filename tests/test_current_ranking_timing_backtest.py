@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from scripts.backtest_current_ranking_timing import fetch_jquants_price_frame, price_features, score_event
+from scripts.backtest_current_ranking_timing import fetch_jquants_price_frame, price_features, score_event, validate_patterns
 
 
 class CurrentRankingTimingBacktestTests(unittest.TestCase):
@@ -51,6 +51,21 @@ class CurrentRankingTimingBacktestTests(unittest.TestCase):
         )
         result = price_features(prices, "2024-04-02", 10_000_000)
         self.assertEqual(result["cycle"], "2倍後の往復済み")
+
+    def test_pattern_validation_splits_train_and_test_without_future_leakage(self):
+        rows = []
+        for date in ("2023-05-01", "2024-05-01"):
+            row = {
+                "code": date[:4], "disclosure_date": date, "timing_status": "会社予想先回り",
+                "return_1m": 1.0, "return_3m": 2.0, "return_6m": 3.0, "return_12m": 4.0,
+                "alpha_1m": 0.0, "alpha_3m": 0.0, "alpha_6m": 0.0, "alpha_12m": 0.0,
+                "max_12m": 120.0, "drawdown_12m": -10.0, "target50_before_stop": True,
+                "double_before_stop": True, "stop25_first": False,
+            }
+            rows.append(row)
+        current = next(item for item in validate_patterns(rows) if item["pattern"] == "現行ランキング候補")
+        self.assertEqual(current["train"]["n_complete_12m"], 1)
+        self.assertEqual(current["test"]["n_complete_12m"], 1)
 
 
 if __name__ == "__main__":
