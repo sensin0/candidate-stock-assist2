@@ -70,6 +70,20 @@ class DecisionScoreTests(unittest.TestCase):
         self.assertEqual(confirmed["Buy Timing Status"], "業績確認済み")
         self.assertEqual(completed["Buy Timing Status"], "上昇一巡")
 
+    def test_stale_quarter_data_cannot_be_an_early_entry(self):
+        result = buy_timing_values({
+            "Fiscal Quarters Reported": 0,
+            "Current Fiscal Operating Income": -100.0,
+            "Next Fiscal Operating Income": 300.0,
+            "Price Cycle Status": "上昇前",
+            "Safety Score": 90,
+            "Market Cap": 3_000_000_000,
+            "Max Gain From Prior Low": 10.0,
+            "Days Since Latest Quarter": 181,
+        })
+        self.assertEqual(result["Buy Timing Status"], "データ確認待ち")
+        self.assertEqual(result["Buy Timing Grade"], "D")
+
     def test_fifteen_percent_growth_can_be_buy_priority(self):
         result = decision_scores("化学", 0.4, 0.1, 17.0, True, None, True)
         self.assertEqual(result["Decision Tier"], "買い優先")

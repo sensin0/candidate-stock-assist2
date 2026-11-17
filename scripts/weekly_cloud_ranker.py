@@ -1348,6 +1348,7 @@ def buy_timing_values(row):
     price_location = clean_number(row.get("Price Location"))
     safety = clean_number(row.get("Safety Score")) or 0
     net_risk = row.get("Net Income Risk")
+    days_since_quarter = clean_number(row.get("Days Since Latest Quarter"))
 
     def timing_result(status, priority, score, evaluation):
         if status == "上昇一巡":
@@ -1383,6 +1384,16 @@ def buy_timing_values(row):
     if cycle in {"2倍到達済み", "2倍後の往復済み"}:
         wording = "一度2倍へ到達後に下落。再上昇の決算材料が出るまで新規買い待ち" if cycle == "2倍後の往復済み" else "すでに2倍へ到達。新規買いより利確・押し目確認"
         return timing_result("上昇一巡", 5, 0, wording)
+    if quarters == 0 and "Days Since Latest Quarter" in row and (
+        days_since_quarter is None or days_since_quarter > 180
+    ):
+        age = "取得不能" if days_since_quarter is None else f"{int(days_since_quarter)}日前"
+        return timing_result(
+            "データ確認待ち",
+            10,
+            -50,
+            f"最新四半期が{age}のため仕込み判定を停止。新しい決算取得後に再評価",
+        )
 
     forecast_recovery = None
     if current_operating is not None and next_operating is not None:

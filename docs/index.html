@@ -356,7 +356,7 @@
           if (!hasTiming) return current;
           return current.filter((item) => ["3Q先回り", "会社予想先回り"].includes(item["Buy Timing Status"]));
         }
-        if (state.tab === "early_watch") return current.filter((item) => item["Buy Timing Status"] === "先回り監視");
+        if (state.tab === "early_watch") return current.filter((item) => ["先回り監視", "データ確認待ち"].includes(item["Buy Timing Status"]));
         if (state.tab === "confirmed") return current.filter((item) => item["Buy Timing Status"] === "業績確認済み");
         if (state.tab === "exhausted") return current.filter((item) => item["Buy Timing Status"] === "上昇一巡");
         return state.report.strategy_rankings?.[state.tab] || [];
