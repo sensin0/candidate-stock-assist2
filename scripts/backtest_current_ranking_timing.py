@@ -13,19 +13,34 @@ from datetime import timedelta
 
 import pandas as pd
 
-from scripts.jquants_private_progress_backtest import (
-    HORIZONS,
-    JQuantsClient,
-    build_progress_events,
-    fetch_price_frame,
-    jump_signal,
-    load_universe,
-    number,
-    price_on_or_after,
-    price_on_or_before,
-    trading_entry,
-)
-from scripts.weekly_cloud_ranker import buy_timing_values, two_bagger_confirmation_values
+try:
+    from scripts.jquants_private_progress_backtest import (
+        HORIZONS,
+        JQuantsClient,
+        build_progress_events,
+        fetch_price_frame,
+        jump_signal,
+        load_universe,
+        number,
+        price_on_or_after,
+        price_on_or_before,
+        trading_entry,
+    )
+    from scripts.weekly_cloud_ranker import buy_timing_values, two_bagger_confirmation_values
+except ModuleNotFoundError:
+    from jquants_private_progress_backtest import (
+        HORIZONS,
+        JQuantsClient,
+        build_progress_events,
+        fetch_price_frame,
+        jump_signal,
+        load_universe,
+        number,
+        price_on_or_after,
+        price_on_or_before,
+        trading_entry,
+    )
+    from weekly_cloud_ranker import buy_timing_values, two_bagger_confirmation_values
 
 
 ELIGIBLE_STATUSES = {"会社予想先回り", "3Q先回り", "業績確認済み"}
