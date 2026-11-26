@@ -113,6 +113,7 @@ def build_point_in_time_events(records):
                     {
                         "code": code,
                         "disclosure_date": row.get("DiscDate"),
+                        "disclosure_order": (row.get("DiscTime", ""), row.get("DiscNo", "")),
                         "stage": "company_forecast",
                         "quarter": 0,
                         "current_operating": operating,
@@ -240,6 +241,7 @@ def score_event(event, features):
         **event,
         "timing_status": row["Buy Timing Status"],
         "timing_grade": row["Buy Timing Grade"],
+        "timing_priority": row["Buy Timing Priority"],
         "timing_score": row["Buy Timing Score"],
         "confirmation_score": row["Two Bagger Confirmation Score"],
         "market_cap": features.get("market_cap"),
@@ -273,14 +275,14 @@ def attach_performance(event, prices, benchmark, timing_key):
     benchmark_buy = price_on_or_after(benchmark, entry_date)
     for months in HORIZONS:
         target = entry_date + pd.DateOffset(months=months)
-        close = price_on_or_before(prices, target)
+        close = price_on_or_before(prices, target) if benchmark.index.max() >= target else None
         benchmark_close = price_on_or_before(benchmark, target)
         result[f"return_{months}m"] = None if close is None else (close / buy - 1) * 100
         benchmark_return = None if benchmark_buy is None or benchmark_close is None else (benchmark_close / benchmark_buy - 1) * 100
         result[f"alpha_{months}m"] = None if result[f"return_{months}m"] is None or benchmark_return is None else result[f"return_{months}m"] - benchmark_return
     for months in (6, 12):
         target = entry_date + pd.DateOffset(months=months)
-        complete = prices.index.max() >= target - timedelta(days=10)
+        complete = benchmark.index.max() >= target and prices.index.max() >= target - timedelta(days=10)
         window = prices[(prices.index > entry_date) & (prices.index <= target)]
         result[f"max_{months}m"] = None if not complete or window.empty else (float(window["high"].max()) / buy - 1) * 100
         result[f"drawdown_{months}m"] = None if not complete or window.empty else (float(window["low"].min()) / buy - 1) * 100
@@ -430,18 +432,78 @@ def sales_filter_comparison(rows, split_date="2024-01-01"):
     return output
 
 
+def monthly_forecast_rank_comparison(rows, top=3, split="2024-01"):
+    months = defaultdict(dict)
+    for row in rows:
+        month = row["disclosure_date"][:7]
+        prior = months[month].get(row["code"])
+        order = lambda item: (item["disclosure_date"], item.get("disclosure_order", ()))
+        if prior is None or order(row) > order(prior):
+            months[month][row["code"]] = row
+    output = {}
+    for period in ("earlier", "later"):
+        sample = [(month, rows.values()) for month, rows in sorted(months.items())
+                  if (month < split) == (period == "earlier")]
+        result = {"months_with_disclosures": len(sample)}
+        selections = defaultdict(list)
+        paired = defaultdict(list)
+        for _, candidates in sample:
+            eligible = [row for row in candidates if row["timing_status"] == "会社予想先回り"]
+            ranked = sorted(eligible, key=lambda row: (
+                -row["timing_priority"], -row["timing_score"], -row["confirmation_score"], row["code"]))
+            growth = [row for row in ranked if (row.get("revenue_growth") or 0) > 0
+                      and row["next_operating"] > row["current_operating"]]
+            variants = {"current": ranked[:top], "both_filter": growth[:top],
+                        "both_sales_first": sorted(growth, key=lambda row: -row["revenue_growth"])[:top]}
+            for strategy, picks in variants.items():
+                selections[strategy].append(picks)
+            for timing in ("next_day", "one_week"):
+                for horizon in (3, 6, 12):
+                    key = f"return_{horizon}m"
+                    if not all(len(picks) == top and all(
+                        (row["month_end_returns"].get(timing) or {}).get(key) is not None
+                        for row in picks) for picks in variants.values()):
+                        continue
+                    means = {strategy: sum(row["month_end_returns"][timing][key] for row in picks) / top
+                             for strategy, picks in variants.items()}
+                    paired[(timing, horizon)].append(means)
+        result["coverage"] = {strategy: {"months_with_picks": sum(bool(picks) for picks in lists),
+                                        "slots_filled": sum(map(len, lists))}
+                              for strategy, lists in selections.items()}
+        result["paired_baskets"] = [
+            {"timing": timing, "months_held": horizon, "matched_months": len(baskets),
+             "median_returns": {strategy: median([row[strategy] for row in baskets])
+                                for strategy in ("current", "both_filter", "both_sales_first")},
+             "median_delta": {strategy: median([row[strategy] - row["current"] for row in baskets])
+                              for strategy in ("both_filter", "both_sales_first")},
+             "beat_current_pct": {strategy: round(100 * sum(
+                 row[strategy] > row["current"] for row in baskets) / len(baskets), 1)
+                 for strategy in ("both_filter", "both_sales_first")}}
+            for (timing, horizon), baskets in sorted(paired.items())]
+        result["trade_metrics"] = {}
+        for strategy, lists in selections.items():
+            trades = [row["month_end_returns"]["next_day"] for picks in lists for row in picks
+                      if row["month_end_returns"].get("next_day")]
+            stats = summarize(trades)
+            result["trade_metrics"][strategy] = {key: stats[key] for key in (
+                "n_complete_12m", "double_before_stop_rate", "stop25_first_rate", "median_alpha_12m")}
+        output[period] = result
+    return output
+
+
 def evaluate_company(api_key, item, benchmark):
     client = JQuantsClient(api_key)
     records = client.get_all("fins/summary", {"code": item["code"]})
     events = build_point_in_time_events(records)
     dates = [event["disclosure_date"] for event in events if event.get("disclosure_date")]
     if not dates:
-        return {"rows": [], "research_rows": [], "candidate_events": 0, "pullback_eligible": 0, "dates": []}
+        return {"rows": [], "research_rows": [], "monthly_forecasts": [], "candidate_events": 0, "pullback_eligible": 0, "dates": []}
     prices = fetch_jquants_price_frame(client, item["code"])
     if prices is None:
         raise RuntimeError("price history unavailable")
     rows = []
     research_rows = []
+    monthly_forecasts = []
     candidate_events = 0
     pullback_eligible = 0
     for event in events:
@@ -449,6 +511,13 @@ def evaluate_company(api_key, item, benchmark):
         if features is None:
             continue
         scored = score_event(event, features)
+        if event["quarter"] == 0:
+            decision = pd.Timestamp(event["disclosure_date"]) + pd.offsets.MonthEnd(0)
+            decision_text = decision.date().isoformat()
+            monthly_forecasts.append({**scored, "month_end_returns": {
+                timing: attach_performance({**scored, "disclosure_date": decision_text}, prices, benchmark, timing)
+                if scored["timing_status"] == "会社予想先回り" else None
+                for timing in ("next_day", "one_week")}})
         if scored["timing_status"] not in {"対象外", "上昇一巡", "データ確認待ち"}:
             research_row = attach_performance(scored, prices, benchmark, "next_day")
             if research_row:
@@ -467,6 +536,7 @@ def evaluate_company(api_key, item, benchmark):
     return {
         "rows": rows,
         "research_rows": research_rows,
+        "monthly_forecasts": monthly_forecasts,
         "candidate_events": candidate_events,
         "pullback_eligible": pullback_eligible,
         "dates": dates,
@@ -481,6 +551,7 @@ def run(api_key, limit, universe_mode, workers=3):
         raise RuntimeError("benchmark price history unavailable")
     all_rows = []
     research_rows = []
+    monthly_forecasts = []
     candidate_events = 0
     pullback_eligible = 0
     failures = 0
@@ -497,6 +568,7 @@ def run(api_key, limit, universe_mode, workers=3):
                 result = future.result()
                 all_rows.extend(result["rows"])
                 research_rows.extend(result["research_rows"])
+                monthly_forecasts.extend(result["monthly_forecasts"])
                 candidate_events += result["candidate_events"]
                 pullback_eligible += result["pullback_eligible"]
                 dates = result["dates"]
@@ -562,6 +634,10 @@ def run(api_key, limit, universe_mode, workers=3):
         "monthly_top5_rank_bands": monthly_rank_bands(next_day),
         "alternative_pattern_validation": validate_patterns(research_rows),
         "sales_filter_comparison": sales_filter_comparison(all_rows),
+        "monthly_forecast_rank_comparison": {
+            "top_3": monthly_forecast_rank_comparison(monthly_forecasts),
+            "top_1": monthly_forecast_rank_comparison(monthly_forecasts, top=1),
+        },
         "limitations": [
             "Current listed target-sector universe creates survivorship bias.",
             "Historical market cap uses disclosed year-end shares times pre-disclosure adjusted close.",

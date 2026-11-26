@@ -3,10 +3,23 @@ import unittest
 import pandas as pd
 
 from scripts.backtest_current_ranking_timing import fetch_jquants_price_frame, price_features, score_event, validate_patterns
-from scripts.backtest_current_ranking_timing import sales_filter_comparison
+from scripts.backtest_current_ranking_timing import monthly_forecast_rank_comparison, sales_filter_comparison
 
 
 class CurrentRankingTimingBacktestTests(unittest.TestCase):
+    def test_monthly_ranking_filters_before_looking_at_returns(self):
+        base = dict(disclosure_date="2024-05-01", timing_status="会社予想先回り",
+                    timing_priority=95, confirmation_score=0, current_operating=10, next_operating=15)
+        rows = [
+            dict(base, code=code, timing_score=score, revenue_growth=sales,
+                 month_end_returns={"next_day": dict(code=code, return_3m=ret)})
+            for code, score, sales, ret in (("1234", 90, -1, -5), ("1235", 80, 4, 2), ("1236", 75, 8, 6))
+        ]
+        result = monthly_forecast_rank_comparison(rows, top=1)["later"]["paired_baskets"][0]
+        self.assertEqual(result["median_delta"], {"both_filter": 7.0, "both_sales_first": 11.0})
+        rows[0]["month_end_returns"] = {}
+        self.assertEqual(monthly_forecast_rank_comparison(rows, top=1)["later"]["paired_baskets"], [])
+
     def test_sales_comparison_separates_zero_missing_and_incomplete(self):
         base = dict(code="1234", disclosure_date="2024-05-01", quarter=0,
                     timing_key="next_day", forecast_growth=0.25, max_12m=20,
