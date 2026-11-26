@@ -3,9 +3,21 @@ import unittest
 import pandas as pd
 
 from scripts.backtest_current_ranking_timing import fetch_jquants_price_frame, price_features, score_event, validate_patterns
+from scripts.backtest_current_ranking_timing import sales_filter_comparison
 
 
 class CurrentRankingTimingBacktestTests(unittest.TestCase):
+    def test_sales_comparison_separates_zero_missing_and_incomplete(self):
+        base = dict(code="1234", disclosure_date="2024-05-01", quarter=0,
+                    timing_key="next_day", forecast_growth=0.25, max_12m=20,
+                    return_12m=10, drawdown_12m=-5)
+        rows = [dict(base, revenue_growth=growth) for growth in (None, 0, 0.5, 10)]
+        rows.append(dict(base, revenue_growth=20, max_12m=None))
+        results = sales_filter_comparison(rows)
+        counts = {row["sales"]: row["events"] for row in results
+                  if row["timing"] == "next_day" and row["period"] == "later" and row["annual"]}
+        self.assertEqual(counts, dict(baseline=4, positive=2, at_least_10=1, flat_or_down=1, missing=1))
+
     def test_jquants_prices_use_adjusted_daily_values(self):
         class Client:
             def get_all(self, path, params):

@@ -119,6 +119,7 @@ def build_point_in_time_events(records):
                         "next_operating": next_operating,
                         "forecast_recovery": recovery,
                         "forecast_growth": None if operating <= 0 else next_operating / operating - 1,
+                        "forecast_turnaround": operating <= 0 < next_operating,
                         "forecast_v_recovery": prior_operating is not None and prior_operating > operating and next_operating > operating,
                         "revenue_growth": None if sales in (None, 0) or next_sales is None else (next_sales / sales - 1) * 100,
                         "net_income": net_income,
@@ -280,7 +281,7 @@ def attach_performance(event, prices, benchmark, timing_key):
     for months in (6, 12):
         target = entry_date + pd.DateOffset(months=months)
         complete = prices.index.max() >= target - timedelta(days=10)
-        window = prices[(prices.index >= entry_date) & (prices.index <= target)]
+        window = prices[(prices.index > entry_date) & (prices.index <= target)]
         result[f"max_{months}m"] = None if not complete or window.empty else (float(window["high"].max()) / buy - 1) * 100
         result[f"drawdown_{months}m"] = None if not complete or window.empty else (float(window["low"].min()) / buy - 1) * 100
         if months == 12 and complete and not window.empty:
@@ -396,6 +397,36 @@ def validate_patterns(rows, split_date="2024-01-01"):
         ),
         reverse=True,
     )
+    return output
+
+
+def sales_filter_comparison(rows, split_date="2024-01-01"):
+    output = []
+    for timing in ("next_day", "one_week"):
+        for period, before_split in (("earlier", True), ("later", False)):
+            for annual in (True, False):
+                pool = [row for row in rows if row["timing_key"] == timing
+                        and (row["disclosure_date"] < split_date) == before_split
+                        and (row["quarter"] == 0) == annual
+                        and (row.get("forecast_turnaround") or (row.get("forecast_growth") or 0) >= 0.20)
+                        and row.get("max_12m") is not None and row.get("return_12m") is not None]
+                for label, threshold in (("baseline", None), ("positive", 0), ("at_least_10", 10),
+                                         ("flat_or_down", 0), ("missing", None)):
+                    selected = []
+                    for row in pool:
+                        growth = row.get("revenue_growth")
+                        if (label == "baseline" or (growth is None and label == "missing")
+                            or (growth is not None and (
+                                (label == "positive" and growth > 0)
+                                or (label == "at_least_10" and growth >= threshold)
+                                or (label == "flat_or_down" and growth <= 0)))):
+                            selected.append(row)
+                    stats = summarize(selected)
+                    output.append({"timing": timing, "period": period, "annual": annual, "sales": label,
+                                   **{key: stats[key] for key in (
+                                       "events", "companies", "median_12m", "median_alpha_12m",
+                                       "double_before_stop_rate", "stop25_first_rate",
+                                       "average_target50_stop25_return")}})
     return output
 
 
@@ -530,6 +561,7 @@ def run(api_key, limit, universe_mode, workers=3):
         "by_grade": grouped(next_day, "timing_grade", ["S", "A", "B"]),
         "monthly_top5_rank_bands": monthly_rank_bands(next_day),
         "alternative_pattern_validation": validate_patterns(research_rows),
+        "sales_filter_comparison": sales_filter_comparison(all_rows),
         "limitations": [
             "Current listed target-sector universe creates survivorship bias.",
             "Historical market cap uses disclosed year-end shares times pre-disclosure adjusted close.",
