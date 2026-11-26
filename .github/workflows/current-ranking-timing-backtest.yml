@@ -8,11 +8,12 @@ on:
         required: true
         default: "0"
       universe:
-        description: "target = all current target-sector stocks"
+        description: "listed = domestic stocks across all listed sectors"
         required: true
-        default: "target"
+        default: "listed"
         type: choice
         options:
+          - listed
           - target
           - current
 
@@ -22,7 +23,7 @@ permissions:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 330
     steps:
       - name: Checkout
         uses: actions/checkout@v4

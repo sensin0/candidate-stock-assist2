@@ -5,12 +5,14 @@ statistics are printed so licensed source data is never published.
 """
 
 import argparse
+import csv
 import json
 import math
 import os
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import timedelta
+from pathlib import Path
 
 import pandas as pd
 
@@ -26,7 +28,7 @@ try:
         price_on_or_before,
         trading_entry,
     )
-    from scripts.weekly_cloud_ranker import buy_timing_values, two_bagger_confirmation_values
+    from scripts.weekly_cloud_ranker import CURRENT_TARGET_SECTORS, buy_timing_values, two_bagger_confirmation_values
 except ModuleNotFoundError:
     from jquants_private_progress_backtest import (
         HORIZONS,
@@ -39,11 +41,22 @@ except ModuleNotFoundError:
         price_on_or_before,
         trading_entry,
     )
-    from weekly_cloud_ranker import buy_timing_values, two_bagger_confirmation_values
+    from weekly_cloud_ranker import CURRENT_TARGET_SECTORS, buy_timing_values, two_bagger_confirmation_values
 
 
 ELIGIBLE_STATUSES = {"会社予想先回り", "3Q先回り", "業績確認済み"}
 TIMINGS = (("next_day", 0), ("one_week", 4), ("two_weeks", 9), ("one_month", 19))
+LISTED_STOCKS = Path(__file__).resolve().parents[1] / "japan_tickers.csv"
+
+
+def load_listed_universe(path=LISTED_STOCKS, limit=0):
+    companies = {}
+    with path.open(encoding="utf-8-sig", newline="") as source:
+        for code, _, sector in csv.reader(source):
+            if len(code) == 4 and code.isascii() and code.isalnum():
+                companies.setdefault(code, {"code": code, "target_sector": sector in CURRENT_TARGET_SECTORS})
+    rows = list(companies.values())
+    return rows[:limit] if limit else rows
 
 
 def fetch_jquants_price_frame(client, code):
@@ -487,6 +500,9 @@ def monthly_forecast_rank_comparison(rows, top=3, split="2024-01"):
             stats = summarize(trades)
             result["trade_metrics"][strategy] = {key: stats[key] for key in (
                 "n_complete_12m", "double_before_stop_rate", "stop25_first_rate", "median_alpha_12m")}
+            result["trade_metrics"][strategy]["companies_complete_12m"] = len({
+                row["code"] for row in trades if row.get("max_12m") is not None
+            })
         output[period] = result
     return output
 
@@ -514,7 +530,7 @@ def evaluate_company(api_key, item, benchmark):
         if event["quarter"] == 0:
             decision = pd.Timestamp(event["disclosure_date"]) + pd.offsets.MonthEnd(0)
             decision_text = decision.date().isoformat()
-            monthly_forecasts.append({**scored, "month_end_returns": {
+            monthly_forecasts.append({**scored, "target_sector": item.get("target_sector", True), "month_end_returns": {
                 timing: attach_performance({**scored, "disclosure_date": decision_text}, prices, benchmark, timing)
                 if scored["timing_status"] == "会社予想先回り" else None
                 for timing in ("next_day", "one_week")}})
@@ -545,7 +561,7 @@ def evaluate_company(api_key, item, benchmark):
 
 def run(api_key, limit, universe_mode, workers=3):
     client = JQuantsClient(api_key)
-    universe = load_universe(limit, universe_mode)
+    universe = load_listed_universe(limit=limit) if universe_mode == "listed" else load_universe(limit, universe_mode)
     benchmark = fetch_jquants_price_frame(client, "1306")
     if benchmark is None:
         raise RuntimeError("benchmark price history unavailable")
@@ -555,6 +571,7 @@ def run(api_key, limit, universe_mode, workers=3):
     candidate_events = 0
     pullback_eligible = 0
     failures = 0
+    no_disclosures = 0
     failure_reasons = defaultdict(int)
     earliest = None
     latest = None
@@ -575,6 +592,8 @@ def run(api_key, limit, universe_mode, workers=3):
                 if dates:
                     earliest = min([earliest] + dates) if earliest else min(dates)
                     latest = max([latest] + dates) if latest else max(dates)
+                else:
+                    no_disclosures += 1
             except Exception as error:
                 failures += 1
                 message = str(error).lower()
@@ -588,7 +607,7 @@ def run(api_key, limit, universe_mode, workers=3):
                     reason = type(error).__name__
                 failure_reasons[reason] += 1
             if completed % 25 == 0:
-                print(f"Validated {completed}/{len(universe)} companies; source records are not stored")
+                print(f"Validated {completed}/{len(universe)} companies; source records are not stored", flush=True)
 
     timing_labels = {
         "next_day": "翌営業日",
@@ -619,11 +638,24 @@ def run(api_key, limit, universe_mode, workers=3):
                 **summarize(selected),
             }
             stage_entry_timing.append(item)
+    sector_comparisons = {}
+    if universe_mode == "listed":
+        for label, target_sector in (("target_sectors", True), ("other_sectors", False)):
+            subset = [row for row in monthly_forecasts if row["target_sector"] == target_sector]
+            sector_comparisons[label] = {
+                "requested_companies": sum(item["target_sector"] == target_sector for item in universe),
+                "companies_with_annual_forecasts": len({row["code"] for row in subset}),
+                "top_3": monthly_forecast_rank_comparison(subset),
+                "top_1": monthly_forecast_rank_comparison(subset, top=1),
+            }
     return {
         "privacy": "aggregate-only; raw J-Quants records and company-level events are not persisted or printed",
         "methodology": "point-in-time current-ranking-v1",
         "universe_companies": len(universe),
+        "universe_mode": universe_mode,
         "failed_companies": failures,
+        "companies_without_usable_disclosures": no_disclosures,
+        "companies_with_annual_forecasts": len({row["code"] for row in monthly_forecasts}),
         "failure_reasons": dict(failure_reasons),
         "candidate_events": candidate_events,
         "source_coverage": {"earliest_disclosure": earliest, "latest_disclosure": latest},
@@ -638,8 +670,9 @@ def run(api_key, limit, universe_mode, workers=3):
             "top_3": monthly_forecast_rank_comparison(monthly_forecasts),
             "top_1": monthly_forecast_rank_comparison(monthly_forecasts, top=1),
         },
+        "monthly_forecast_rank_by_sector_group": sector_comparisons,
         "limitations": [
-            "Current listed target-sector universe creates survivorship bias.",
+            "Current listings omit companies that have since delisted, creating survivorship bias.",
             "Historical market cap uses disclosed year-end shares times pre-disclosure adjusted close.",
             "Same-day target and stop touches are counted conservatively as stop first.",
             "Transaction costs, taxes, liquidity, and limit-up execution are excluded.",
@@ -650,7 +683,7 @@ def run(api_key, limit, universe_mode, workers=3):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=0)
-    parser.add_argument("--universe", choices=("current", "target"), default="target")
+    parser.add_argument("--universe", choices=("current", "target", "listed"), default="target")
     parser.add_argument("--workers", type=int, default=3)
     args = parser.parse_args()
     api_key = os.environ.get("J_QUANTS", "").strip()
